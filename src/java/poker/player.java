@@ -7,16 +7,16 @@ public class Player
 
 
     private String name;
-	private Hand hand;
+	private  Hand hand;
 	private double currentBet;
 	private double balance;
 	private int id;
 
 }
 public Player(int id) {
-		this.setName("Player " + id;
+		this.setName("Player " + id);
 		
-		this.hand(new ArrayList<Hand>());
+		this.setHand(new ArrayList<Hand>());
 	}
 
 	public String getName() {
@@ -26,8 +26,13 @@ public Player(int id) {
 	public void setName(String name) {
 		this.name = name;
 	}
-    public void hand(List<Hand> arrayList) {
-		this.hand = arrayList;
+
+    public Hand getHand()
+    {
+        return hand;
+    }
+    public void setHand(Hand hand) {
+		this.hand = hand;
 	}
-                 
 }
+
