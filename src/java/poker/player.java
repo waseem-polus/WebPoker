@@ -53,6 +53,12 @@ public class Player
     public void setHand(Hand hand)
     {
 	this.hand = hand;
+    }
+@Override
+	public String toString()
+	{
+		return getName();
+	}
 }
-}
+
 
