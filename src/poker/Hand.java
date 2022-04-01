@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import cards.Card;
+import cards.CardDeck;
 import cards.Value;
+import cards.CardDeck.OutOfCardsException;
 
 public class Hand {
     private Card[] cards;
-    
+    private HandType handType;
     public enum HandType {
         HIGH_CARD, PAIR, TWO_PAIR, THREE_OF_A_KIND, STRAIGHT, FLUSH, FULL_HOUSE, FOUR_OF_A_KIND, STRAIGHT_FLUSH,
         ROYAL_FLUSH;
@@ -20,11 +22,33 @@ public class Hand {
     }
 
     public Hand(Card[] cards) {
-        this();
+        this.cards = cards;
+        this.handType = check_type();
+    }
 
-        for (int i = 0; i < 5; i++) {
-            this.cards[i] = cards[i];
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 04/01/2022
+     * 
+     * exchangeCards(index, newCards): exchange the specified cards with new ones dealt from the card deck
+     * 
+     * Parameters:
+     *      int[] index: contains the indexes of all cards that need to be exchanged
+     *      CardDeck carddeck: the deck object to allow drawing new cards
+     */
+    public void exchangeCard(int[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
+        for(int i = 0; i < index.length; i++) {
+            if (index[i] < 0 || index[i] > 4) {
+                throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
+            }
+
+            try {
+                this.cards[index[i]] = cardDeck.drawCard();
+            } catch (OutOfCardsException e) {
+                System.out.println(e.getMessage());
+            }
         }
+        
+        this.handType = check_type();
     }
 
     public boolean is_equal(Hand h) {
