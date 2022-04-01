@@ -1,5 +1,8 @@
 package cards;
 
 public enum Suite {
-    HEARTS, CLUBS, DIAMONDS, SPADES
+    H, //Hearts
+    C, //Clubs
+    D, //Diamonds
+    S //Spades
 }
