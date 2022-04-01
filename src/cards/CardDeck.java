@@ -8,7 +8,7 @@ public class CardDeck {
 
     public class OutOfCardsException extends Exception {
         public OutOfCardsException() {
-            super("There are no available cards to draw from.");
+            super("[Error] There are no available cards to draw from");
         }
     }
     
