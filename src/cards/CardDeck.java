@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class CardDeck {
-    public ArrayList<Card> availablePile;
+    private ArrayList<Card> availablePile;
 
     public class OutOfCardsException extends Exception {
         public OutOfCardsException() {
             super("There are no available cards to draw from.");
         }
     }
-
+    
     public CardDeck() {
         availablePile = new ArrayList<>();
-
+        
         // For each suite, create a card with all possible values and add all of them to
         // the availablePile
         for (Suite s : Suite.values()) {
@@ -22,7 +22,16 @@ public class CardDeck {
                 availablePile.add(new Card(v, s));
             }
         }
-
+        
+        shuffleDeck();
+    }
+    
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 04/1/2022
+     * 
+     * shuffleDeck(): Uses Collections.shuffle to randomize the order of each card in the deck
+     */
+    public void shuffleDeck() {
         Collections.shuffle(availablePile);
     }
 
