@@ -51,6 +51,14 @@ public class Hand {
         this.handType = check_type();
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Update: 04/1/2022
+     * 
+     * dealHand(deck): deals 5 cards to the current hand from deck
+     * 
+     * Parameters:
+     *      CardDeck deck: the deck that it will draw from
+     */
     public void dealHand(CardDeck deck) {
         try {
             this.cards = deck.dealHand();
