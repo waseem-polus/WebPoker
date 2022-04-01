@@ -1,11 +1,11 @@
-package java.poker;
+package poker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import java.cards.Card;
-import java.cards.Value;
+import cards.Card;
+import cards.Value;
 
 public class Hand {
     private Card[] cards;

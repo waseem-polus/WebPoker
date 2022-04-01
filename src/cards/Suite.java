@@ -1,4 +1,4 @@
-package java.cards;
+package cards;
 
 public enum Suite {
     HEARTS, CLUBS, DIAMONDS, SPADES

@@ -1,4 +1,4 @@
-package java.cards;
+package cards;
 
 public class Card implements Comparable<Card> {
    public Suite suite;
