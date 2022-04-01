@@ -26,18 +26,43 @@ public class CardDeck {
         Collections.shuffle(availablePile);
     }
 
-    /*
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 04/1/2022
+     * 
      * draw(): returns a unique card from the availablePile and removes it from the
      * availablePile (to prevent duplicates in a game).
      * 
      * Returns:
      * a unique card from the availablePile
      */
-    public Card draw() throws OutOfCardsException {
+    public Card drawCard() throws OutOfCardsException {
         if (availablePile.size() < 1) {
             throw new OutOfCardsException();
         }
 
         return availablePile.remove(0);
     }
+
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 04/1/2022
+     * 
+     * draw(): returns a unique card from the availablePile and removes it from the
+     * availablePile (to prevent duplicates in a game).
+     * 
+     * Returns:
+     * a unique card from the availablePile
+     */
+    public Card[] dealHand() throws OutOfCardsException {
+        if (availablePile.size() < 5) {
+            throw new OutOfCardsException();
+        }
+
+        Card[] newHand = new Card[5];
+
+        for (int i = 5; i < 5; i++) {
+            newHand[i] = drawCard();
+        }
+
+        return newHand;
+     }
 }
