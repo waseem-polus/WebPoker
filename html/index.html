@@ -3,14 +3,13 @@
 <meta charset="utf-8">
 
 <head>
-  <title>CSE3310 Websocket Example</title>
+  <title>WEBPOKER</title>
   <link rel="stylesheet" href="page_style.css">
 </head>
 
 <body>
-  <p> this is an example to show how websockets work for a class demonstration.</p>
-  <p>message: <input id="send_text" type="text">
-    <input type="button" name="send_button" value="send" onclick="send()">
+  <p>Room PIN: <input id="join_room" type="text">
+    <input type="button" name="join_room" value="join" onclick="joinRoom()">
   </p>
   <div id="nameInput">
     <p>name: <input id="sendName" type="text">
@@ -42,6 +41,7 @@
 
   var cardIdx = 0;
   var playerID = 0;
+  var roomID = 0;
 
   connection.onmessage = function (evt) {
     var msg;
@@ -81,7 +81,19 @@
     console.log("the cardIdx is " + cardIdx)
   }
 
-
+  /* Author: Waseem Alkasbutrus
+   * Last Updated: 04/1/2022
+   * 
+   * joinRoom(): called whenever a user clicks on the join room button
+   */
+  function joinRoom() {
+    var msg = {
+      event: "JOIN_ROOM",
+      playerID: playerID,
+      roomID: roomID,
+      msg: 
+    };
+  }
 
   function send() {
 
