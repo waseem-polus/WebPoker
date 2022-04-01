@@ -1,4 +1,4 @@
-WebPoker projct
+# WebPoker projct
 
 to compile all sources:
 ``ant build`` or ``ant``
