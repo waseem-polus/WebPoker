@@ -51,6 +51,14 @@ public class Hand {
         this.handType = check_type();
     }
 
+    public void dealHand(CardDeck deck) {
+        try {
+            this.cards = deck.dealHand();
+        } catch (OutOfCardsException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public boolean is_equal(Hand h) {
         boolean is_equal = true;
 
