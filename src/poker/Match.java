@@ -76,7 +76,18 @@ public class Match {
     }
 
     public void onStartMatch() {
-        
+        if(isWaiting() == false){
+            for(int i=0;i<activePlayers.size();i++){
+                activePlayers.get(i).setBalance(2000);
+            } 
+            for(int j=0;j<activePlayers.size();j++){
+                activePlayers.get(j).placeBet(20);
+            }
+            for(int k=0;k<activePlayers.size();k++){
+                activePlayers.get(k).dealHand(deck);;
+            }
+            round=MatchRound.FIRST_BETTING;
+        }
     }
 
     public void bettingRound1() {
