@@ -90,12 +90,20 @@ public class WebPoker extends WebSocketServer {
         broadcast(jsonGameState);
     }
 
+    @Override
+    public void onMessage(WebSocket conn, ByteBuffer message) {
+        synchronized (mutex) {
+            broadcast(message.array());
+        }
+        System.out.println(conn + ": " + message);
+    }
+
     public void processMessage(UserEvent evt) {
 
         return;
         // switch(evt) {
         //     case RAISE:
-
+        //         break;
         //     case CALL:
         //         break;
         //     case CHECK:
@@ -117,10 +125,36 @@ public class WebPoker extends WebSocketServer {
         //}
 
     } 
+
+    public static void main(String[] args) throws InterruptedException, IOException {
+
+        //create and start the http server
+
+        HttpServer server = new Httpserver(8081, "./html");
+        server.start();
+
+        //create and start the websocket server;
+
+        int port = 8881;
+
+        WebPoker web = new WebPoker(port);
+        web.start();
+        System.out.println("WebPokerServer started on port: " + web.getPort());
+
+        BufferedReader sysin = new BufferedReader(new InputStreamReader(System.in));
+        while(true) {
+            String in = sysin.readLine();
+            web.broadcast(in);
+            if(in.equals("exit")) {
+                web.stop(1000);
+                break;
+            }
+        }
+    }
 /*
     public class upDate extends TimerTask {
-        //@Override
-        //public void run
+        @Override
+        public void run
     }
 
     @Override
