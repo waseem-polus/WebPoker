@@ -1,31 +1,31 @@
 <!doctype html>
 <html>
-<meta charset="utf-8">
-
-<head>
-  <title>WEBPOKER</title>
-  <link rel="stylesheet" href="page_style.css">
-</head>
-
-<body>
-  <div id="landing_page">
+  <meta charset="utf-8">
+  
+  <head>
+    <title>WEBPOKER</title>
+    <link rel="stylesheet" href="page_style.css">
+  </head>
+  
+  <body>
+    <h1>MAV POKER</h1>
+  <div id="landing_page" style="display: block;">
     
     <div id="landing_opts">
-      <h1>MAV POKER</h1>
       <p>
         <input type="button" name="new_game" value="New Game" onclick="onNewGame()">
         <br>
         <input type="button" name="join_game" value="Join Game" onclick="onJoinGame()">
       </p>
     </div> <!-- landing_opts -->
-
+    
     <div id="join_game_opts" hidden>
       <h4>Join Game</h4>
       <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="text"></p>
       <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
       <p><input type="button" name="join_room" value="Joing Room" onclick="joinRoom()"></p>
     </div> <!--join_room_opts-->
-  
+    
     <div id="new_game_opts" hidden>
       <h4>New Game</h4>
       <p>Name: <input id="leader_name" placeholder="Enter your name" type="text"></p>
@@ -34,51 +34,54 @@
       <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
     </div>
   </div> <!-- landing page -->
-
+  
   <div id="game_page" hidden>
     <div id="game_hud">
       <p>
         balance: 
       </p>
     </div>
-
+    
     <div id="cards">
-      <input type="checkbox" id="card1" />
+      <input type="checkbox" id="card1" disabled/>
       <label for="card1"><img src="3C.svg" /></label>
-  
-      <input type="checkbox" id="card2" />
+      
+      <input type="checkbox" id="card2" disabled/>
       <label for="card2"><img src="4D.svg" /></label>
-  
-      <input type="checkbox" id="card3" />
+      
+      <input type="checkbox" id="card3" disabled/>
       <label for="card3"><img src="AS.svg" /></label>
-  
-      <input type="checkbox" id="card4" />
+      
+      <input type="checkbox" id="card4" disabled/>
       <label for="card4"><img src="TH.svg" /></label>
-  
-      <input type="checkbox" id="card5" />
-      <label for="card5"><img src="JC.svg" /></label>
+      
+      <input type="checkbox" id="card5" disabled/>
+      <label for="card5"><img src="JC.svg"/></label>
     </div> <!-- cards -->
     
     <div id="game_buttons">
-      <p><input type="button" name="raise" value="Raise" onclick="onRaise()">
+      <p>
+        <input type="button" name="call" value="Call" onclick="onCall()">
+        <input type="button" name="check" value="Check" onclick="onCheck()">
+        <input type="button" name="fold" value="Fold" onclick="onFold()">
+        
+        <input type="button" name="raise" value="Raise" onclick="onRaise()">
         <input id="starting_balance" placeholder="Raise amount" type="number" min="0.01">
       </p>
-      <p><input type="button" name="call" value="Call" onclick="onCall()"></p>
-      <p><input type="button" name="check" value="Check" onclick="onCheck()"></p>
-      <p><input type="button" name="fold" value="Fold" onclick="onFold()"></p>
       
       <br>
-
+      
       <p><input type="button" name="swap" value="Swap selected" onclick="onSwap()" disabled></p>
     </div> <!-- game_buttons -->
   </div> <!-- game_page -->
-
+  
+  <hr>
   <p><input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()"></p>
 </body>
 
 </html>
 <script>
-
+  
   var connection = null;
 
   var serverUrl;
@@ -140,15 +143,21 @@
   }
 
   function onBackToMain() {
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
+    
     var landing_opts = document.getElementById("landing_opts")
     var new_game_opts = document.getElementById("new_game_opts")
     var join_game_opts = document.getElementById("join_game_opts")
-    var game_page = document.getElementById("game_page")
+
+
+    landing_page.style.display = "block"
+    game_page.style.display = "none"
 
     landing_opts.style.display = "block"
     new_game_opts.style.display = "none"
     join_game_opts.style.display = "none"
-    game_page.style.display = "none"
+    
   }
 
   function onJoinGame () {
@@ -175,11 +184,11 @@
     // connection.send(JSON.stringify(msg));
     console.log(JSON.stringify(msg));
 
-    var landing_page = document.getElementById("landing_page");
-    var game_page = document.getElementById("game_page");
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
 
-    landing_page.style.display = "none";
-    game_page.style.display = "block";
+    landing_page.style.display = "none"
+    game_page.style.display = "block"
   }
 
 </script>
