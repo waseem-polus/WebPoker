@@ -32,23 +32,29 @@ public class Match {
             round = MatchRound.WAITING;
             if(isWaiting() == false && type.event == UserEventType.START_MATCH){
                 onStartMatch();
-                if(type.event == UserEventType.CALL){
-                    onCall(type.playerID);
+                for(int i=0;i<activePlayers.size();i++){
+                    if(type.event == UserEventType.CALL){
+                     onCall(type.playerID);
+                    }
+                    else if(type.event == UserEventType.RAISE){
+                        onEvent(type.event);
+                    }
+                    else if(type.event == UserEventType.FOLD){
+                            onFold(type.playerID);
+                    }
+                    else if(type.event == UserEventType.CHECK){
+                        onCheck(type.playerID);
+                    }  
+                    if(turnNumber>=i){
+                        drawRound();
+                        break;
+                    }   
                 }
-                else if(type.event == UserEventType.RAISE){
-                    onEvent(type.event);
-                }
-                else if(type.event == UserEventType.FOLD){
-                    onFold(type.playerID);
-                }
-                else if(type.event == UserEventType.CHECK){
-                    onCheck(type.playerID);
-                }
-                drawRound();
                 
                 
             }
             if(round == MatchRound.DRAWING && type.event == UserEventType.EXCHANGE_CARDS){
+                
                 onEvent(type.event);
             }
 
@@ -167,6 +173,7 @@ public class Match {
                     if(activePlayers.get(i-1).getcurrentBet() > activePlayers.get(i).getcurrentBet()){
                         double addToPool=activePlayers.get(i).placeBet((activePlayers.get(i-1).getcurrentBet()-activePlayers.get(i).getcurrentBet()));
                         bettingPool +=addToPool;
+                        nextTurn();
                     }
                 }
             }
@@ -180,6 +187,7 @@ public class Match {
                 if(IDCheck == playerID){
                     double addToPool=activePlayers.get(i).placeBet(amount);
                     bettingPool +=addToPool;
+                    nextTurn();
                 }
             }
         }
@@ -191,6 +199,7 @@ public class Match {
                 int IDCheck=activePlayers.get(i).getID();
                 if(IDCheck == playerID){
                     activePlayers.get(i).exchangeCards(cardIndex,deck);
+                    nextTurn();
                 }
             }
         }
