@@ -1,8 +1,9 @@
 package cards;
 
 public class Card implements Comparable<Card> {
-   public Suite suite;
-   public Value value;
+   public final Suite suite;
+   public final Value value;
+   public final String svg;
 
    /*
     * Protected constructor to prohibit creating new cards manually.
@@ -15,6 +16,7 @@ public class Card implements Comparable<Card> {
    protected Card(Value value, Suite suite) {
       this.value = value;
       this.suite = suite;
+      this.svg = value.key + suite.key + ".svg";
    }
 
    /*

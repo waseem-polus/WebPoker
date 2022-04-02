@@ -1,8 +1,11 @@
 package cards;
 
 public enum Suite {
-    H, //Hearts
-    C, //Clubs
-    D, //Diamonds
-    S //Spades
+    HEARTS("H"), CLUBS("C"), DIAMONDS("D"), SPADES("S");
+
+    public String key;
+
+    private Suite(String key) {
+        this.key = key;
+    }
 }
