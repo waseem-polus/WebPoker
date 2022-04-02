@@ -7,7 +7,7 @@ public class Player {
     private double balance;
     private Hand hand;
     private double currentBet;
-    private final int id;
+    public final int id;
 
     public Player(int id) {
         this.name = "";
@@ -17,8 +17,8 @@ public class Player {
         this.id = id;
     }
 
-    public void exchangeCard(int[] cardIndex, CardDeck deck) {
-        hand.exchangeCard(cardIndex, deck);
+    public void exchangeCards(int[] cardIndex, CardDeck deck) {
+        hand.exchangeCards(cardIndex, deck);
     }
 
     public void dealHand(CardDeck deck) {
@@ -40,6 +40,10 @@ public class Player {
         return bet;
     }
 
+    public void setBalance(double amount) {
+        this.balance = amount;
+    }
+
     public double getcurrentBet() {
         return currentBet;
     }
@@ -52,11 +56,19 @@ public class Player {
         this.name = name;
     }
 
-    // public int hashCode() {
-    //     return;
-    // }
+    @Override
+    public int hashCode() {
+        return id;
+     }
 
-    public boolean equals(Player p) {
-        return this.id == p.id;
+    @Override
+    public boolean equals(final Object p) {
+        boolean equals = false;
+        
+        if(p.getClass() == this.getClass()) {
+            Player player = (Player) p;
+            equals = this.id == player.id;
+        }
+        return equals;
     }
 }
