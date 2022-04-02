@@ -8,28 +8,73 @@
 </head>
 
 <body>
-  <div id="room">
-    <p>
-      <input type="button" name="create_room" value="Create Room" onclick="createRoom()">
-    </p>
-    <p>Room PIN: <input id="join_room" value="Room PIN" type="text">
-      <input type="button" name="join_room" value="join" onclick="joinRoom()">
-    </p>
-  </div>
+  <div id="landing_page">
     
-  <div id="nameInput">
-    <p>name: <input id="sendName" type="text">
-      <input type="button" name="sendName" value="Name" onclick="sendName()">
-    </p>
-  </div>
+    <div id="landing_opts">
+      <h1>MAV POKER</h1>
+      <p>
+        <input type="button" name="new_game" value="New Game" onclick="onNewGame()">
+        <br>
+        <input type="button" name="join_game" value="Join Game" onclick="onJoinGame()">
+      </p>
+    </div> <!-- landing_opts -->
 
-  <img id="card1" src="3C.svg" style="width:auto;">
-  <img id="card2" src="3D.svg" style="width:auto;">
-  <img id="card3" src="3H.svg" style="width:auto;">
-  <img id="card4" src="4C.svg" style="width:auto;">
-  <img id="card5" src="5C.svg" style="width:auto;">
+    <div id="join_game_opts" hidden>
+      <h4>Join Game</h4>
+      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="text"></p>
+      <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
+      <p><input type="button" name="join_room" value="Joing Room" onclick="joinRoom()"></p>
+      <p><input type="button" name="back_to_main" value="Back" onclick="onBackToMain()"></p>
+    </div> <!--join_room_opts-->
+  
+    <div id="new_game_opts" hidden>
+      <h4>New Game</h4>
+      <p>Name: <input id="leader_name" placeholder="Enter your name" type="text"></p>
+      <p>Starting Balance: <input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
+      <p>Private: <input type="checkbox" id="visibility" ></p>
+      <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
+      <p><input type="button" name="back_to_main" value="Back" onclick="onBackToMain()"></p>
+    </div>
+  </div> <!-- landing page -->
 
-  <div id="textbox"></div>
+  <div id="game_page" hidden>
+    <div id="game_hud">
+      <p>
+        balance: 
+      </p>
+    </div>
+
+    <div id="cards">
+      <input type="checkbox" id="card1" />
+      <label for="card1"><img src="3C.svg" /></label>
+  
+      <input type="checkbox" id="card2" />
+      <label for="card2"><img src="4D.svg" /></label>
+  
+      <input type="checkbox" id="card3" />
+      <label for="card3"><img src="AS.svg" /></label>
+  
+      <input type="checkbox" id="card4" />
+      <label for="card4"><img src="TH.svg" /></label>
+  
+      <input type="checkbox" id="card5" />
+      <label for="card5"><img src="JC.svg" /></label>
+    </div> <!-- cards -->
+    
+    <div id="game_buttons">
+      <p><input type="button" name="raise" value="Raise" onclick="onRaise()">
+        <input id="starting_balance" placeholder="Raise amount" type="number" min="0.01">
+      </p>
+      <p><input type="button" name="call" value="Call" onclick="onCall()"></p>
+      <p><input type="button" name="check" value="Check" onclick="onCheck()"></p>
+      <p><input type="button" name="fold" value="Fold" onclick="onFold()"></p>
+      
+      <br>
+
+      <p><input type="button" name="swap" value="Swap selected" onclick="onSwap()" disabled></p>
+    </div> <!-- game_buttons -->
+  </div> <!-- game_page -->
+
 </body>
 
 </html>
@@ -38,53 +83,79 @@
   var connection = null;
 
   var serverUrl;
-  serverUrl ="ws://" + window.location.hostname + ":8880";
+  serverUrl = "ws://" + window.location.hostname + ":8880";
 
-  connection = new WebSocket(serverUrl);
-  connection.onopen = function (evt) {
-    console.log("open");
-  }
+  //connection = new WebSocket(serverUrl);
+  //connection.onopen = function (evt) {
+  //   console.log("open");
+  // }
 
   var cardIdx = 0;
   var playerID = 0;
   var roomID = 0;
 
-  connection.onmessage = function (evt) {
-    var msg;
-    msg = evt.data;
+  // connection.onmessage = function (evt) {
+  //   var msg;
+  //   msg = evt.data;
 
-    console.log("Message received: ");
-    document.getElementById("textbox").innerText = document.getElementById("textbox").innerText + '\n\n' + "Message Received" + "\n" + msg;
+  //   console.log("Message received: ");
+  //   document.getElementById("textbox").innerText = document.getElementById("textbox").innerText + '\n\n' + "Message Received" + "\n" + msg;
 
-    // This is a hack for this example.
-    // The only time the WebPoker server sends data just
-    // to this client is at the beginging, when the connection
-    // is first made.  The first communication tells us which
-    // connection number we are, which is very import.
-    // So, we detect this situation where it is not game state
+  //   // This is a hack for this example.
+  //   // The only time the WebPoker server sends data just
+  //   // to this client is at the beginging, when the connection
+  //   // is first made.  The first communication tells us which
+  //   // connection number we are, which is very import.
+  //   // So, we detect this situation where it is not game state
 
-    // Take the msg and turn it into a javascript object
-    const obj = JSON.parse(msg);
-    if (!obj.players) {
+  //   // Take the msg and turn it into a javascript object
+  //   const obj = JSON.parse(msg);
+  //   if (!obj.players) {
 
-      playerID = obj.Id;
-      console.log("player ID = " + playerID);
-      document.getElementById("textbox").innerText =
-        document.getElementById("textbox").innerText + '\n\n' + "Player ID is " + playerID;
-    }
-    else {
+  //     playerID = obj.Id;
+  //     console.log("player ID = " + playerID);
+  //     document.getElementById("textbox").innerText =
+  //       document.getElementById("textbox").innerText + '\n\n' + "Player ID is " + playerID;
+  //   }
+  //   else {
 
-      // process the game state
-      // this will just have one card change every time a new game state comes in.
-      // the term LUT means "look up table".  you will see it sometimes in code written last 
-      // century.
-      cardLUT = ["3C.svg", "2B.svg", "3S.svg", "KC.svg", "6D.svg", "2J.svg", "2S.svg"];
-      document.getElementById("card4").src = cardLUT[cardIdx];
-      cardIdx = cardIdx + 1;
-      if (cardIdx > 6)
-        cardIdx = 0;
-    }
-    console.log("the cardIdx is " + cardIdx)
+  //     // process the game state
+  //     // this will just have one card change every time a new game state comes in.
+  //     // the term LUT means "look up table".  you will see it sometimes in code written last 
+  //     // century.
+  //     cardLUT = ["3C.svg", "2B.svg", "3S.svg", "KC.svg", "6D.svg", "2J.svg", "2S.svg"];
+  //     document.getElementById("card4").src = cardLUT[cardIdx];
+  //     cardIdx = cardIdx + 1;
+  //     if (cardIdx > 6)
+  //       cardIdx = 0;
+  //   }
+  //   console.log("the cardIdx is " + cardIdx)
+  // }
+
+  function onNewGame() {
+    var landing_opts = document.getElementById("landing_opts")
+    var new_game_opts = document.getElementById("new_game_opts")
+
+    landing_opts.style.display = "none"
+    new_game_opts.style.display = "block"
+  }
+
+  function onBackToMain() {
+    var landing_opts = document.getElementById("landing_opts")
+    var new_game_opts = document.getElementById("new_game_opts")
+    var join_game_opts = document.getElementById("join_game_opts")
+
+    landing_opts.style.display = "block"
+    new_game_opts.style.display = "none"
+    join_game_opts.style.display = "none"
+  }
+
+  function onJoinGame () {
+    var landing_opts = document.getElementById("landing_opts")
+    var join_game_opts = document.getElementById("join_game_opts")
+
+    landing_opts.style.display = "none"
+    join_game_opts.style.display = "block"
   }
 
   /* Author: Waseem Alkasbutrus
@@ -97,45 +168,17 @@
       event: "JOIN_ROOM",
       playerID: playerID,
       roomID: roomID,
-      msg: "msg"
+      msg: ""
     };
 
-    connection.send(JSON.stringify(msg));
-    console.log(JSON.stringify(msg));
-  }
-
-  function send() {
-
-    var msg = {
-      text: document.getElementById("send_text").value,
-    };
-    connection.send(JSON.stringify(msg));
-    console.log(JSON.stringify(msg));
-  }
-
-  function sendName() {
-
-    var msg = {
-      event: "NAME",
-      name: document.getElementById("sendName").value,
-      playerID: playerID
-    };
-    connection.send(JSON.stringify(msg));
+    // connection.send(JSON.stringify(msg));
     console.log(JSON.stringify(msg));
 
+    var landing_page = document.getElementById("landing_page");
+    var game_page = document.getElementById("game_page");
 
-    // this shows how to hid html elements.
-    // like when the name is entered
-    //  it might be better to hide after the server has accepted it
-    // but this is just a demonstration
-
-    var x = document.getElementById("nameInput");
-    if (x.style.display === "none") {
-      x.style.display = "block";
-    } else {
-      x.style.display = "none";
-    }
-
+    landing_page.style.display = "none";
+    game_page.style.display = "block";
   }
 
 </script>
