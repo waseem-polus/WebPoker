@@ -8,9 +8,15 @@
 </head>
 
 <body>
-  <p>Room PIN: <input id="join_room" type="text">
-    <input type="button" name="join_room" value="join" onclick="joinRoom()">
-  </p>
+  <div id="room">
+    <p>
+      <input type="button" name="create_room" value="Create Room" onclick="createRoom()">
+    </p>
+    <p>Room PIN: <input id="join_room" value="Room PIN" type="text">
+      <input type="button" name="join_room" value="join" onclick="joinRoom()">
+    </p>
+  </div>
+    
   <div id="nameInput">
     <p>name: <input id="sendName" type="text">
       <input type="button" name="sendName" value="Name" onclick="sendName()">
@@ -33,7 +39,7 @@
 
   var serverUrl;
   serverUrl ="ws://" + window.location.hostname + ":8880";
-  
+
   connection = new WebSocket(serverUrl);
   connection.onopen = function (evt) {
     console.log("open");
@@ -91,8 +97,11 @@
       event: "JOIN_ROOM",
       playerID: playerID,
       roomID: roomID,
-      msg: 
+      msg: "msg"
     };
+
+    connection.send(JSON.stringify(msg));
+    console.log(JSON.stringify(msg));
   }
 
   function send() {
@@ -103,6 +112,7 @@
     connection.send(JSON.stringify(msg));
     console.log(JSON.stringify(msg));
   }
+
   function sendName() {
 
     var msg = {
