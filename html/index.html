@@ -69,7 +69,7 @@
         <button name="fold" onclick="onFold()">Fold</button>
         
         <button name="raise" onclick="onRaise()">Raise</button>
-        <input id="starting_balance" placeholder="Raise amount" type="number" min="0.01">
+        <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01" hidden>
       </p>
       
       <br>
@@ -90,8 +90,8 @@
   var serverUrl;
   serverUrl = "ws://" + window.location.hostname + ":8880";
 
-  //connection = new WebSocket(serverUrl);
-  //connection.onopen = function (evt) {
+  // connection = new WebSocket(serverUrl);
+  // connection.onopen = function (evt) {
   //   console.log("open");
   // }
 
@@ -136,6 +136,12 @@
   //   }
   //   console.log("the cardIdx is " + cardIdx)
   // }
+
+  function onRaise() {
+    var textbox = document.getElementById("raise_amount")
+
+    textbox.style.display = "block"
+  }
 
   function onNewGame() {
     var landing_opts = document.getElementById("landing_opts")

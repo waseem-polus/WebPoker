@@ -35,7 +35,7 @@ public class Hand {
      *      int[] index: contains the indexes of all cards that need to be exchanged
      *      CardDeck carddeck: the deck object to allow drawing new cards
      */
-    public void exchangeCard(int[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
+    public void exchangeCards(int[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
         for(int i = 0; i < index.length; i++) {
             if (index[i] < 0 || index[i] > 4) {
                 throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
