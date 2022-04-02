@@ -108,13 +108,15 @@ public class Match {
             for(int i=0;i<activePlayers.size();i++){
                 int IDCheck=activePlayers.get(i).getID();
                 if(IDCheck == playerID){
-                    int j=0;
-                    int counter=0;
-                    
-                    while(activePlayers.get(i).getcurrentBet() == 0.0){
-                        counter++;
+                    int count=0;
+                    for(int j=0;j<i;j++){
+                        if(activePlayers.get(j).getcurrentBet() == 0){
+                            count++;
+                        }
+                    } 
+                    if(count == i){
+                        nextTurn();
                     }
-                    
                 }
             }
         }
