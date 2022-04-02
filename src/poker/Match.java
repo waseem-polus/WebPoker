@@ -27,6 +27,32 @@ public class Match {
     }
 
     public Match(double playerBalance) {
+        UserEvent type=new UserEvent();
+        if(type.event == UserEventType.JOIN_ROOM){
+            round = MatchRound.WAITING;
+            if(isWaiting() == false && type.event == UserEventType.START_MATCH){
+                onStartMatch();
+                if(type.event == UserEventType.CALL){
+                    onCall(type.playerID);
+                }
+                else if(type.event == UserEventType.RAISE){
+                    onEvent(type.event);
+                }
+                else if(type.event == UserEventType.FOLD){
+                    onFold(type.playerID);
+                }
+                else if(type.event == UserEventType.CHECK){
+                    onCheck(type.playerID);
+                }
+                drawRound();
+                
+                
+            }
+            if(round == MatchRound.DRAWING && type.event == UserEventType.EXCHANGE_CARDS){
+                onEvent(type.event);
+            }
+
+        }
 
     }
 
@@ -81,7 +107,7 @@ public class Match {
                 activePlayers.get(i).setBalance(2000);
             } 
             for(int j=0;j<activePlayers.size();j++){
-                activePlayers.get(j).placeBet(20);
+                bettingPool += activePlayers.get(j).placeBet(20);
             }
             for(int k=0;k<activePlayers.size();k++){
                 activePlayers.get(k).dealHand(deck);;
