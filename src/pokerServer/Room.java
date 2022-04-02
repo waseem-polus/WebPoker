@@ -18,8 +18,7 @@ public class Room {
     public Room(Player leader)
 
     {
-
-        this.pin = leader.Id;
+        this.pin = leader.id;
         this.match = new Match(2000);
         this.visibility = RoomVisibility.PRIVATE;
         this.leaderId = leader.id;
