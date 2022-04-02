@@ -76,7 +76,18 @@ public class Match {
     }
 
     public void onStartMatch() {
-        
+        if(isWaiting() == false){
+            for(int i=0;i<activePlayers.size();i++){
+                activePlayers.get(i).setBalance(2000);
+            } 
+            for(int j=0;j<activePlayers.size();j++){
+                activePlayers.get(j).placeBet(20);
+            }
+            for(int k=0;k<activePlayers.size();k++){
+                activePlayers.get(k).dealHand(deck);;
+            }
+            round=MatchRound.FIRST_BETTING;
+        }
     }
 
     public void bettingRound1() {
@@ -108,13 +119,15 @@ public class Match {
             for(int i=0;i<activePlayers.size();i++){
                 int IDCheck=activePlayers.get(i).getID();
                 if(IDCheck == playerID){
-                    int j=0;
-                    int counter=0;
-                    
-                    while(activePlayers.get(i).getcurrentBet() == 0.0){
-                        counter++;
+                    int count=0;
+                    for(int j=0;j<i;j++){
+                        if(activePlayers.get(j).getcurrentBet() == 0){
+                            count++;
+                        }
+                    } 
+                    if(count == i){
+                        nextTurn();
                     }
-                    
                 }
             }
         }
