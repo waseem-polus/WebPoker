@@ -1,8 +1,27 @@
 body {
-  background-color: lightblue;
+  background-color: gainsboro;
 }
 
 h1 {
-  color: navy;
-  margin-left: 20px;
+  color: darkgreen;
+  font-size: 50;
+  justify-content: center;
+  display: flex;
+}
+
+p {
+  margin-left: 10px;
+  justify-content: center;
+  display: flex;
+}
+
+button {
+  border: 2px solid green;
+  color: green;
+  background-color: lightgreen;
+  padding: 15px 30px;
+  text-align: center;
+  display: block;
+  font-size: 16px;
+  margin: 5px;
 }

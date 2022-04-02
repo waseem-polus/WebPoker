@@ -9,13 +9,14 @@
   
   <body>
     <h1>MAV POKER</h1>
+    <hr>
   <div id="landing_page" style="display: block;">
     
     <div id="landing_opts">
       <p>
-        <input type="button" name="new_game" value="New Game" onclick="onNewGame()">
+        <button name="new_game" onclick="onNewGame()">New Game</button>
         <br>
-        <input type="button" name="join_game" value="Join Game" onclick="onJoinGame()">
+        <button name="join_game" onclick="onJoinGame()">Join Game</button>
       </p>
     </div> <!-- landing_opts -->
     
@@ -43,29 +44,31 @@
     </div>
     
     <div id="cards">
-      <input type="checkbox" id="card1" disabled/>
-      <label for="card1"><img src="3C.svg" /></label>
-      
-      <input type="checkbox" id="card2" disabled/>
-      <label for="card2"><img src="4D.svg" /></label>
-      
-      <input type="checkbox" id="card3" disabled/>
-      <label for="card3"><img src="AS.svg" /></label>
-      
-      <input type="checkbox" id="card4" disabled/>
-      <label for="card4"><img src="TH.svg" /></label>
-      
-      <input type="checkbox" id="card5" disabled/>
-      <label for="card5"><img src="JC.svg"/></label>
+      <p>
+        <input type="checkbox" id="card1" onchange="onCardClick('card1')"/>
+        <label for="card1"><img src="3C.svg" /></label>
+        
+        <input type="checkbox" id="card2" onchange="onCardClick('card2')"/>
+        <label for="card2"><img src="4D.svg" /></label>
+        
+        <input type="checkbox" id="card3" onchange="onCardClick('card3')"/>
+        <label for="card3"><img src="AS.svg" /></label>
+        
+        <input type="checkbox" id="card4" onchange="onCardClick('card4')"/>
+        <label for="card4"><img src="TH.svg" /></label>
+        
+        <input type="checkbox" id="card5" onchange="onCardClick('card5')"/>
+        <label for="card5"><img src="JC.svg"/></label>
+      </p>
     </div> <!-- cards -->
     
     <div id="game_buttons">
       <p>
-        <input type="button" name="call" value="Call" onclick="onCall()">
-        <input type="button" name="check" value="Check" onclick="onCheck()">
-        <input type="button" name="fold" value="Fold" onclick="onFold()">
+        <button name="call" onclick="onCall()">Call</button>
+        <button name="check" onclick="onCheck()">Check</button>
+        <button name="fold" onclick="onFold()">Fold</button>
         
-        <input type="button" name="raise" value="Raise" onclick="onRaise()">
+        <button name="raise" onclick="onRaise()">Raise</button>
         <input id="starting_balance" placeholder="Raise amount" type="number" min="0.01">
       </p>
       
@@ -156,8 +159,23 @@
 
     landing_opts.style.display = "block"
     new_game_opts.style.display = "none"
-    join_game_opts.style.display = "none"
+    join_game_opts.style.display = "none" 
+  }
+
+  var cardsClicked = 0
+
+  function onCardClick(id) {
+    card = document.getElementById(id)
     
+    if (cardsClicked == 3 && card.checked == true) {
+      card.checked = false;
+    } else if (cardsClicked < 3 && card.checked == true) {
+      cardsClicked++
+    } else if (card.checked == false) {
+      cardsClicked--
+    }
+
+    console.log(cardsClicked)
   }
 
   function onJoinGame () {
