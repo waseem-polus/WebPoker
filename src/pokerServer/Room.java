@@ -1,4 +1,4 @@
-package poker;
+package pokerServer;
 
 import java.util.HashMap;
 import poker.Match;
@@ -64,7 +64,7 @@ public class Room {
     public void removePlayer(int id) {
 
         players.remove(id);
-        this.match = removePlayer(id);
+        this.match.removePlayer(id);
     }
     // setting visibilty public or private
 
@@ -74,56 +74,7 @@ public class Room {
 
     }
 
-    /*
-     * 
-     * public void prossMessage(String msg) {
-     * 
-     * GsonBuilder builder = new GsonBuilder();
-     * Gson gson = builder.creat();
-     * // take the string and turn it in to user event
-     * UserEvent event = gson.fromJson(msg, userEvent.name);
-     * 
-     * System.out.println("\n\n +msg ");
-     * 
-     * if (event.event == userEventType.NAME) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * 
-     * if (event.event == userEventType.FOLD) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * if (event.event == userEventType.DRAW) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * if (event.event == userEventType.CHECK) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * if (event.event == userEventType.RAISE) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * if (event.event == userEventType.CREATE_ROOM) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * if (event.event == userEventType.JOIN_ROOM) {
-     * players.get(event.id).setName(event.name);
-     * 
-     * }
-     * 
-     * }
-     */
-    /*
-     * this function is called on a perdioc basis by a timer
-     * allow time based situation to be handle in the game
-     * if the game state is schanged it retun true
-     * 
-     * 
-     */
+   
     public boolean update() {
 
         return false;
@@ -147,7 +98,7 @@ public class Room {
     public void restartMatch() {
         this.match = new Match(2000);
         for (Player p : players.values()) {
-            this.match.add(p);
+            this.match.addPlayer(p);
 
         }
     }
