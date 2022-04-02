@@ -49,19 +49,20 @@ public class Room {
         }
 
     }
+
     /*
      * Author: Meaza Abera
      * Last Updated: 04/2/2022
      * 
-     * remove() it removes player from room 
-     * in order to remove we use the player id 
+     * remove() it removes player from room
+     * in order to remove we use the player id
      */
     public void removePlayer(int id) {
 
         players.remove(id);
         this.match.removePlayer(id);
     }
-     /*
+    /*
      * Author: Meaza Abera
      * Last Updated: 04/2/2022
      * 
@@ -78,14 +79,14 @@ public class Room {
 
         return false;
     }
- /*
+    /*
      * Author: Meaza Abera
      * Last Updated: 04/2/2022
      * 
-     *  to get players for this challenge
+     * to get players for this challenge
      * return the pin which is the leaders id.
      */
-    
+
     @Override
     public int hashCode() {
 
@@ -93,8 +94,16 @@ public class Room {
 
     }
 
-    public boolean equals(Room r) {
-        return this.pin == r.pin;
+    @Override
+    public boolean equals(final Object r) {
+        boolean equals = false;
+
+        if (r.getClass() == this.getClass()) {
+            Room room = (Room) r;
+            equals = this.pin == room.pin;
+        }
+
+        return equals;
 
     }
     /*
@@ -102,7 +111,7 @@ public class Room {
      * Last Updated: 04/2/2022
      * 
      * restart match will restart the game again
-     * by craeting new match 
+     * by craeting new match
      * add() add new players.
      */
 
