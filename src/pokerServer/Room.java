@@ -10,41 +10,34 @@ import java.util.List;
 
 public class Room {
     public Match match;
-    // room type
     public RoomVisibility visibility;
-    // players in the room
-
     public final int pin;
-
     private int leaderId;
-
     private HashMap<Integer, Player> players;
-
-    /*
-     * INTIALIZING player who start the game to be the game leader
-     * assigning leaderid to be zero
-     */
 
     public Room(Player leader)
 
     {
 
-        // this. = new HashMap();
-
-        this.pin = leaderId;
+        this.pin = leader.Id;
         this.match = new Match(2000);
-
+        this.visibility = RoomVisibility.PRIVATE;
+        this.leaderId = leader.id;
+        this.players = new HashMap<Integer, Player>();
+        this.players.put(leaderId, leader);
     }
 
     /*
-     * adding new player
-     * if room is private user will have same pin
-     * player will be added
-     * giving players id
-     * players
+     * Author: Meaza Abera
+     * Last Updated: 04/2/2022
      * 
      * 
+     * INTIALIZING player who start the game to be the game leader
+     * put() : add new player and thier id until they reach 5
+     * determine that if we get player size more that five return "room is full"
+     * addPLayer(): add player who is waiting in the room
      */
+
     public void addPlayer(Player player) {
         if ((players.size() < 5)) {
             players.put(leaderId, player);
@@ -57,16 +50,23 @@ public class Room {
 
     }
     /*
-     * given its player a number
-     * delet the player from the number array
+     * Author: Meaza Abera
+     * Last Updated: 04/2/2022
+     * 
+     * remove() it removes player from room 
+     * in order to remove we use the player id 
      */
-
     public void removePlayer(int id) {
 
         players.remove(id);
         this.match.removePlayer(id);
     }
-    // setting visibilty public or private
+     /*
+     * Author: Meaza Abera
+     * Last Updated: 04/2/2022
+     * 
+     * setting visibility public or private
+     */
 
     public void setVisibility(RoomVisibility visibility) {
 
@@ -74,15 +74,18 @@ public class Room {
 
     }
 
-   
     public boolean update() {
 
         return false;
     }
-
-    // to get players for this challenge
-
-    // return players
+ /*
+     * Author: Meaza Abera
+     * Last Updated: 04/2/2022
+     * 
+     *  to get players for this challenge
+     * return the pin which is the leaders id.
+     */
+    
     @Override
     public int hashCode() {
 
@@ -94,6 +97,14 @@ public class Room {
         return this.pin == r.pin;
 
     }
+    /*
+     * Author: Meaza Abera
+     * Last Updated: 04/2/2022
+     * 
+     * restart match will restart the game again
+     * by craeting new match 
+     * add() add new players.
+     */
 
     public void restartMatch() {
         this.match = new Match(2000);
