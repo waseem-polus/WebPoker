@@ -22,7 +22,7 @@
     
     <div id="join_game_opts" hidden>
       <h4>Join Game</h4>
-      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="text"></p>
+      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
       <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
       <p><input type="button" name="join_room" value="Joing Room" onclick="joinRoom()"></p>
     </div> <!--join_room_opts-->
@@ -69,7 +69,7 @@
         <button name="fold" onclick="onFold()">Fold</button>
         
         <button name="raise" onclick="onRaise()">Raise</button>
-        <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01" hidden>
+        <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
       </p>
       
       <br>
@@ -90,57 +90,60 @@
   var serverUrl;
   serverUrl = "ws://" + window.location.hostname + ":8881";
 
-  // connection = new WebSocket(serverUrl);
-  // connection.onopen = function (evt) {
-  //   console.log("open");
-  // }
+  connection = new WebSocket(serverUrl);
+  connection.onopen = function (evt) {
+    console.log("open");
+  }
 
   var cardIdx = 0;
-  var playerID = 0;
-  var roomID = 0;
+  var playerId;
+  var roomId;
 
-  // connection.onmessage = function (evt) {
-  //   var msg;
-  //   msg = evt.data;
+  connection.onclose = function (evt) {
+    console.log("close")
+  }
 
-  //   console.log("Message received: ");
-  //   document.getElementById("textbox").innerText = document.getElementById("textbox").innerText + '\n\n' + "Message Received" + "\n" + msg;
+  connection.onmessage = function (evt) {
+    // This is a hack for this example.
+    // The only time the WebPoker server sends data just
+    // to this client is at the beginging, when the connection
+    // is first made.  The first communication tells us which
+    // connection number we are, which is very import.
+    // So, we detect this situation where it is not game state
 
-  //   // This is a hack for this example.
-  //   // The only time the WebPoker server sends data just
-  //   // to this client is at the beginging, when the connection
-  //   // is first made.  The first communication tells us which
-  //   // connection number we are, which is very import.
-  //   // So, we detect this situation where it is not game state
+    // Take the msg and turn it into a javascript object
+    var msg = evt.data
+    const obj = JSON.parse(msg);
 
-  //   // Take the msg and turn it into a javascript object
-  //   const obj = JSON.parse(msg);
-  //   if (!obj.players) {
+    console.log(obj)
 
-  //     playerID = obj.Id;
-  //     console.log("player ID = " + playerID);
-  //     document.getElementById("textbox").innerText =
-  //       document.getElementById("textbox").innerText + '\n\n' + "Player ID is " + playerID;
-  //   }
-  //   else {
+    if (!obj.players) {
+      playerId = obj.id
+      roomId = obj.id
 
-  //     // process the game state
-  //     // this will just have one card change every time a new game state comes in.
-  //     // the term LUT means "look up table".  you will see it sometimes in code written last 
-  //     // century.
-  //     cardLUT = ["3C.svg", "2B.svg", "3S.svg", "KC.svg", "6D.svg", "2J.svg", "2S.svg"];
-  //     document.getElementById("card4").src = cardLUT[cardIdx];
-  //     cardIdx = cardIdx + 1;
-  //     if (cardIdx > 6)
-  //       cardIdx = 0;
-  //   }
-  //   console.log("the cardIdx is " + cardIdx)
-  // }
+      console.log("player ID = " + playerId)
+    } else {
+      console.log(obj.rooms.roomId)
+
+      console.log("game state received: " + evt.data)
+    }
+  }
 
   function onRaise() {
     var textbox = document.getElementById("raise_amount")
+    
+    var amount = textbox.value
 
-    textbox.style.display = "block"
+    var evt = {
+      event: "RAISE",
+      roomID: roomID,
+      playerID: playerId,
+      msg: amount,
+      msgArr: []
+    }
+
+    connection.send(JSON.stringify(evt))
+    console.log(JSON.stringify(evt))
   }
 
   function onNewGame() {
@@ -198,15 +201,21 @@
    * joinRoom(): called whenever a user clicks on the join room button
    */
   function joinRoom() {
-    var msg = {
+    var joinRoomId = document.getElementById("join_room").value
+    var name = document.getElementById("player_name").value
+    
+    var evt = {
       event: "JOIN_ROOM",
-      playerID: playerID,
-      roomID: roomID,
-      msg: ""
-    };
+      roomID: -1,
+      playerID: playerId,
+      msg: "",
+      msgArr: [joinRoomId, name],
+    }
 
-    // connection.send(JSON.stringify(msg));
-    console.log(JSON.stringify(msg));
+    roomId = joinRoomId
+
+    connection.send(JSON.stringify(evt));
+    console.log(JSON.stringify(evt));
 
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
@@ -215,4 +224,31 @@
     game_page.style.display = "block"
   }
 
+  function createRoom() {
+    var leaderName = document.getElementById("leader_name").value
+    var startingBalance = document.getElementById("starting_balance").value
+    var visibility = document.getElementById("visibility").checked
+
+    if (visibility) {
+      visibility = "PRIVATE"
+    } else {
+      visibility = "PUBLIC"
+    }
+
+    var evt = {
+      event: "CREATE_ROOM",
+      roomID: roomId,
+      playerID: playerID,
+      msg: [leaderName, startingBalance, visibility]
+    }
+
+    connection.send(JSON.stringify(evt))
+    console.log(JSON.stringify(evt))
+
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
+
+    landing_page.style.display = "none"
+    game_page.style.display = "block"
+  }
 </script>

@@ -1,13 +1,13 @@
-package main.java.uta.cse3310.poker;
+package uta.cse3310.poker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import main.java.uta.cse3310.cards.Card;
-import main.java.uta.cse3310.cards.CardDeck;
-import main.java.uta.cse3310.cards.Value;
-import main.java.uta.cse3310.cards.CardDeck.OutOfCardsException;
+import uta.cse3310.cards.Card;
+import uta.cse3310.cards.CardDeck;
+import uta.cse3310.cards.Value;
+import uta.cse3310.cards.CardDeck.OutOfCardsException;
 
 public class Hand {
     private Card[] cards;
@@ -35,7 +35,7 @@ public class Hand {
      *      int[] index: contains the indexes of all cards that need to be exchanged
      *      CardDeck carddeck: the deck object to allow drawing new cards
      */
-    public void exchangeCards(int[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
+    public void exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
         for(int i = 0; i < index.length; i++) {
             if (index[i] < 0 || index[i] > 4) {
                 throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");

@@ -1,4 +1,4 @@
-package main.java.uta.cse3310.cards;
+package uta.cse3310.cards;
 
 public class Card implements Comparable<Card> {
    public final Suite suite;

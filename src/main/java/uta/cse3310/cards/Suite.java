@@ -1,4 +1,4 @@
-package main.java.uta.cse3310.cards;
+package uta.cse3310.cards;
 
 public enum Suite {
     HEARTS("H"), CLUBS("C"), DIAMONDS("D"), SPADES("S");

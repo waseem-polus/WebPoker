@@ -1,6 +1,6 @@
-package main.java.uta.cse3310.poker;
+package uta.cse3310.poker;
 
-import main.java.uta.cse3310.cards.CardDeck;
+import uta.cse3310.cards.CardDeck;
 
 public class Player {
     private String name;
@@ -11,13 +11,13 @@ public class Player {
 
     public Player(int id) {
         this.name = "";
-        this.balance = 2000;
+        this.balance = 0;
         this.hand = new Hand();
         this.currentBet = 0;
         this.id = id;
     }
 
-    public void exchangeCards(int[] cardIndex, CardDeck deck) {
+    public void exchangeCards(Integer[] cardIndex, CardDeck deck) {
         hand.exchangeCards(cardIndex, deck);
     }
 

@@ -10,7 +10,7 @@
 
   <name>poker</name>
   <!-- FIXME change it to the project's website -->
-  <url>http://webpoker.info:8081</url>
+  <url>127.0.0.1:8081/</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,7 +70,7 @@
       <configuration>
         <archive>
           <manifest>
-            <mainClass>pokerServer.WebPoker</mainClass>
+            <mainClass>uta.cse3310.WebPoker</mainClass>
           </manifest>
         </archive>
       </configuration>

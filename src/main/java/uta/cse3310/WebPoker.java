@@ -1,4 +1,4 @@
-package main.java.uta.cse3310.pokerServer;
+package uta.cse3310;
 
 import java.nio.ByteBuffer;
 
@@ -23,12 +23,13 @@ import org.java_websocket.server.WebSocketServer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import main.java.uta.cse3310.poker.Match;
-import main.java.uta.cse3310.poker.Player;
+import uta.cse3310.poker.Match;
+import uta.cse3310.poker.Player;
+import uta.cse3310.pokerServer.*;
+import uta.cse3310.pokerServer.UserEvent.UserEventType;
 
 public class WebPoker extends WebSocketServer {
-
-    private HashMap<String, Room> rooms;
+    private HashMap<Integer, Room> rooms;
     private HashMap<Integer, Player> players;
     private int nextID;
 
@@ -39,7 +40,7 @@ public class WebPoker extends WebSocketServer {
         this.rooms = new HashMap<>();
         this.players = new HashMap<>();
         this.nextID = 0;
-        this.mutex = new Object();
+        mutex = new Object();
     }
 
     public WebPoker(InetSocketAddress address) {
@@ -52,7 +53,8 @@ public class WebPoker extends WebSocketServer {
 
     /*
      * Author: Minh Trinh
-     * Last Update: 4/1/2022
+     * Last Update: 4/2/2022
+     * Updated by: Waseem Alkasbutrus
      *
      * onOpen(): creates a new player and passes in the ID
      *
@@ -60,29 +62,36 @@ public class WebPoker extends WebSocketServer {
      *
      * Parameters:
      * WebSocket conn: websocket connection between the client and server
-     * (but mainly being used for debugging here)
      */
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-
         System.out.println(conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected");
 
-        Player player = new Player(nextID);
+        conn.setAttachment(this.nextID);
+
+        Player player = new Player(this.nextID);
+        this.players.put(this.nextID, player);
+
+        this.nextID++;
+
+        Gson gson = new Gson();
+
+        conn.send(gson.toJson(player));
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println(conn + " has closed");
 
-        int idx = conn.getAttachment();
+        // int idx = conn.getAttachment();
         // synchronized (mutex) {
+        // this.players.remove(idx);
 
-        // //rooms.get(removePlayer(idx));
+        // System.out.println("removed player index " + idx);
 
-        // //System.out.println("removed player index " + idx);
-
-        // broadcast(this);
-
+        // // The state is now changed, so every client needs to be informed
+        // broadcast(encodeAsJson());
+        // System.out.println("the game state" + encodeAsJson());
         // }
     }
 
@@ -91,11 +100,15 @@ public class WebPoker extends WebSocketServer {
         Gson gson = new Gson();
         UserEvent evt = gson.fromJson(message, UserEvent.class);
 
+        System.out.println("User[" + evt.playerID + "] wishes to " + evt.event.toString() + "\n");
         processMessage(evt);
 
-        String jsonGameState = gson.toJson(this);
-
-        broadcast(jsonGameState);
+        if (evt.event == UserEventType.CREATE_ROOM) {
+            conn.setAttachment(evt.playerID);
+            conn.send(gson.toJson(this.rooms.get(evt.playerID)));
+        } else {
+            broadcast(encodeAsJson());
+        }
     }
 
     @Override
@@ -106,31 +119,38 @@ public class WebPoker extends WebSocketServer {
         System.out.println(conn + ": " + message);
     }
 
+    private String encodeAsJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
+
     public void processMessage(UserEvent evt) {
+        switch (evt.event) {
+            case START_MATCH:
+            case EXCHANGE_CARDS:
+            case RAISE:
+            case CALL:
+            case CHECK:
+            case FOLD:
+                this.rooms.get(evt.roomID).match.onEvent(evt);;
+                break;
+            case CREATE_ROOM:
+                Player leader = players.get(evt.playerID);
+                leader.setName((String) evt.msg[0]);
+                this.rooms.put(evt.playerID, new Room(leader, (RoomVisibility) evt.msg[2], (Double) evt.msg[1]));
+                break;
+            case RESTART_MATCH:
+                this.rooms.get(evt.roomID).restartMatch();
+                break;
+            case JOIN_ROOM:
+                Room room = this.rooms.get(evt.roomID);
+                if (room == null) {
 
-        return;
-        // switch(evt) {
-        // case RAISE:
-        // break;
-        // case CALL:
-        // break;
-        // case CHECK:
-        // break;
-        // case FOLD:
-        // break;
-        // case CREATE_ROOM:
-        // rooms.put(evt.playerID, new Room(players.get(evt.playerID)));
-        // break;
-        // case JOIN_ROOM:
-        // rooms.get(evt.roomID).addPlayer(players.get(evt.playerID));
-        // break;
-        // case START_MATCH:
-        // rooms.get(evt.roomID).match.onStartMatch();
-        // break;
-        // case EXCHANGE_CARDS:
-        // case RESTART_GAME:
-
-        // }
+                } else {
+                    room.addPlayer(players.get(evt.playerID));
+                }
+                break;
+        }
 
     }
 
@@ -138,7 +158,7 @@ public class WebPoker extends WebSocketServer {
 
         @Override
         public void run() {
-            
+
         }
     }
 
@@ -186,16 +206,4 @@ public class WebPoker extends WebSocketServer {
         // may want to start this in the main() function??
         new java.util.Timer().scheduleAtFixedRate(new upDate(), 0, 1000);
     }
-    /*
-     * public class upDate extends TimerTask {
-     * 
-     * @Override
-     * public void run
-     * }
-     * 
-     * @Override
-     * public void onEvent(UserEvent evt) {
-     * 
-     * }
-     */
 }

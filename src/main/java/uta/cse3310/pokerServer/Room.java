@@ -1,9 +1,9 @@
-package main.java.uta.cse3310.pokerServer;
+package uta.cse3310.pokerServer;
 
 import java.util.HashMap;
 
-import main.java.uta.cse3310.poker.Match;
-import main.java.uta.cse3310.poker.Player;
+import uta.cse3310.poker.Match;
+import uta.cse3310.poker.Player;
 
 public class Room {
     public Match match;
@@ -11,16 +11,16 @@ public class Room {
     public final int pin;
     private int leaderId;
     private HashMap<Integer, Player> players;
+    private double startingBalance;
 
-    public Room(Player leader)
-
-    {
+    public Room(Player leader, RoomVisibility visibility, double startingBalance) {
         this.pin = leader.id;
-        this.match = new Match(2000);
-        this.visibility = RoomVisibility.PRIVATE;
+        this.match = new Match(startingBalance);
+        this.visibility = visibility;
         this.leaderId = leader.id;
         this.players = new HashMap<Integer, Player>();
         this.players.put(leaderId, leader);
+        this.startingBalance = startingBalance;
     }
 
     /*
@@ -33,7 +33,6 @@ public class Room {
      * determine that if we get player size more that five return "room is full"
      * addPLayer(): add player who is waiting in the room
      */
-
     public void addPlayer(Player player) {
         if ((players.size() < 5)) {
             players.put(leaderId, player);
@@ -43,7 +42,6 @@ public class Room {
         } else {
             System.out.printf("room is full");
         }
-
     }
 
     /*
@@ -58,23 +56,21 @@ public class Room {
         players.remove(id);
         this.match.removePlayer(id);
     }
+
     /*
      * Author: Meaza Abera
      * Last Updated: 04/2/2022
      * 
      * setting visibility public or private
      */
-
     public void setVisibility(RoomVisibility visibility) {
-
         this.visibility = visibility;
-
     }
 
     public boolean update() {
-
         return false;
     }
+
     /*
      * Author: Meaza Abera
      * Last Updated: 04/2/2022
@@ -100,7 +96,6 @@ public class Room {
         }
 
         return equals;
-
     }
     /*
      * Author: Meaza Abera
@@ -110,13 +105,11 @@ public class Room {
      * by craeting new match
      * add() add new players.
      */
-
     public void restartMatch() {
-        this.match = new Match(2000);
+        this.match = new Match(startingBalance);
         for (Player p : players.values()) {
             this.match.addPlayer(p);
 
         }
     }
-
 }

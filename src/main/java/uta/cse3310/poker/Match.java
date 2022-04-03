@@ -1,15 +1,15 @@
-package main.java.uta.cse3310.poker;
+package uta.cse3310.poker;
 
 import java.util.ArrayList;
 
-import main.java.uta.cse3310.cards.CardDeck;
-import main.java.uta.cse3310.pokerServer.UserEvent;
-import main.java.uta.cse3310.pokerServer.UserEvent.UserEventType;
-
+import uta.cse3310.cards.CardDeck;
+import uta.cse3310.pokerServer.UserEvent;
+import uta.cse3310.pokerServer.UserEvent.UserEventType;
 
 public class Match {
     private CardDeck deck;
     private double bettingPool;
+    private double startingBalance;
     private MatchRound round;
     private ArrayList<Player> activePlayers;
     private int turnNumber;
@@ -20,123 +20,92 @@ public class Match {
     }
 
     public Match() {
-
+        this.deck = new CardDeck();
+        this.bettingPool = 0;
+        this.startingBalance = 2000;
+        this.round = MatchRound.WAITING;
+        this.activePlayers = new ArrayList<>();
+        this.turnNumber = 0;
+        this.currentPlayerID = 0;
     }
 
     public Match(double playerBalance) {
-        UserEvent type=new UserEvent();
-        if(type.event == UserEventType.JOIN_ROOM){
-            round = MatchRound.WAITING;
-            if(isWaiting() == false && type.event == UserEventType.START_MATCH){
-                onStartMatch();
-                for(int i=0;i<activePlayers.size();i++){
-                    if(type.event == UserEventType.CALL){
-                     onCall(type.playerID);
-                    }
-                    else if(type.event == UserEventType.RAISE){
-                        onEvent(type.event);
-                    }
-                    else if(type.event == UserEventType.FOLD){
-                            onFold(type.playerID);
-                    }
-                    else if(type.event == UserEventType.CHECK){
-                        onCheck(type.playerID);
-                    }  
-                    if(turnNumber>=i){
-                        drawRound();
-                        break;
-                    }   
-                }
-                
-                
-            }
-            if(round == MatchRound.DRAWING && type.event == UserEventType.EXCHANGE_CARDS){
-                
-                onEvent(type.event);
-            }
-
-        }
-
+        this();
+        this.startingBalance = 2000;
     }
 
-    public void nextTurn(){
+    public void nextTurn() {
+        currentPlayerID = activePlayers.get(turnNumber % activePlayers.size()).id;
         turnNumber++;
-        currentPlayerID=activePlayers.get(turnNumber%activePlayers.size()).getID();
     }
 
-    public void addPlayer(Player player){
+    public void addPlayer(Player player) {
         activePlayers.add(player);
     }
 
-    public void removePlayer(int playerID){
-        for(int i=0;i<activePlayers.size();i++){
-            int IDCheck=activePlayers.get(i).getID();
-            if(IDCheck == playerID){
+    public void removePlayer(int playerID) {
+        for (int i = 0; i < activePlayers.size(); i++) {
+            int checkId = activePlayers.get(i).id;
+            if (checkId == playerID) {
                 activePlayers.remove(i);
-                nextTurn();
             }
         }
     }
 
-    public void onEvent(UserEventType event){
-        UserEvent e=new UserEvent();
-        switch(event){
+    public void onEvent(UserEvent event) {
+        switch (event.event) {
             case EXCHANGE_CARDS:
-            Integer [] indx=new Integer[e.msgArr.length];
-            for(int i=0;i<e.msgArr.length;i++){
-                indx[i]=(Integer)e.msgArr[i];
-            }
-            int[] toInt=new int[indx.length];
-            for(int j=0;j<indx.length;j++){
-                toInt[j]=indx[j].intValue();
-            }
-            onExchangeCards(e.playerID, toInt);
-            break;
-
-            case RAISE:
-            Integer indxO=(Integer)e.msg;
-            double toDouble=indxO.doubleValue();
-            onRaise(e.playerID, toDouble);
-            break;
-            default:
+                Integer[] indx = (Integer[]) event.msg;
+                onExchangeCards(event.playerID, indx);
                 break;
-            
+            case RAISE:
+                Double amount = (Double) event.msg[0];
+                onRaise(event.playerID, amount);
+                break;
+            case CALL:
+                onCall(event.playerID);
+                break;
+            case FOLD:
+                onFold(event.playerID);
+                break;
+            case CHECK:
+                onCheck(event.playerID);
+                break;
+            case START_MATCH:
+                onStartMatch();
+                break;
         }
     }
 
     public void onStartMatch() {
-        if(isWaiting() == false){
-            for(int i=0;i<activePlayers.size();i++){
-                activePlayers.get(i).setBalance(2000);
-            } 
-            for(int j=0;j<activePlayers.size();j++){
-                bettingPool += activePlayers.get(j).placeBet(20);
-            }
-            for(int k=0;k<activePlayers.size();k++){
-                activePlayers.get(k).dealHand(deck);;
-            }
-            round=MatchRound.FIRST_BETTING;
+        for (Player p : this.activePlayers) {
+            p.setBalance(this.startingBalance);
+            this.bettingPool += p.placeBet(20);
+            p.dealHand(deck);
         }
+
+        round = MatchRound.FIRST_BETTING;
+        currentPlayerID = activePlayers.get(0).id;
     }
 
     public void bettingRound1() {
         round = MatchRound.FIRST_BETTING;
-        turnNumber=0;
+        turnNumber = 0;
     }
 
     public void bettingRound2() {
         round = MatchRound.SECOND_BETTING;
-        turnNumber=0;
+        turnNumber = 0;
     }
 
     public void drawRound() {
         round = MatchRound.DRAWING;
-        turnNumber=0;
+        turnNumber = 0;
     }
 
     public void showdownRound() {
         round = MatchRound.SHOWDOWN;
-        turnNumber=0;
+        turnNumber = 0;
     }
 
     public void onFold(int playerID) {
@@ -144,17 +113,17 @@ public class Match {
     }
 
     public void onCheck(int playerID) {
-        if(round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING){
-            for(int i=0;i<activePlayers.size();i++){
-                int IDCheck=activePlayers.get(i).getID();
-                if(IDCheck == playerID){
-                    int count=0;
-                    for(int j=0;j<i;j++){
-                        if(activePlayers.get(j).getcurrentBet() == 0){
+        if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
+            for (int i = 0; i < activePlayers.size(); i++) {
+                int IDCheck = activePlayers.get(i).id;
+                if (IDCheck == playerID) {
+                    int count = 0;
+                    for (int j = 0; j < i; j++) {
+                        if (activePlayers.get(j).getcurrentBet() == 0) {
                             count++;
                         }
-                    } 
-                    if(count == i){
+                    }
+                    if (count == i) {
                         nextTurn();
                     }
                 }
@@ -163,13 +132,14 @@ public class Match {
     }
 
     public void onCall(int playerID) {
-        if(round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING){
-            for(int i=0;i<activePlayers.size();i++){
-                int IDCheck=activePlayers.get(i).getID();
-                if(IDCheck == playerID){
-                    if(activePlayers.get(i-1).getcurrentBet() > activePlayers.get(i).getcurrentBet()){
-                        double addToPool=activePlayers.get(i).placeBet((activePlayers.get(i-1).getcurrentBet()-activePlayers.get(i).getcurrentBet()));
-                        bettingPool +=addToPool;
+        if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
+            for (int i = 0; i < activePlayers.size(); i++) {
+                int IDCheck = activePlayers.get(i).id;
+                if (IDCheck == playerID) {
+                    if (activePlayers.get(i - 1).getcurrentBet() > activePlayers.get(i).getcurrentBet()) {
+                        double addToPool = activePlayers.get(i).placeBet(
+                                (activePlayers.get(i - 1).getcurrentBet() - activePlayers.get(i).getcurrentBet()));
+                        bettingPool += addToPool;
                         nextTurn();
                     }
                 }
@@ -178,32 +148,34 @@ public class Match {
     }
 
     public void onRaise(int playerID, double amount) {
-        if(round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING){
-            for(int i=0;i<activePlayers.size();i++){
-                int IDCheck=activePlayers.get(i).getID();
-                if(IDCheck == playerID){
-                    double addToPool=activePlayers.get(i).placeBet(amount);
-                    bettingPool +=addToPool;
-                    nextTurn();
-                }
-            }
+        if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
+            this.bettingPool += getPlayer(playerID).placeBet(amount);
         }
     }
 
-    public void onExchangeCards(int playerID, int[] cardIndex){
-        if(round == MatchRound.DRAWING){
-            for(int i=0;i<activePlayers.size();i++){
-                int IDCheck=activePlayers.get(i).getID();
-                if(IDCheck == playerID){
-                    activePlayers.get(i).exchangeCards(cardIndex,deck);
-                    nextTurn();
-                }
-            }
+    public void onExchangeCards(int playerID, Integer[] cardIndex) {
+        Player player = getPlayer(playerID);
+        if (player != null) {
+            getPlayer(playerID).exchangeCards(cardIndex, deck);
+        } else {
+            System.out.println("[Error] player does not exist");
         }
+        nextTurn();
     }
 
-    public Boolean isWaiting(){
-        return this.round==MatchRound.WAITING;
+    private Player getPlayer(int playerID) {
+        Player player = null;
+
+        for (Player p : this.activePlayers) {
+            if (p.id == playerID) {
+                player = p;
+            }
+        }
+
+        return player;
+    }
+
+    public Boolean isWaiting() {
+        return this.round == MatchRound.WAITING;
     }
 }
-
