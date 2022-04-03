@@ -7,12 +7,12 @@ import uta.cse3310.pokerServer.UserEvent;
 import uta.cse3310.pokerServer.UserEvent.UserEventType;
 
 public class Match {
-    private CardDeck deck;
+    private transient CardDeck deck;
+    private transient double startingBalance;
+    private transient ArrayList<Player> activePlayers;
+    private transient int turnNumber;
     private double bettingPool;
-    private double startingBalance;
     private MatchRound round;
-    private ArrayList<Player> activePlayers;
-    private int turnNumber;
     private int currentPlayerID;
 
     public enum MatchRound {
@@ -55,11 +55,14 @@ public class Match {
     public void onEvent(UserEvent event) {
         switch (event.event) {
             case EXCHANGE_CARDS:
-                Integer[] indx = (Integer[]) event.msg;
+                Integer[] indx = new Integer[3];
+                for (int i = 0; i < 3; i++) {
+                    indx[i] = Integer.parseInt((String) event.msg[i]);
+                }
                 onExchangeCards(event.playerID, indx);
                 break;
             case RAISE:
-                Double amount = (Double) event.msg[0];
+                Double amount = Double.parseDouble((String)event.msg[0]);
                 onRaise(event.playerID, amount);
                 break;
             case CALL:

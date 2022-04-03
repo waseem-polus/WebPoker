@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 
 import uta.cse3310.poker.Match;
 import uta.cse3310.poker.Player;
+import uta.cse3310.pokerServer.RoomVisibility;
 import uta.cse3310.pokerServer.*;
 import uta.cse3310.pokerServer.UserEvent.UserEventType;
 
@@ -99,7 +100,7 @@ public class WebPoker extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         Gson gson = new Gson();
 
-        System.out.println(message);
+        System.out.println("Received:\n" + message);
 
         UserEvent evt = gson.fromJson(message, UserEvent.class);
 
@@ -109,8 +110,12 @@ public class WebPoker extends WebSocketServer {
         if (evt.event == UserEventType.CREATE_ROOM) {
             conn.setAttachment(evt.playerID);
             conn.send(gson.toJson(this.rooms.get(evt.playerID)));
+        } else if (evt.event == UserEventType.JOIN_ROOM) {
+            broadcast(encodeRoomAsJson(Integer.parseInt((String) evt.msg[0])));
+            System.out.println("Sent:\n" + encodeRoomAsJson(Integer.parseInt((String) evt.msg[0])));
         } else {
-            broadcast(encodeAsJson());
+            broadcast(encodeRoomAsJson(evt.roomID));
+            System.out.println("Sent:\n" + encodeRoomAsJson(evt.roomID));
         }
     }
 
@@ -122,9 +127,9 @@ public class WebPoker extends WebSocketServer {
         System.out.println(conn + ": " + message);
     }
 
-    private String encodeAsJson() {
+    private String encodeRoomAsJson(int roomPin) {
         Gson gson = new Gson();
-        return gson.toJson(this);
+        return gson.toJson(this.rooms.get(roomPin));
     }
 
     public void processMessage(UserEvent evt) {
@@ -135,22 +140,29 @@ public class WebPoker extends WebSocketServer {
             case CALL:
             case CHECK:
             case FOLD:
-                this.rooms.get(evt.roomID).match.onEvent(evt);;
+                this.rooms.get(evt.roomID).match.onEvent(evt);
+                ;
                 break;
             case CREATE_ROOM:
                 Player leader = players.get(evt.playerID);
                 leader.setName((String) evt.msg[0]);
-                this.rooms.put(evt.playerID, new Room(leader, (RoomVisibility) evt.msg[2], (Double) evt.msg[1]));
+                this.rooms.put(evt.playerID, new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]),
+                        Double.parseDouble((String) evt.msg[1])));
+
+                System.out.println("Created room " + evt.playerID);
                 break;
             case RESTART_MATCH:
                 this.rooms.get(evt.roomID).restartMatch();
                 break;
             case JOIN_ROOM:
-                Room room = this.rooms.get(evt.roomID);
+                Room room = this.rooms.get(Integer.parseInt((String) evt.msg[0]));
                 if (room == null) {
 
                 } else {
+                    this.players.get(evt.playerID).setName((String) evt.msg[1]);
                     room.addPlayer(players.get(evt.playerID));
+                    
+                    System.out.println("Added player " + evt.playerID + " to room " + (String) evt.msg[0]);
                 }
                 break;
         }

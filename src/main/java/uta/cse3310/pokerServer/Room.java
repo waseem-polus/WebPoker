@@ -6,11 +6,11 @@ import uta.cse3310.poker.Match;
 import uta.cse3310.poker.Player;
 
 public class Room {
+    private HashMap<Integer, Player> players;
     public Match match;
     public RoomVisibility visibility;
     public final int pin;
     private int leaderId;
-    private HashMap<Integer, Player> players;
     private double startingBalance;
 
     public Room(Player leader, RoomVisibility visibility, double startingBalance) {
@@ -38,7 +38,7 @@ public class Room {
      */
     public void addPlayer(Player player) {
         if ((players.size() < 5)) {
-            players.put(leaderId, player);
+            players.put(player.id, player);
             if (this.match.isWaiting()) {
                 this.match.addPlayer(player);
             }

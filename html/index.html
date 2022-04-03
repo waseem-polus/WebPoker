@@ -14,9 +14,9 @@
     
     <div id="landing_opts">
       <p>
-        <button name="new_game" onclick="onNewGame()">New Game</button>
+        <button name="new_game" onclick="onLandingNewGame()">New Game</button>
         <br>
-        <button name="join_game" onclick="onJoinGame()">Join Game</button>
+        <button name="join_game" onclick="onLandingJoinGame()">Join Game</button>
       </p>
     </div> <!-- landing_opts -->
     
@@ -32,15 +32,15 @@
       <p>Name: <input id="leader_name" placeholder="Enter your name" type="text"></p>
       <p>Starting Balance: <input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
       <p>Private: <input type="checkbox" id="visibility" ></p>
-      <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
+      <p><input type="button" name="create_room" value="Create Room" onclick="createRoom()"></p>
     </div>
   </div> <!-- landing page -->
   
   <div id="game_page" hidden>
     <div id="game_hud">
-      <p>
-        balance: 
-      </p>
+      <h4>Name:</h4><textarea id="my_name" readonly cols="20" rows="1">Player</textarea>
+      
+      <h4>Balance:</h4><textarea id="current_balance" readonly cols="20" rows="1">0</textarea>
     </div>
     
     <div id="cards">
@@ -62,6 +62,12 @@
       </p>
     </div> <!-- cards -->
     
+    <div id="pre_match">
+      <p>
+        <button name="start_game" onclick="onStartMatch()" style="display: none;">Start Match</button>
+      </p>
+    </div>
+
     <div id="game_buttons">
       <p>
         <button name="call" onclick="onCall()">Call</button>
@@ -94,41 +100,147 @@
   connection.onopen = function (evt) {
     console.log("open");
   }
-
-  var cardIdx = 0;
-  var playerId;
-  var roomId;
-
+  
   connection.onclose = function (evt) {
     console.log("close")
   }
+  
+  var playerId
+  var roomId
+
+  var room
+  var me
 
   connection.onmessage = function (evt) {
-    // This is a hack for this example.
-    // The only time the WebPoker server sends data just
-    // to this client is at the beginging, when the connection
-    // is first made.  The first communication tells us which
-    // connection number we are, which is very import.
-    // So, we detect this situation where it is not game state
-
     // Take the msg and turn it into a javascript object
     var msg = evt.data
     const obj = JSON.parse(msg);
 
     console.log(obj)
 
-    if (!obj.players) {
+    if (playerId == null) {
       playerId = obj.id
       roomId = obj.id
 
       console.log("player ID = " + playerId)
     } else {
-      console.log(obj.rooms.roomId)
+      console.log(obj.players[playerId])
 
-      console.log("game state received: " + evt.data)
+      room = obj
+      me = obj.players[playerId]
+    }
+
+    updateStats()
+  }
+
+  function updateStats() {
+    var balance = document.getElementById("current_balance")
+    var name = document.getElementById("my_name")
+
+    balance.value = me.balance
+    name.value = me.name
+
+    if (room != null) {
+      console.log("There are " + room.players.length + " in room " + roomId)
+      if (room.players.length >= 2 && room.leaderId == me.id) {
+        var startButton = document.getElementById("start_game")
+  
+        startButton.disabled = false
+        startButton.style.display = "block"
+        console.log("enabled start button")
+      }
     }
   }
 
+  function onBackToMain() {
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
+    
+    var landing_opts = document.getElementById("landing_opts")
+    var new_game_opts = document.getElementById("new_game_opts")
+    var join_game_opts = document.getElementById("join_game_opts")
+    
+    
+    landing_page.style.display = "block"
+    game_page.style.display = "none"
+    
+    landing_opts.style.display = "block"
+    new_game_opts.style.display = "none"
+    join_game_opts.style.display = "none" 
+  }
+  
+  function onLandingNewGame() {
+    var landing_opts = document.getElementById("landing_opts")
+    var new_game_opts = document.getElementById("new_game_opts")
+    
+    landing_opts.style.display = "none"
+    new_game_opts.style.display = "block"
+  }
+  
+  function onLandingJoinGame () {
+    var landing_opts = document.getElementById("landing_opts")
+    var join_game_opts = document.getElementById("join_game_opts")
+    
+    landing_opts.style.display = "none"
+    join_game_opts.style.display = "block"
+  }
+  
+  /* Author: Waseem Alkasbutrus
+  * Last Updated: 04/2/2022
+  * 
+  * joinRoom(): called whenever a user clicks on the join room button
+  */
+ function joinRoom() {
+   var joinRoomId = document.getElementById("join_room").value
+   var name = document.getElementById("player_name").value
+   
+   roomId = joinRoomId
+   
+   var joinEvt = {
+     event: "JOIN_ROOM",
+     roomID: -1,
+     playerID: playerId,
+     msg: [joinRoomId, name]
+    }
+    
+    connection.send(JSON.stringify(joinEvt));
+    console.log(JSON.stringify(joinEvt));
+    
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
+    
+    landing_page.style.display = "none"
+    game_page.style.display = "block"
+  }
+  
+  function createRoom() {
+    var leaderName = document.getElementById("leader_name").value
+    var startingBalance = document.getElementById("starting_balance").value
+    var visibility = document.getElementById("visibility").checked
+    
+    if (visibility) {
+      visibility = "PRIVATE"
+    } else {
+      visibility = "PUBLIC"
+    }
+    
+    var evt = {
+      event: "CREATE_ROOM",
+      roomID: roomId,
+      playerID: playerId,
+      msg: [leaderName, startingBalance, visibility]
+    }
+    
+    connection.send(JSON.stringify(evt))
+    console.log(JSON.stringify(evt))
+    
+    var landing_page = document.getElementById("landing_page")
+    var game_page = document.getElementById("game_page")
+    
+    landing_page.style.display = "none"
+    game_page.style.display = "block"
+  }
+  
   function onRaise() {
     var textbox = document.getElementById("raise_amount")
     
@@ -145,33 +257,8 @@
     console.log(JSON.stringify(evt))
   }
 
-  function onNewGame() {
-    var landing_opts = document.getElementById("landing_opts")
-    var new_game_opts = document.getElementById("new_game_opts")
-
-    landing_opts.style.display = "none"
-    new_game_opts.style.display = "block"
-  }
-
-  function onBackToMain() {
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
-    
-    var landing_opts = document.getElementById("landing_opts")
-    var new_game_opts = document.getElementById("new_game_opts")
-    var join_game_opts = document.getElementById("join_game_opts")
-
-
-    landing_page.style.display = "block"
-    game_page.style.display = "none"
-
-    landing_opts.style.display = "block"
-    new_game_opts.style.display = "none"
-    join_game_opts.style.display = "none" 
-  }
-
   var cardsClicked = 0
-
+  
   function onCardClick(id) {
     card = document.getElementById(id)
     
@@ -182,71 +269,7 @@
     } else if (card.checked == false) {
       cardsClicked--
     }
-
+    
     console.log(cardsClicked)
-  }
-
-  function onJoinGame () {
-    var landing_opts = document.getElementById("landing_opts")
-    var join_game_opts = document.getElementById("join_game_opts")
-
-    landing_opts.style.display = "none"
-    join_game_opts.style.display = "block"
-  }
-
-  /* Author: Waseem Alkasbutrus
-   * Last Updated: 04/1/2022
-   * 
-   * joinRoom(): called whenever a user clicks on the join room button
-   */
-  function joinRoom() {
-    var joinRoomId = document.getElementById("join_room").value
-    var name = document.getElementById("player_name").value
-    
-    roomId = joinRoomId
-    
-    var joinEvt = {
-      event: JOIN_ROOM,
-      roomID: -1,
-      playerID: playerId,
-      msg: [joinRoomId, name]
-    }
-
-    connection.send(JSON.stringify(joinEvt));
-    console.log(JSON.stringify(joinEvt));
-
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
-
-    landing_page.style.display = "none"
-    game_page.style.display = "block"
-  }
-
-  function createRoom() {
-    var leaderName = document.getElementById("leader_name").value
-    var startingBalance = document.getElementById("starting_balance").value
-    var visibility = document.getElementById("visibility").checked
-
-    if (visibility) {
-      visibility = PRIVATE
-    } else {
-      visibility = PUBLIC
-    }
-
-    var evt = {
-      event: CREATE_ROOM,
-      roomID: roomId,
-      playerID: playerID,
-      msg: [leaderName, startingBalance, visibility]
-    }
-
-    connection.send(JSON.stringify(evt))
-    console.log(JSON.stringify(evt))
-
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
-
-    landing_page.style.display = "none"
-    game_page.style.display = "block"
   }
 </script>
