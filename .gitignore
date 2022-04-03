@@ -21,4 +21,4 @@
 hs_err_pid*
 
 #target directory created by maven
-./target/*
+target/*
