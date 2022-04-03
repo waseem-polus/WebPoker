@@ -1,12 +1,9 @@
-package pokerServer;
+package main.java.uta.cse3310.pokerServer;
 
 import java.util.HashMap;
-import poker.Match;
-import poker.Player;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import main.java.uta.cse3310.poker.Match;
+import main.java.uta.cse3310.poker.Player;
 
 public class Room {
     public Match match;

@@ -1,6 +1,6 @@
-package poker;
+package main.java.uta.cse3310.poker;
 
-import cards.CardDeck;
+import main.java.uta.cse3310.cards.CardDeck;
 
 public class Player {
     private String name;

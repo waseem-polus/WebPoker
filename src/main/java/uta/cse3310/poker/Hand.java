@@ -1,13 +1,13 @@
-package poker;
+package main.java.uta.cse3310.poker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import cards.Card;
-import cards.CardDeck;
-import cards.Value;
-import cards.CardDeck.OutOfCardsException;
+import main.java.uta.cse3310.cards.Card;
+import main.java.uta.cse3310.cards.CardDeck;
+import main.java.uta.cse3310.cards.Value;
+import main.java.uta.cse3310.cards.CardDeck.OutOfCardsException;
 
 public class Hand {
     private Card[] cards;

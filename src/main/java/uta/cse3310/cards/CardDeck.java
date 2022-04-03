@@ -1,4 +1,4 @@
-package cards;
+package main.java.uta.cse3310.cards;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,13 +1,10 @@
-package poker;
+package main.java.uta.cse3310.poker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import org.w3c.dom.events.Event;
-
-import cards.CardDeck;
-import pokerServer.UserEvent;
-import pokerServer.UserEvent.UserEventType;
+import main.java.uta.cse3310.cards.CardDeck;
+import main.java.uta.cse3310.pokerServer.UserEvent;
+import main.java.uta.cse3310.pokerServer.UserEvent.UserEventType;
 
 
 public class Match {

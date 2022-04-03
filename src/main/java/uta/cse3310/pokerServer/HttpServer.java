@@ -1,4 +1,4 @@
-package pokerServer;
+package main.java.uta.cse3310.pokerServer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
