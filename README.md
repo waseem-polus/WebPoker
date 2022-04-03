@@ -1,7 +1,12 @@
 # WebPoker projct
 
-to compile all sources:
-``ant build`` or ``ant``
+to compile and start server while in the base WebPoker directory:
+```bash
+mvn clean
+mvn compile
+mvn package
+mvn exec:java -Dexec.mainClass=uta.cse3310.WebPoker
+```
 
-to clean the bin directory with all the class files:
-``ant clean``
+to connect to server with browser go to:
+127.0.0.1:8081/index.html
