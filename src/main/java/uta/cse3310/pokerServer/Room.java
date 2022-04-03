@@ -14,13 +14,16 @@ public class Room {
     private double startingBalance;
 
     public Room(Player leader, RoomVisibility visibility, double startingBalance) {
-        this.pin = leader.id;
         this.match = new Match(startingBalance);
+        this.match.addPlayer(leader);
+
+        this.pin = leader.id;
         this.visibility = visibility;
+        this.startingBalance = startingBalance;
+        
         this.leaderId = leader.id;
         this.players = new HashMap<Integer, Player>();
         this.players.put(leaderId, leader);
-        this.startingBalance = startingBalance;
     }
 
     /*

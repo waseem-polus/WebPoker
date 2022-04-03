@@ -98,6 +98,9 @@ public class WebPoker extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         Gson gson = new Gson();
+
+        System.out.println(message);
+
         UserEvent evt = gson.fromJson(message, UserEvent.class);
 
         System.out.println("User[" + evt.playerID + "] wishes to " + evt.event.toString() + "\n");

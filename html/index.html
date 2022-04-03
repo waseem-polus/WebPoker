@@ -24,7 +24,7 @@
       <h4>Join Game</h4>
       <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
       <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
-      <p><input type="button" name="join_room" value="Joing Room" onclick="joinRoom()"></p>
+      <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
     </div> <!--join_room_opts-->
     
     <div id="new_game_opts" hidden>
@@ -138,8 +138,7 @@
       event: "RAISE",
       roomID: roomID,
       playerID: playerId,
-      msg: amount,
-      msgArr: []
+      msg: [amount]
     }
 
     connection.send(JSON.stringify(evt))
@@ -204,18 +203,17 @@
     var joinRoomId = document.getElementById("join_room").value
     var name = document.getElementById("player_name").value
     
-    var evt = {
-      event: "JOIN_ROOM",
+    roomId = joinRoomId
+    
+    var joinEvt = {
+      event: JOIN_ROOM,
       roomID: -1,
       playerID: playerId,
-      msg: "",
-      msgArr: [joinRoomId, name],
+      msg: [joinRoomId, name]
     }
 
-    roomId = joinRoomId
-
-    connection.send(JSON.stringify(evt));
-    console.log(JSON.stringify(evt));
+    connection.send(JSON.stringify(joinEvt));
+    console.log(JSON.stringify(joinEvt));
 
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
@@ -230,13 +228,13 @@
     var visibility = document.getElementById("visibility").checked
 
     if (visibility) {
-      visibility = "PRIVATE"
+      visibility = PRIVATE
     } else {
-      visibility = "PUBLIC"
+      visibility = PUBLIC
     }
 
     var evt = {
-      event: "CREATE_ROOM",
+      event: CREATE_ROOM,
       roomID: roomId,
       playerID: playerID,
       msg: [leaderName, startingBalance, visibility]

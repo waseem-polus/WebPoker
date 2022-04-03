@@ -74,6 +74,7 @@ public class Match {
             case START_MATCH:
                 onStartMatch();
                 break;
+            default:
         }
     }
 
