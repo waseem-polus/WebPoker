@@ -46,25 +46,25 @@
     <div id="cards">
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick('card1')"/>
-        <label for="card1"><img src="3C.svg" /></label>
+        <label for="card1"><img src="1B.svg" id="card1_img"/></label>
         
         <input type="checkbox" id="card2" onchange="onCardClick('card2')"/>
-        <label for="card2"><img src="4D.svg" /></label>
+        <label for="card2"><img src="1B.svg" id="card2_img"/></label>
         
         <input type="checkbox" id="card3" onchange="onCardClick('card3')"/>
-        <label for="card3"><img src="AS.svg" /></label>
+        <label for="card3"><img src="1B.svg" id="card3_img"/></label>
         
         <input type="checkbox" id="card4" onchange="onCardClick('card4')"/>
-        <label for="card4"><img src="TH.svg" /></label>
+        <label for="card4"><img src="1B.svg" id="card4_img"/></label>
         
         <input type="checkbox" id="card5" onchange="onCardClick('card5')"/>
-        <label for="card5"><img src="JC.svg"/></label>
+        <label for="card5"><img src="1B.svg" id="card5_img"/></label>
       </p>
     </div> <!-- cards -->
     
     <div id="pre_match">
       <p>
-        <button name="start_game" onclick="onStartMatch()" style="display: none;">Start Match</button>
+        <button name="start_game" onclick="onStartMatch()" hidden>Start Match</button>
       </p>
     </div>
 
@@ -128,9 +128,9 @@
 
       room = obj
       me = obj.players[playerId]
+      updateStats()
     }
 
-    updateStats()
   }
 
   function updateStats() {
@@ -140,14 +140,11 @@
     balance.value = me.balance
     name.value = me.name
 
-    if (room != null) {
-      console.log("There are " + room.players.length + " in room " + roomId)
-      if (room.players.length >= 2 && room.leaderId == me.id) {
-        var startButton = document.getElementById("start_game")
-  
-        startButton.disabled = false
-        startButton.style.display = "block"
-        console.log("enabled start button")
+    if (me.hand.cards[0] != null) {
+      var cards = me.hand.cards
+      for(var i = 0; i < 5; i++) {
+        var card = document.getElementById("card" + (i+1) + "_img").src = cards[i].svg
+        console.log(cards[i].svg);
       }
     }
   }
@@ -236,9 +233,27 @@
     
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
+    var startButton = document.getElementById("start_game")
     
     landing_page.style.display = "none"
     game_page.style.display = "block"
+  }
+
+  function onStartMatch() {
+    if (room.playerCount > 1) {
+      if (roomId == playerId) {
+        var startMatchEvt = {
+          event: "START_MATCH",
+          roomID: roomId,
+          playerID: playerId,
+        }
+  
+        connection.send(JSON.stringify(startMatchEvt))
+        console.log(JSON.stringify(startMatchEvt))
+      }
+    } else {
+      alert("More players needed to start match");
+    }
   }
   
   function onRaise() {

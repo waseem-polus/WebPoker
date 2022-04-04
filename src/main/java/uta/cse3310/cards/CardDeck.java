@@ -13,7 +13,7 @@ public class CardDeck {
     }
     
     public CardDeck() {
-        availablePile = new ArrayList<>();
+        availablePile = new ArrayList<>(52);
         
         // For each suite, create a card with all possible values and add all of them to
         // the availablePile
@@ -49,7 +49,10 @@ public class CardDeck {
             throw new OutOfCardsException();
         }
 
-        return availablePile.remove(0);
+        Card card = this.availablePile.get(0);
+        availablePile.remove(0);
+        
+        return card;
     }
 
     /* Author: Waseem Alkasbutrus
@@ -68,7 +71,7 @@ public class CardDeck {
 
         Card[] newHand = new Card[5];
 
-        for (int i = 5; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             newHand[i] = drawCard();
         }
 

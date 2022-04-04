@@ -62,7 +62,7 @@ public class Match {
                 onExchangeCards(event.playerID, indx);
                 break;
             case RAISE:
-                Double amount = Double.parseDouble((String)event.msg[0]);
+                Double amount = Double.parseDouble((String) event.msg[0]);
                 onRaise(event.playerID, amount);
                 break;
             case CALL:
@@ -82,14 +82,16 @@ public class Match {
     }
 
     public void onStartMatch() {
-        for (Player p : this.activePlayers) {
-            p.setBalance(this.startingBalance);
-            this.bettingPool += p.placeBet(20);
-            p.dealHand(deck);
+        if (this.activePlayers.size() > 1) {
+            for (Player p : this.activePlayers) {
+                p.setBalance(this.startingBalance);
+                this.bettingPool += p.placeBet(20);
+                p.dealHand(deck);
+            }
+    
+            round = MatchRound.FIRST_BETTING;
+            currentPlayerID = activePlayers.get(0).id;
         }
-
-        round = MatchRound.FIRST_BETTING;
-        currentPlayerID = activePlayers.get(0).id;
     }
 
     public void bettingRound1() {

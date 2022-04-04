@@ -7,6 +7,7 @@ import uta.cse3310.poker.Player;
 
 public class Room {
     private HashMap<Integer, Player> players;
+    private int playerCount;
     public Match match;
     public RoomVisibility visibility;
     public final int pin;
@@ -24,6 +25,7 @@ public class Room {
         this.leaderId = leader.id;
         this.players = new HashMap<Integer, Player>();
         this.players.put(leaderId, leader);
+        this.playerCount = this.players.size();
     }
 
     /*
@@ -39,6 +41,7 @@ public class Room {
     public void addPlayer(Player player) {
         if ((players.size() < 5)) {
             players.put(player.id, player);
+            this.playerCount = this.players.size();
             if (this.match.isWaiting()) {
                 this.match.addPlayer(player);
             }
@@ -57,6 +60,7 @@ public class Room {
     public void removePlayer(int id) {
 
         players.remove(id);
+        this.playerCount = this.players.size();
         this.match.removePlayer(id);
     }
 
