@@ -31,7 +31,7 @@ public class Match {
 
     public Match(double playerBalance) {
         this();
-        this.startingBalance = 2000;
+        this.startingBalance = playerBalance;
     }
 
     public void nextTurn() {

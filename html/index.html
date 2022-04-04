@@ -43,7 +43,7 @@
       <h4>Balance:</h4><textarea id="current_balance" readonly cols="20" rows="1">0</textarea>
     </div>
     
-    <div id="cards">
+    <div id="cards" hidden>
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick('card1')"/>
         <label for="card1"><img src="1B.svg" id="card1_img"/></label>
@@ -62,13 +62,13 @@
       </p>
     </div> <!-- cards -->
     
-    <div id="pre_match">
+    <div id="pre_match" hidden>
       <p>
-        <button name="start_game" onclick="onStartMatch()" hidden>Start Match</button>
+        <button name="start_game" onclick="onStartMatch()">Start Match</button>
       </p>
     </div>
 
-    <div id="game_buttons">
+    <div id="game_buttons" hidden>
       <p>
         <button name="call" onclick="onCall()">Call</button>
         <button name="check" onclick="onCheck()">Check</button>
@@ -138,7 +138,7 @@
     var name = document.getElementById("my_name")
 
     balance.value = me.balance
-    name.value = me.name
+    name.value = me.name + "(id: " + playerId + ")"
 
     if (me.hand.cards[0] != null) {
       var cards = me.hand.cards
@@ -146,6 +146,16 @@
         var card = document.getElementById("card" + (i+1) + "_img").src = cards[i].svg
         console.log(cards[i].svg);
       }
+    }
+
+    if (room.match.round != "WAITING") {
+      var pre_match = document.getElementById("pre_match")
+      var cards = document.getElementById("cards")
+      var game_buttons = document.getElementById("game_buttons")
+
+      pre_match.style.display = "none"
+      cards.style.display = "block"
+      game_buttons.style.display = "block"
     }
   }
 
@@ -233,10 +243,11 @@
     
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
-    var startButton = document.getElementById("start_game")
+    var pre_match = document.getElementById("pre_match")
     
     landing_page.style.display = "none"
     game_page.style.display = "block"
+    pre_match.style.display = "block"
   }
 
   function onStartMatch() {
@@ -250,26 +261,38 @@
   
         connection.send(JSON.stringify(startMatchEvt))
         console.log(JSON.stringify(startMatchEvt))
+
+        var pre_match = document.getElementById("pre_match")
+        var cards = document.getElementById("cards")
+        var game_buttons = document.getElementById("game_buttons")
+
+        pre_match.style.display = "none"
+        cards.style.display = "block"
+        game_buttons.style.display = "block"
       }
     } else {
       alert("More players needed to start match");
     }
   }
   
-  function onRaise() {
-    var textbox = document.getElementById("raise_amount")
-    
-    var amount = textbox.value
-
-    var evt = {
-      event: "RAISE",
-      roomID: roomID,
-      playerID: playerId,
-      msg: [amount]
+  function onRaise() { 
+    if (room.match.currentPlayerID == playerId) {
+      var textbox = document.getElementById("raise_amount")
+      
+      var amount = textbox.value
+  
+      var evt = {
+        event: "RAISE",
+        roomID: roomId,
+        playerID: playerId,
+        msg: [amount]
+      }
+  
+      connection.send(JSON.stringify(evt))
+      console.log(JSON.stringify(evt))
+    } else {
+      alert("Not your turn")
     }
-
-    connection.send(JSON.stringify(evt))
-    console.log(JSON.stringify(evt))
   }
 
   var cardsClicked = 0
