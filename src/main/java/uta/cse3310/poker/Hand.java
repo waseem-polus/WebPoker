@@ -9,9 +9,9 @@ import uta.cse3310.cards.CardDeck;
 import uta.cse3310.cards.Value;
 import uta.cse3310.cards.CardDeck.OutOfCardsException;
 
-public class Hand {
+public class Hand implements Comparable<Hand> {
     private Card[] cards;
-    private HandType handType;
+    //private HandType handType;
     public enum HandType {
         HIGH_CARD, PAIR, TWO_PAIR, THREE_OF_A_KIND, STRAIGHT, FLUSH, FULL_HOUSE, FOUR_OF_A_KIND, STRAIGHT_FLUSH,
         ROYAL_FLUSH;
@@ -23,11 +23,11 @@ public class Hand {
 
     public Hand(Card[] cards) {
         this.cards = cards;
-        this.handType = check_type();
+        //this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus
-     * Last Updated: 04/01/2022
+     * Last Updated: 04/4/2022
      * 
      * exchangeCards(index, newCards): exchange the specified cards with new ones dealt from the card deck
      * 
@@ -37,20 +37,18 @@ public class Hand {
      */
     public void exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
             for(int i = 0; i < index.length; i++) {
-                System.out.println(i + "/" + index.length);
                 if (index[i] < 0 || index[i] > 4) {
                     throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
                 }
     
                 try {
                     this.cards[index[i]] = cardDeck.drawCard();
-                    System.out.println("cards[" + index[i] + "] = " + this.cards[index[i]]);
                 } catch (OutOfCardsException e) {
                     System.out.println(e.getMessage());
                 }
             }
             
-            this.handType = check_type();
+            //this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus
@@ -69,6 +67,17 @@ public class Hand {
         }
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * is_equal(h): returns if this hand object is equal to h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is equal to h
+     */
     public boolean is_equal(Hand h) {
         boolean is_equal = true;
 
@@ -82,6 +91,17 @@ public class Hand {
         return is_equal;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * is_better_than(h): returns if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     public boolean is_better_than(Hand h) {
         boolean is_better = false;
 
@@ -112,6 +132,17 @@ public class Hand {
         return is_better;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * comapre_4_kind(h): compares two hands with hand type four of a kind. returns true if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     private boolean compare_4_kind(Hand h) {
         Card this_4_kind = this.cards[0];
         Card this_single = this.cards[4];
@@ -135,6 +166,17 @@ public class Hand {
         return is_better;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * comapre_full_house(h): compares two hands with hand type full house. returns true if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     private boolean compare_full_house(Hand h) {
         Card this_3_kind = this.cards[0];
         Card this_pair = this.cards[4];
@@ -158,6 +200,17 @@ public class Hand {
         return is_better;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * comapre_3_kind(h): compares two hands with hand type three of a kind. returns true if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     private boolean compare_3_kind(Hand h) {
         Card this_3_kind = this.cards[2];
         Card this_top_single = this.cards[3];
@@ -191,6 +244,17 @@ public class Hand {
         return is_better;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * comapre_2_pair(h): compares two hands with hand type two pair. returns true if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     private boolean compare_2_pair(Hand h) {
         Card this_top_pair = this.cards[0];
         Card this_bottom_pair = this.cards[2];
@@ -226,9 +290,17 @@ public class Hand {
         return is_better;
     }
 
-    // 6 6 4 3 2
-    // 6 4 3 3 2
-    // 6 4 3 2 2
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * comapre_pair(h): compares two hands with hand type pair. returns true if this hand object is better than h
+     *
+     * Parameters:
+     *      Hand h: the hand to compair against
+     * 
+     * Returns:
+     *      boolean value of whether or not this hand object is better than h
+     */
     private boolean compare_pair(Hand h) {
         Card this_pair = this.cards[0];
         Card[] this_singles = { this.cards[2], this.cards[3], this.cards[4] };
@@ -275,6 +347,14 @@ public class Hand {
         return is_better;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * highest_unique_card(): returns an array list without any duplicate cards (based on value only), sorted from greatest to smallest
+     *
+     * Returns:
+     *      ArrayList<Card> without any duplicate cards (based on value only), sorted from greatest to smallest
+     */
     protected ArrayList<Card> highest_unique_card() {
         ArrayList<Card> unique_cards = new ArrayList<>();
 
@@ -290,6 +370,14 @@ public class Hand {
         return unique_cards;
     }
 
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * check_type(): returns the type of this hand based on its cards
+     *
+     * Returns:
+     *      HandType enum value
+     */
     public HandType check_type() {
         Arrays.sort(this.cards, Collections.reverseOrder());
 
@@ -342,10 +430,14 @@ public class Hand {
         return type;
     }
 
-    public Hand duplicate() {
-        return new Hand(this.cards);
-    }
-
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 2/6/2022
+     * 
+     * toString(): returns the string representation of this hand object
+     *
+     * Returns:
+     *      [hand type] ([hand type ordinal])
+     */
     @Override
     public String toString() {
         StringBuilder hand = new StringBuilder(
@@ -356,5 +448,36 @@ public class Hand {
         }
 
         return hand.toString();
+    }
+
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 4/4/2022
+     * 
+     * compareTo(h): compares this hand object with h based on their cards
+     * 
+     * Parameters:
+     *      Hand h: the hand to compare against
+     * 
+     * Returns:
+     *      1 if this hand object is better than h
+     *      0 if this hand object is equal to h
+     *      -1 if this hand object is worse than h
+     */
+    @Override
+    public int compareTo(Hand h) {
+        boolean isBetter = this.is_better_than(h);
+        boolean isEqual = this.is_equal(h);
+
+        int result = 0;
+
+        if (isBetter && !isEqual) {
+            result = 1;
+        } else if (!isBetter && isEqual) {
+            result =  0;
+        } else if (!isBetter && !isEqual) {
+            result = -1;
+        }
+
+        return result;
     }
 }

@@ -169,7 +169,9 @@
       cards.style.display = "block"
 
       game_buttons.style.display = "block"
-      if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
+      if (room.match.winnerID >= 0) {
+        appointWinner(room.match.winnerID)
+      } else if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
         betting_round_buttons.style.display = "block"
         draw_round_button.style.display = "none"
       } else if (room.match.round == "DRAWING") {
@@ -178,6 +180,14 @@
       }
 
       console.log("Round: " + room.match.round)
+    }
+  }
+
+  function appointWinner(winnerId) {
+    if (winnerId == playerId) {
+      alert("Congratulations!\nYou are the winner!")
+    } else {
+      alert("Game ended!\n" + room.players[winnerId].name + " has won this match with a " + room.players[winnerId].hand.handType)
     }
   }
 

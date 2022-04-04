@@ -2,7 +2,7 @@ package uta.cse3310.poker;
 
 import uta.cse3310.cards.CardDeck;
 
-public class Player {
+public class Player implements Comparable<Player> {
     private String name;
     private double balance;
     private Hand hand;
@@ -60,10 +60,15 @@ public class Player {
         this.name = name;
     }
 
+
+    public void addToBalance(double amount) {
+        this.balance += amount;
+    }
+
     @Override
     public int hashCode() {
         return id;
-     }
+    }
 
     @Override
     public boolean equals(final Object p) {
@@ -74,5 +79,23 @@ public class Player {
             equals = this.id == player.id;
         }
         return equals;
+    }
+
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 4/4/2022
+     *
+     * compareTo(p): compare this player object to p
+     * 
+     * Parameters:
+     *      Player p: the player to compare against
+     * 
+     * Returns: 
+     *      1 if better hand than h
+     *      0 if same hands than h
+     *     -1 if worse hand than h
+     */
+    @Override
+    public int compareTo(Player p) {
+        return this.hand.compareTo(p.hand);
     }
 }
