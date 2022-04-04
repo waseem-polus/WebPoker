@@ -36,19 +36,21 @@ public class Hand {
      *      CardDeck carddeck: the deck object to allow drawing new cards
      */
     public void exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
-        for(int i = 0; i < index.length; i++) {
-            if (index[i] < 0 || index[i] > 4) {
-                throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
+            for(int i = 0; i < index.length; i++) {
+                System.out.println(i + "/" + index.length);
+                if (index[i] < 0 || index[i] > 4) {
+                    throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
+                }
+    
+                try {
+                    this.cards[index[i]] = cardDeck.drawCard();
+                    System.out.println("cards[" + index[i] + "] = " + this.cards[index[i]]);
+                } catch (OutOfCardsException e) {
+                    System.out.println(e.getMessage());
+                }
             }
-
-            try {
-                this.cards[index[i]] = cardDeck.drawCard();
-            } catch (OutOfCardsException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        
-        this.handType = check_type();
+            
+            this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus

@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
-  <meta charset="utf-8">
-  
-  <head>
-    <title>WEBPOKER</title>
-    <link rel="stylesheet" href="page_style.css">
-  </head>
-  
-  <body>
-    <h1>MAV POKER</h1>
-    <hr>
+<meta charset="utf-8">
+
+<head>
+  <title>WEBPOKER</title>
+  <link rel="stylesheet" href="page_style.css">
+</head>
+
+<body>
+  <h1>MAV POKER</h1>
+  <hr>
   <div id="landing_page" style="display: block;">
-    
+
     <div id="landing_opts">
       <p>
         <button name="new_game" onclick="onLandingNewGame()">New Game</button>
@@ -19,78 +19,85 @@
         <button name="join_game" onclick="onLandingJoinGame()">Join Game</button>
       </p>
     </div> <!-- landing_opts -->
-    
+
     <div id="join_game_opts" hidden>
       <h4>Join Game</h4>
       <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
       <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
       <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
-    </div> <!--join_room_opts-->
-    
+    </div>
+    <!--join_room_opts-->
+
     <div id="new_game_opts" hidden>
       <h4>New Game</h4>
       <p>Name: <input id="leader_name" placeholder="Enter your name" type="text"></p>
       <p>Starting Balance: <input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
-      <p>Private: <input type="checkbox" id="visibility" ></p>
+      <p>Private: <input type="checkbox" id="visibility"></p>
       <p><input type="button" name="create_room" value="Create Room" onclick="createRoom()"></p>
     </div>
   </div> <!-- landing page -->
-  
+
   <div id="game_page" hidden>
     <div id="game_hud">
       <h4>Name:</h4><textarea id="my_name" readonly cols="20" rows="1">Player</textarea>
-      
+
       <h4>Balance:</h4><textarea id="current_balance" readonly cols="20" rows="1">0</textarea>
     </div>
-    
+
     <div id="cards" hidden>
       <p>
-        <input type="checkbox" id="card1" onchange="onCardClick('card1')"/>
-        <label for="card1"><img src="1B.svg" id="card1_img"/></label>
-        
-        <input type="checkbox" id="card2" onchange="onCardClick('card2')"/>
-        <label for="card2"><img src="1B.svg" id="card2_img"/></label>
-        
-        <input type="checkbox" id="card3" onchange="onCardClick('card3')"/>
-        <label for="card3"><img src="1B.svg" id="card3_img"/></label>
-        
-        <input type="checkbox" id="card4" onchange="onCardClick('card4')"/>
-        <label for="card4"><img src="1B.svg" id="card4_img"/></label>
-        
-        <input type="checkbox" id="card5" onchange="onCardClick('card5')"/>
-        <label for="card5"><img src="1B.svg" id="card5_img"/></label>
+        <input type="checkbox" id="card1" onchange="onCardClick(1)" />
+        <label for="card1"><img src="1B.svg" id="card1_img" /></label>
+
+        <input type="checkbox" id="card2" onchange="onCardClick(2)" />
+        <label for="card2"><img src="1B.svg" id="card2_img" /></label>
+
+        <input type="checkbox" id="card3" onchange="onCardClick(3)" />
+        <label for="card3"><img src="1B.svg" id="card3_img" /></label>
+
+        <input type="checkbox" id="card4" onchange="onCardClick(4)" />
+        <label for="card4"><img src="1B.svg" id="card4_img" /></label>
+
+        <input type="checkbox" id="card5" onchange="onCardClick(5)" />
+        <label for="card5"><img src="1B.svg" id="card5_img" /></label>
       </p>
     </div> <!-- cards -->
-    
+
     <div id="pre_match" hidden>
       <p>
         <button name="start_game" onclick="onStartMatch()">Start Match</button>
       </p>
-    </div>
+    </div> <!-- pre_match -->
 
     <div id="game_buttons" hidden>
-      <p>
-        <button name="call" onclick="onCall()">Call</button>
-        <button name="check" onclick="onCheck()">Check</button>
-        <button name="fold" onclick="onFold()">Fold</button>
-        
-        <button name="raise" onclick="onRaise()">Raise</button>
-        <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
-      </p>
-      
+      <div id="betting_round_buttons" hidden>
+        <p>
+          <button name="call" onclick="onCall()">Call</button>
+          <button name="check" onclick="onCheck()">Check</button>
+          <button name="fold" onclick="onFold()">Fold</button>
+
+          <button name="raise" onclick="onRaise()">Raise</button>
+          <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
+        </p>
+      </div> <!-- betting_round_buttons -->
+
       <br>
-      
-      <p><input type="button" name="swap" value="Swap selected" onclick="onSwap()" disabled></p>
+
+      <div id="draw_round_button" hidden>
+        <p>
+          <button name="swap" onclick="onSwap()">Swap Selected</button>
+        </p>
+      </div> <!-- draw_round_button -->
     </div> <!-- game_buttons -->
   </div> <!-- game_page -->
-  
+
   <hr>
   <p><input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()"></p>
 </body>
 
 </html>
 <script>
-  
+
   var connection = null;
 
   var serverUrl;
@@ -100,16 +107,17 @@
   connection.onopen = function (evt) {
     console.log("open");
   }
-  
+
   connection.onclose = function (evt) {
     console.log("close")
   }
-  
+
   var playerId
   var roomId
 
   var room
   var me
+  var selectedCards = [0, 0, 0, 0, 0]
 
   connection.onmessage = function (evt) {
     // Take the msg and turn it into a javascript object
@@ -128,6 +136,8 @@
 
       room = obj
       me = obj.players[playerId]
+
+      console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
       updateStats()
     }
 
@@ -138,13 +148,12 @@
     var name = document.getElementById("my_name")
 
     balance.value = me.balance
-    name.value = me.name + "(id: " + playerId + ")"
+    name.value = me.name + "  (id: " + playerId + ")"
 
     if (me.hand.cards[0] != null) {
       var cards = me.hand.cards
-      for(var i = 0; i < 5; i++) {
-        var card = document.getElementById("card" + (i+1) + "_img").src = cards[i].svg
-        console.log(cards[i].svg);
+      for (var i = 0; i < 5; i++) {
+        var card = document.getElementById("card" + (i + 1) + "_img").src = cards[i].svg
       }
     }
 
@@ -153,98 +162,111 @@
       var cards = document.getElementById("cards")
       var game_buttons = document.getElementById("game_buttons")
 
+      var betting_round_buttons = document.getElementById("betting_round_buttons")
+      var draw_round_button = document.getElementById("draw_round_button")
+
       pre_match.style.display = "none"
       cards.style.display = "block"
+
       game_buttons.style.display = "block"
+      if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
+        betting_round_buttons.style.display = "block"
+        draw_round_button.style.display = "none"
+      } else if (room.match.round == "DRAWING") {
+        betting_round_buttons.style.display = "none"
+        draw_round_button.style.display = "block"
+      }
+
+      console.log("Round: " + room.match.round)
     }
   }
 
   function onBackToMain() {
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
-    
+
     var landing_opts = document.getElementById("landing_opts")
     var new_game_opts = document.getElementById("new_game_opts")
     var join_game_opts = document.getElementById("join_game_opts")
-    
-    
+
+
     landing_page.style.display = "block"
     game_page.style.display = "none"
-    
+
     landing_opts.style.display = "block"
     new_game_opts.style.display = "none"
-    join_game_opts.style.display = "none" 
+    join_game_opts.style.display = "none"
   }
-  
+
   function onLandingNewGame() {
     var landing_opts = document.getElementById("landing_opts")
     var new_game_opts = document.getElementById("new_game_opts")
-    
+
     landing_opts.style.display = "none"
     new_game_opts.style.display = "block"
   }
-  
-  function onLandingJoinGame () {
+
+  function onLandingJoinGame() {
     var landing_opts = document.getElementById("landing_opts")
     var join_game_opts = document.getElementById("join_game_opts")
-    
+
     landing_opts.style.display = "none"
     join_game_opts.style.display = "block"
   }
-  
+
   /* Author: Waseem Alkasbutrus
   * Last Updated: 04/2/2022
   * 
   * joinRoom(): called whenever a user clicks on the join room button
   */
- function joinRoom() {
-   var joinRoomId = document.getElementById("join_room").value
-   var name = document.getElementById("player_name").value
-   
-   roomId = joinRoomId
-   
-   var joinEvt = {
-     event: "JOIN_ROOM",
-     roomID: -1,
-     playerID: playerId,
-     msg: [joinRoomId, name]
+  function joinRoom() {
+    var joinRoomId = document.getElementById("join_room").value
+    var name = document.getElementById("player_name").value
+
+    roomId = joinRoomId
+
+    var joinEvt = {
+      event: "JOIN_ROOM",
+      roomID: -1,
+      playerID: playerId,
+      msg: [joinRoomId, name]
     }
-    
+
     connection.send(JSON.stringify(joinEvt));
     console.log(JSON.stringify(joinEvt));
-    
+
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
-    
+
     landing_page.style.display = "none"
     game_page.style.display = "block"
   }
-  
+
   function createRoom() {
     var leaderName = document.getElementById("leader_name").value
     var startingBalance = document.getElementById("starting_balance").value
     var visibility = document.getElementById("visibility").checked
-    
+
     if (visibility) {
       visibility = "PRIVATE"
     } else {
       visibility = "PUBLIC"
     }
-    
+
     var evt = {
       event: "CREATE_ROOM",
       roomID: roomId,
       playerID: playerId,
       msg: [leaderName, startingBalance, visibility]
     }
-    
+
     connection.send(JSON.stringify(evt))
     console.log(JSON.stringify(evt))
-    
+
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
     var pre_match = document.getElementById("pre_match")
-    
+
     landing_page.style.display = "none"
     game_page.style.display = "block"
     pre_match.style.display = "block"
@@ -258,7 +280,7 @@
           roomID: roomId,
           playerID: playerId,
         }
-  
+
         connection.send(JSON.stringify(startMatchEvt))
         console.log(JSON.stringify(startMatchEvt))
 
@@ -269,45 +291,137 @@
         pre_match.style.display = "none"
         cards.style.display = "block"
         game_buttons.style.display = "block"
+      } else {
+        alert("Only room leader can start the match")
       }
     } else {
       alert("More players needed to start match");
     }
   }
-  
-  function onRaise() { 
+
+  function onRaise() {
     if (room.match.currentPlayerID == playerId) {
       var textbox = document.getElementById("raise_amount")
-      
+
       var amount = textbox.value
-  
-      var evt = {
-        event: "RAISE",
-        roomID: roomId,
-        playerID: playerId,
-        msg: [amount]
+      if (amount > 0) {
+        var raiseEvt = {
+          event: "RAISE",
+          roomID: roomId,
+          playerID: playerId,
+          msg: [amount]
+        }
+
+        connection.send(JSON.stringify(raiseEvt))
+        console.log(JSON.stringify(raiseEvt))
+        textbox.value = ""
+      } else {
+        alert("Please specify a value to raise")
       }
-  
-      connection.send(JSON.stringify(evt))
-      console.log(JSON.stringify(evt))
     } else {
       alert("Not your turn")
     }
   }
 
+  function onCall() {
+    if (room.match.currentPlayerID == playerId) {
+      var callEvt = {
+        event: "CALL",
+        roomID: roomId,
+        playerID: playerId,
+        msg: ["NONE"]
+      }
+
+      connection.send(JSON.stringify(callEvt))
+      console.log(JSON.stringify(callEvt))
+    } else {
+      alert("Not your turn")
+    }
+  }
+
+  function onFold() {
+    if (room.match.currentPlayerID == playerId) {
+      var foldEvt = {
+        event: "FOLD",
+        roomID: roomId,
+        playerID: playerId,
+        msg: ["NONE"]
+      }
+
+      connection.send(JSON.stringify(foldEvt))
+      console.log(JSON.stringify(foldEvt))
+    } else {
+      alert("Not your turn")
+    }
+  }
+
+  function onCheck() {
+    if (room.match.currentPlayerID == playerId) {
+      var checkEvt = {
+        event: "CHECK",
+        roomID: roomId,
+        playerID: playerId,
+        msg: ["NONE"]
+      }
+
+      connection.send(JSON.stringify(checkEvt))
+      console.log(JSON.stringify(checkEvt))
+    } else {
+      alert("Not your turn")
+    }
+  }
+
+  function onSwap() {
+
+    if (room.match.currentPlayerID == playerId) {
+      var cardsToSwap = getSelectedCards()
+      var swapEvt = {
+        event: "EXCHANGE_CARDS",
+        roomID: roomId,
+        playerID: playerId,
+        msg: cardsToSwap
+      }
+
+      connection.send(JSON.stringify(swapEvt))
+      console.log(JSON.stringify(swapEvt))
+    } else {
+      alert("Not your turn")
+    }
+  }
+
+  
   var cardsClicked = 0
   
   function onCardClick(id) {
-    card = document.getElementById(id)
+    card = document.getElementById('card' + id)
+    
     
     if (cardsClicked == 3 && card.checked == true) {
       card.checked = false;
     } else if (cardsClicked < 3 && card.checked == true) {
       cardsClicked++
+      selectedCards[id - 1] = 1
     } else if (card.checked == false) {
       cardsClicked--
+      selectedCards[id - 1] = 0
     }
+  }
+
+  function getSelectedCards() {
+    var checkedCardsCount = cardsClicked
+    var checkedCards = ['' + checkedCardsCount]
+
+    console.log(selectedCards)
     
-    console.log(cardsClicked)
+    for (var i = 0; i < 5; i++) {
+      if (selectedCards[i] == 1) {
+        checkedCards[(cardsClicked + 1) - checkedCardsCount] = '' + i
+        checkedCardsCount--;
+      }
+    }
+
+    console.log(checkedCards)
+
+    return checkedCards
   }
 </script>

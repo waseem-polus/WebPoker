@@ -44,8 +44,12 @@ public class Player {
         this.balance = amount;
     }
 
-    public double getcurrentBet() {
+    public double getCurrentBet() {
         return currentBet;
+    }
+
+    public void clearBet() {
+        this.currentBet = 0;
     }
 
     public int getID() {
