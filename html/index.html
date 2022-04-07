@@ -124,6 +124,7 @@
     var msg = evt.data
     const obj = JSON.parse(msg);
 
+    console.log("Received:")
     console.log(obj)
 
     if (playerId == null) {
@@ -132,12 +133,13 @@
 
       console.log("player ID = " + playerId)
     } else {
-      console.log(obj.players[playerId])
-
       room = obj
       me = obj.players[playerId]
+      
+      console.log("Me:")
+      console.log(me)
 
-      console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
+      console.log(obj.players[playerId].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
       updateStats()
     }
 

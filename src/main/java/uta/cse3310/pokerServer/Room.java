@@ -12,10 +12,10 @@ public class Room {
     public RoomVisibility visibility;
     public final int pin;
     private int leaderId;
-    private double startingBalance;
+    public final double startingBalance;
 
     public Room(Player leader, RoomVisibility visibility, double startingBalance) {
-        this.match = new Match(startingBalance);
+        this.match = new Match();
         this.match.addPlayer(leader);
 
         this.pin = leader.id;
@@ -113,10 +113,9 @@ public class Room {
      * add() add new players.
      */
     public void restartMatch() {
-        this.match = new Match(startingBalance);
+        this.match = new Match();
         for (Player p : players.values()) {
             this.match.addPlayer(p);
-
         }
     }
 }

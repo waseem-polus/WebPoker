@@ -12,6 +12,9 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.print.attribute.AttributeSet;
+
 import java.util.HashMap;
 
 import org.java_websocket.WebSocket;
@@ -34,14 +37,16 @@ public class WebPoker extends WebSocketServer {
     private HashMap<Integer, Player> players;
     private int nextID;
 
-    public static Object mutex;
+    public static Object playersMutex;
+    public static Object roomsMutex;
 
     public WebPoker(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
         this.rooms = new HashMap<>();
         this.players = new HashMap<>();
         this.nextID = 0;
-        mutex = new Object();
+        playersMutex = new Object();
+        roomsMutex = new Object();
     }
 
     public WebPoker(InetSocketAddress address) {
@@ -68,10 +73,13 @@ public class WebPoker extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println(conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected");
 
-        conn.setAttachment(this.nextID);
+        int[] attachment = { this.nextID, -1 };
+        conn.setAttachment(attachment);
 
         Player player = new Player(this.nextID);
-        this.players.put(this.nextID, player);
+        synchronized (playersMutex) {
+            this.players.put(this.nextID, player);
+        }
 
         this.nextID++;
 
@@ -84,16 +92,20 @@ public class WebPoker extends WebSocketServer {
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println(conn + " has closed");
 
-        // int idx = conn.getAttachment();
-        // synchronized (mutex) {
-        // this.players.remove(idx);
+        int[] attachment = new int[2];
+        attachment = conn.getAttachment();
 
-        // System.out.println("removed player index " + idx);
+        System.out.println("removed player " + attachment[0] + " from room " + attachment[1]);
 
-        // // The state is now changed, so every client needs to be informed
-        // broadcast(encodeAsJson());
-        // System.out.println("the game state" + encodeAsJson());
-        // }
+        this.rooms.get(attachment[1]);
+
+        synchronized (playersMutex) {
+            this.players.remove(attachment[0]);
+        }
+
+        // The state is now changed, so every client needs to be informed
+        broadcast(encodeAsJson(attachment[1]));
+        System.out.println("On close sent:\n" + encodeAsJson(attachment[1]));
     }
 
     @Override
@@ -105,34 +117,36 @@ public class WebPoker extends WebSocketServer {
         UserEvent evt = gson.fromJson(message, UserEvent.class);
 
         System.out.println("User[" + evt.playerID + "] wishes to " + evt.event.toString() + "\n");
-        processMessage(evt);
+        processMessage(conn, evt);
 
         if (evt.event == UserEventType.CREATE_ROOM) {
             conn.setAttachment(evt.playerID);
             conn.send(gson.toJson(this.rooms.get(evt.playerID)));
         } else if (evt.event == UserEventType.JOIN_ROOM) {
-            broadcast(encodeRoomAsJson(Integer.parseInt((String) evt.msg[0])));
-            System.out.println("Sent:\n" + encodeRoomAsJson(Integer.parseInt((String) evt.msg[0])));
+            broadcast(encodeAsJson(Integer.parseInt((String) evt.msg[0])));
+            System.out.println("Sent:\n" + encodeAsJson(Integer.parseInt((String) evt.msg[0])));
         } else {
-            broadcast(encodeRoomAsJson(evt.roomID));
-            System.out.println("Sent:\n" + encodeRoomAsJson(evt.roomID));
+            broadcast(encodeAsJson(evt.roomID));
+            System.out.println("Sent:\n" + encodeAsJson(evt.roomID));
         }
     }
 
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
-        synchronized (mutex) {
+        synchronized (playersMutex) {
             broadcast(message.array());
         }
         System.out.println(conn + ": " + message);
     }
 
-    private String encodeRoomAsJson(int roomPin) {
+    private String encodeAsJson(int roomPin) {
         Gson gson = new Gson();
         return gson.toJson(this.rooms.get(roomPin));
     }
 
-    public void processMessage(UserEvent evt) {
+    public void processMessage(WebSocket conn, UserEvent evt) {
+        int[] newAttachment = new int[2];
+
         switch (evt.event) {
             case START_MATCH:
             case EXCHANGE_CARDS:
@@ -144,10 +158,19 @@ public class WebPoker extends WebSocketServer {
                 ;
                 break;
             case CREATE_ROOM:
+                double startingBalance = Double.parseDouble((String) evt.msg[1]);
                 Player leader = players.get(evt.playerID);
                 leader.setName((String) evt.msg[0]);
-                this.rooms.put(evt.playerID, new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]),
-                        Double.parseDouble((String) evt.msg[1])));
+                leader.setBalance(startingBalance);
+
+                synchronized (roomsMutex) {
+                    this.rooms.put(evt.playerID,
+                            new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]), startingBalance));
+                }
+
+                newAttachment[0] = evt.playerID;
+                newAttachment[1] = evt.playerID;
+                conn.setAttachment(newAttachment);
 
                 System.out.println("Created room " + evt.playerID);
                 break;
@@ -159,9 +182,16 @@ public class WebPoker extends WebSocketServer {
                 if (room == null) {
 
                 } else {
-                    this.players.get(evt.playerID).setName((String) evt.msg[1]);
+                    Player p = this.players.get(evt.playerID);
+                    p.setName((String) evt.msg[1]);
+                    p.setBalance(room.startingBalance);
+
                     room.addPlayer(players.get(evt.playerID));
-                    
+
+                    newAttachment[0] = evt.playerID;
+                    newAttachment[0] = evt.roomID;
+                    conn.setAttachment(newAttachment);
+
                     System.out.println("Added player " + evt.playerID + " to room " + (String) evt.msg[0]);
                 }
                 break;

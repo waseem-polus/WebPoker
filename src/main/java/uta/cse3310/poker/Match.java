@@ -8,7 +8,6 @@ import uta.cse3310.pokerServer.UserEvent;
 
 public class Match {
     private transient CardDeck deck;
-    private transient double startingBalance;
     private transient ArrayList<Player> activePlayers;
     private transient int turnNumber;
     private double bettingPool;
@@ -19,17 +18,11 @@ public class Match {
     public Match() {
         this.deck = new CardDeck();
         this.bettingPool = 0;
-        this.startingBalance = 2000;
         this.round = MatchRound.WAITING;
         this.activePlayers = new ArrayList<>();
         this.turnNumber = 0;
         this.currentPlayerID = 0;
         this.winnerID = -1;
-    }
-
-    public Match(double playerBalance) {
-        this();
-        this.startingBalance = playerBalance;
     }
 
     /*
@@ -56,12 +49,12 @@ public class Match {
                 clearPlayerBets();
                 turnNumber = 0;
             }
-        } else if (this.round == MatchRound.DRAWING && turnNumber == activePlayers.size()) {
+        } else if (this.round == MatchRound.DRAWING && turnNumber >= activePlayers.size()) {
             this.round = this.round.next();
             turnNumber = 0;
         }
 
-        if (this.round == MatchRound.SHOWDOWN || (this.activePlayers.size() == 1 && this.round != MatchRound.WAITING)) {
+        if ((this.round == MatchRound.SHOWDOWN || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
             appointWinner();
         }
     }
@@ -157,7 +150,6 @@ public class Match {
     public void onStartMatch() {
         if (this.activePlayers.size() > 1) {
             for (Player p : this.activePlayers) {
-                p.setBalance(this.startingBalance);
                 this.bettingPool += p.placeBet(20);
                 p.dealHand(deck);
                 p.clearBet();
@@ -207,9 +199,9 @@ public class Match {
     /*
      * Author: Originally Victor Arowsafe, method reworked from scratch by Waseem
      * Alkasbutrus
-     * Last Updated: 4/4/2022
+     * Last Updated: 4/7/2022
      * 
-     * onCall(playerID): the specified player will place the same bet as the current
+     * onCall(playerID): increase the current bet of the specified player to match the current highest bet
      * highest bet
      * 
      * Parameters:
@@ -218,9 +210,12 @@ public class Match {
     public void onCall(int playerID) {
         if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
             double highestBet = getHighestBet();
-            getPlayer(playerID).placeBet(highestBet);
-
-            nextTurn();
+            Player p = getPlayer(playerID);
+            if (p.getCurrentBet() < highestBet) {
+                p.placeBet(highestBet - p.getCurrentBet());
+                
+                nextTurn();
+            }
         }
     }
 
@@ -236,8 +231,9 @@ public class Match {
      * double amount: the amount to raise bet by
      */
     public void onRaise(int playerID, double amount) {
-        if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
-            this.bettingPool += getPlayer(playerID).placeBet(amount);
+        Player p = getPlayer(playerID);
+        if ((round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) && (amount + p.getCurrentBet() > this.getHighestBet())) {
+            this.bettingPool += p.placeBet(amount);
             nextTurn();
         }
     }
@@ -271,6 +267,7 @@ public class Match {
      */
     public void appointWinner() {
         Collections.sort(this.activePlayers, Collections.reverseOrder());
+        System.out.println(this.activePlayers);
 
         this.winnerID = this.activePlayers.get(0).id;
         this.activePlayers.get(0).addToBalance(this.bettingPool);
