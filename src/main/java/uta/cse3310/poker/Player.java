@@ -3,7 +3,7 @@ package uta.cse3310.poker;
 import uta.cse3310.cards.CardDeck;
 
 public class Player implements Comparable<Player> {
-    private String name;
+    public String name;
     private double balance;
     private Hand hand;
     private double currentBet;

@@ -14,6 +14,8 @@ public class Match {
     private MatchRound round;
     private int currentPlayerID;
     private int winnerID;
+    private String action;
+    private double minimumBet;
 
     public Match() {
         this.deck = new CardDeck();
@@ -23,6 +25,8 @@ public class Match {
         this.turnNumber = 0;
         this.currentPlayerID = 0;
         this.winnerID = -1;
+        this.action = new String();
+        this.minimumBet = 0;
     }
 
     /*
@@ -76,6 +80,8 @@ public class Match {
      */
     public void addPlayer(Player player) {
         activePlayers.add(player);
+
+        this.action = player.name + " joined the match";
     }
 
     /*
@@ -107,6 +113,7 @@ public class Match {
      * UserEvent event: the event to be processed
      */
     public void onEvent(UserEvent event) {
+        this.action = "";
         switch (event.event) {
             case EXCHANGE_CARDS:
                 Integer length = Integer.parseInt((String) event.msg[0]);
@@ -139,6 +146,8 @@ public class Match {
                 break;
             default:
         }
+
+
     }
 
     /*
@@ -157,6 +166,8 @@ public class Match {
 
             round = MatchRound.FIRST_BETTING;
             currentPlayerID = activePlayers.get(0).id;
+
+            this.action = "Match started";
         }
     }
 
@@ -171,7 +182,11 @@ public class Match {
      * int playerID: the id of the player who wishes to fold
      */
     public void onFold(int playerID) {
+        Player p = getPlayer(playerID);
+
         removePlayer(playerID);
+
+        this.action = p.name + "folded";
         nextTurn();
     }
 
@@ -189,8 +204,10 @@ public class Match {
     public void onCheck(int playerID) {
         if (round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) {
             double highestBet = getHighestBet();
+            Player p = getPlayer(playerID);
 
-            if (getPlayer(playerID).getCurrentBet() == highestBet) {
+            if (p.getCurrentBet() >= highestBet) {
+                this.action = p.name + " checked";
                 nextTurn();
             }
         }
@@ -214,6 +231,7 @@ public class Match {
             if (p.getCurrentBet() < highestBet) {
                 p.placeBet(highestBet - p.getCurrentBet());
                 
+                this.action = p.name + " called";
                 nextTurn();
             }
         }
@@ -234,6 +252,8 @@ public class Match {
         Player p = getPlayer(playerID);
         if ((round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) && (amount + p.getCurrentBet() > this.getHighestBet())) {
             this.bettingPool += p.placeBet(amount);
+            this.minimumBet = p.getCurrentBet();
+            this.action = p.name + " raised the minimum bet to " + p.getCurrentBet();
             nextTurn();
         }
     }
@@ -253,11 +273,13 @@ public class Match {
 
         if (player != null) {
             getPlayer(playerID).exchangeCards(cardIndex, deck);
+            
+            this.action = player.name + " exchanged " + cardIndex.length + " cards";
+            nextTurn();
         } else {
             System.out.println("[Error] player does not exist");
         }
 
-        nextTurn();
     }
 
     /* Author: Waseem Alkasbutrus

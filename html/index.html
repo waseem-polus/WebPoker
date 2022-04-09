@@ -47,7 +47,7 @@
     <div id="cards" hidden>
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick(1)" />
-        <label for="card1"><img src="1B.svg" id="card1_img" /></label>
+        <label for="card1"><img src="1B.svg" id="card1_img" width="500"/></label>
 
         <input type="checkbox" id="card2" onchange="onCardClick(2)" />
         <label for="card2"><img src="1B.svg" id="card2_img" /></label>
@@ -80,7 +80,7 @@
           <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
         </p>
       </div> <!-- betting_round_buttons -->
-
+        
       <br>
 
       <div id="draw_round_button" hidden>
@@ -89,6 +89,10 @@
         </p>
       </div> <!-- draw_round_button -->
     </div> <!-- game_buttons -->
+
+    <h3>Match progress</h3>
+    <div id="info_area" style="overflow-y: auto; height: 15px;">
+    </div> <!-- info_area -->
   </div> <!-- game_page -->
 
   <hr>
@@ -182,6 +186,12 @@
       }
 
       console.log("Round: " + room.match.round)
+    }
+
+    if (room.match.action != null) {
+      var info_area = document.getElementById("info_area")
+
+      info_area.innerHTML += room.match.action + '<br/>'
     }
   }
 
@@ -316,7 +326,7 @@
       var textbox = document.getElementById("raise_amount")
 
       var amount = textbox.value
-      if (amount > 0) {
+      if ((amount + me.currentBet) > room.match.minimumBet) {
         var raiseEvt = {
           event: "RAISE",
           roomID: roomId,
@@ -437,3 +447,5 @@
     return checkedCards
   }
 </script>
+
+<!-- let game update before sending winner alert -->
