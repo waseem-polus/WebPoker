@@ -25,3 +25,16 @@ button {
   font-size: 16px;
   margin: 5px;
 }
+
+button:disabled
+button[disabled] {
+  border: 2px solid gray;
+  color: gray;
+  background-color: lightgrey;
+}
+
+button:hover {
+  border: 2px solid lightgreen;
+  color: green;
+  background-color: greenyellow;
+}

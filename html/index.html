@@ -47,7 +47,7 @@
     <div id="cards" hidden>
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick(1)" />
-        <label for="card1"><img src="1B.svg" id="card1_img" width="500"/></label>
+        <label for="card1"><img src="1B.svg" id="card1_img" width="150"/></label>
 
         <input type="checkbox" id="card2" onchange="onCardClick(2)" />
         <label for="card2"><img src="1B.svg" id="card2_img" /></label>
@@ -65,7 +65,7 @@
 
     <div id="pre_match" hidden>
       <p>
-        <button name="start_game" onclick="onStartMatch()">Start Match</button>
+        <button name="start_game" onclick="onStartMatch()" disabled>Start Match</button>
       </p>
     </div> <!-- pre_match -->
 
@@ -90,7 +90,7 @@
       </div> <!-- draw_round_button -->
     </div> <!-- game_buttons -->
 
-    <h3>Match progress</h3>
+    <h3>Match Log</h3>
     <div id="info_area" style="overflow-y: auto; height: 15px;">
     </div> <!-- info_area -->
   </div> <!-- game_page -->
@@ -136,7 +136,7 @@
       roomId = obj.id
 
       console.log("player ID = " + playerId)
-    } else {
+    } else if (obj.pin == roomId) {
       room = obj
       me = obj.players[playerId]
       
@@ -146,7 +146,6 @@
       console.log(obj.players[playerId].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
       updateStats()
     }
-
   }
 
   function updateStats() {
@@ -188,9 +187,14 @@
       console.log("Round: " + room.match.round)
     }
 
+    if (room.playerCount > 1 && room.leaderId == me.id) {
+      document.getElementById("start_game").disabled = "false"
+      console.log("Match can begin")
+    }
+
     if (room.match.action != null) {
       var info_area = document.getElementById("info_area")
-
+      console.log(room.match.action)
       info_area.innerHTML += room.match.action + '<br/>'
     }
   }

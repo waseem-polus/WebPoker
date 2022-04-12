@@ -73,8 +73,7 @@ public class WebPoker extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println(conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected");
 
-        int[] attachment = { this.nextID, -1 };
-        conn.setAttachment(attachment);
+        conn.setAttachment(this.nextID);
 
         Player player = new Player(this.nextID);
         synchronized (playersMutex) {
@@ -92,20 +91,26 @@ public class WebPoker extends WebSocketServer {
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println(conn + " has closed");
 
-        int[] attachment = new int[2];
-        attachment = conn.getAttachment();
+        int attachment = conn.getAttachment();
 
-        System.out.println("removed player " + attachment[0] + " from room " + attachment[1]);
+        System.out.println("removed player " + attachment);
 
-        this.rooms.get(attachment[1]);
-
+        Player p = this.players.get(attachment);
         synchronized (playersMutex) {
-            this.players.remove(attachment[0]);
+            if (p.getRoom() != -1) {
+                Room room = this.rooms.get(p.getRoom());
+                room.removePlayer(p.id);
+                if (room.playerCount() == 0) {
+                    this.rooms.remove(p.getRoom());
+                    System.out.println("Removed room " + p.getRoom());
+                }
+            } 
+            this.players.remove(attachment);
         }
 
         // The state is now changed, so every client needs to be informed
-        broadcast(encodeAsJson(attachment[1]));
-        System.out.println("On close sent:\n" + encodeAsJson(attachment[1]));
+        broadcast(encodeAsJson(p.getRoom()));
+        System.out.println("On close sent:\n" + encodeAsJson(p.getRoom()));
     }
 
     @Override

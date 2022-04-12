@@ -30,7 +30,7 @@ public class Room {
 
     /*
      * Author: Meaza Abera
-     * Last Updated: 04/2/2022
+     * Last Updated: 04/9/2022
      * 
      * 
      * INTIALIZING player who start the game to be the game leader
@@ -41,6 +41,7 @@ public class Room {
     public void addPlayer(Player player) {
         if ((players.size() < 5)) {
             players.put(player.id, player);
+            player.setRoom(this.pin);
             this.playerCount = this.players.size();
             if (this.match.isWaiting()) {
                 this.match.addPlayer(player);
@@ -62,6 +63,7 @@ public class Room {
         players.remove(id);
         this.playerCount = this.players.size();
         this.match.removePlayer(id);
+        this.playerCount = this.players.size();
     }
 
     /*
@@ -74,8 +76,17 @@ public class Room {
         this.visibility = visibility;
     }
 
-    public boolean update() {
-        return false;
+    /*
+     * Author: Waseem Alkasbutrus
+     * Last Updated: 04/9/2022
+     * 
+     * playerCount(): returns the number of players in this room
+     * 
+     * Returns:
+     *      int number of players in room
+     */
+    public int playerCount() {
+        return this.players.size();
     }
 
     /*

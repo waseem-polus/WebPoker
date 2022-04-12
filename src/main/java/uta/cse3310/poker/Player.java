@@ -8,6 +8,7 @@ public class Player implements Comparable<Player> {
     private Hand hand;
     private double currentBet;
     public final int id;
+    private int roomPin;
 
     public Player(int id) {
         this.name = "";
@@ -15,6 +16,7 @@ public class Player implements Comparable<Player> {
         this.hand = new Hand();
         this.currentBet = 0;
         this.id = id;
+        this.roomPin = -1;
     }
 
     public void exchangeCards(Integer[] cardIndex, CardDeck deck) {
@@ -23,6 +25,14 @@ public class Player implements Comparable<Player> {
 
     public void dealHand(CardDeck deck) {
         hand.dealHand(deck);
+    }
+
+    public void setRoom(int pin) {
+        this.roomPin = pin;
+    }
+
+    public int getRoom() {
+        return this.roomPin;
     }
 
     public double placeBet(double amount) {
