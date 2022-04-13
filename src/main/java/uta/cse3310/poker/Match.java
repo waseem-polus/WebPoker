@@ -31,7 +31,7 @@ public class Match {
 
     /*
      * Author: Waseem Alkasbutrus
-     * Last Updated: 4/4/2022
+     * Last Updated: 4/12/2022
      * 
      * nextTurn(): sets the current player's turn to the next player in the
      * arraylist. Moves to next round if needed.
@@ -50,7 +50,6 @@ public class Match {
 
             if (turnNumber >= activePlayers.size() && (currentBet != -1)) {
                 this.round = this.round.next();
-                clearPlayerBets();
                 turnNumber = 0;
             }
         } else if (this.round == MatchRound.DRAWING && turnNumber >= activePlayers.size()) {
@@ -60,12 +59,6 @@ public class Match {
 
         if ((this.round == MatchRound.SHOWDOWN || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
             appointWinner();
-        }
-    }
-
-    private void clearPlayerBets() {
-        for (Player p : this.activePlayers) {
-            p.clearBet();
         }
     }
 
@@ -161,7 +154,6 @@ public class Match {
             for (Player p : this.activePlayers) {
                 this.bettingPool += p.placeBet(20);
                 p.dealHand(deck);
-                p.clearBet();
             }
 
             round = MatchRound.FIRST_BETTING;
