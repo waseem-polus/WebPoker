@@ -39,9 +39,11 @@
 
   <div id="game_page" hidden>
     <div id="game_hud">
-      <h4>Name:</h4><textarea id="my_name" readonly cols="20" rows="1">Player</textarea>
-
-      <h4>Balance:</h4><textarea id="current_balance" readonly cols="20" rows="1">0</textarea>
+      <h4 id="my_name"></h4>
+      <h4 id="current_balance"></h4>
+      <h4 id="my_bet"></h4>
+      <h4 id="my_hand"></h4>
+      <h4 id="current_turn"></h4>
     </div>
 
     <div id="cards" hidden>
@@ -50,22 +52,22 @@
         <label for="card1"><img src="1B.svg" id="card1_img" width="150"/></label>
 
         <input type="checkbox" id="card2" onchange="onCardClick(2)" />
-        <label for="card2"><img src="1B.svg" id="card2_img" /></label>
+        <label for="card2"><img src="1B.svg" id="card2_img" width="150"/></label>
 
         <input type="checkbox" id="card3" onchange="onCardClick(3)" />
-        <label for="card3"><img src="1B.svg" id="card3_img" /></label>
+        <label for="card3"><img src="1B.svg" id="card3_img" width="150"/></label>
 
         <input type="checkbox" id="card4" onchange="onCardClick(4)" />
-        <label for="card4"><img src="1B.svg" id="card4_img" /></label>
+        <label for="card4"><img src="1B.svg" id="card4_img" width="150"/></label>
 
         <input type="checkbox" id="card5" onchange="onCardClick(5)" />
-        <label for="card5"><img src="1B.svg" id="card5_img" /></label>
+        <label for="card5"><img src="1B.svg" id="card5_img" width="150"/></label>
       </p>
     </div> <!-- cards -->
 
     <div id="pre_match" hidden>
       <p>
-        <button name="start_game" onclick="onStartMatch()" disabled>Start Match</button>
+        <button class="disabled" id="start_game" onclick="onStartMatch()" disabled>Start Match</button>
       </p>
     </div> <!-- pre_match -->
 
@@ -91,7 +93,7 @@
     </div> <!-- game_buttons -->
 
     <h3>Match Log</h3>
-    <div id="info_area" style="overflow-y: auto; height: 15px;">
+    <div id="info_area" style="overflow-y: auto;">
     </div> <!-- info_area -->
   </div> <!-- game_page -->
 
@@ -149,26 +151,34 @@
   }
 
   function updateStats() {
-    var balance = document.getElementById("current_balance")
     var name = document.getElementById("my_name")
-
-    balance.value = me.balance
-    name.value = me.name + "  (id: " + playerId + ")"
-
+    var balance = document.getElementById("current_balance")
+    
+    name.innerHTML = "NAME: " + me.name + "  (id: " + playerId + ")"
+    balance.innerHTML = "BALANCE: $" + me.balance
+    
     if (me.hand.cards[0] != null) {
       var cards = me.hand.cards
       for (var i = 0; i < 5; i++) {
         var card = document.getElementById("card" + (i + 1) + "_img").src = cards[i].svg
       }
     }
-
+    
     if (room.match.round != "WAITING") {
+      var my_bet = document.getElementById("my_bet")
+      var my_hand = document.getElementById("my_hand")
+      var current_turn = document.getElementById("current_turn")
+
       var pre_match = document.getElementById("pre_match")
       var cards = document.getElementById("cards")
       var game_buttons = document.getElementById("game_buttons")
 
       var betting_round_buttons = document.getElementById("betting_round_buttons")
       var draw_round_button = document.getElementById("draw_round_button")
+
+      my_bet.innerHTML = "MY BET: $" + me.currentBet
+      my_hand.innerHTML = "MY HAND: " + me.hand.handType
+      current_turn.innerHTML = "TURN: " + room.players[room.match.currentPlayerID].name
 
       pre_match.style.display = "none"
       cards.style.display = "block"
@@ -188,14 +198,13 @@
     }
 
     if (room.playerCount > 1 && room.leaderId == me.id) {
-      document.getElementById("start_game").disabled = "false"
-      console.log("Match can begin")
+      document.getElementById("start_game").disabled = false
     }
 
-    if (room.match.action != null) {
+    if (room.match.action != "") {
       var info_area = document.getElementById("info_area")
-      console.log(room.match.action)
-      info_area.innerHTML += room.match.action + '<br/>'
+      
+      info_area.innerHTML = room.match.action + '<br/>' + info_area.innerHTML
     }
   }
 
@@ -203,7 +212,7 @@
     if (winnerId == playerId) {
       alert("Congratulations!\nYou are the winner!")
     } else {
-      alert("Game ended!\n" + room.players[winnerId].name + " has won this match with a " + room.players[winnerId].hand.handType)
+      alert("Game ended!\n" + room.players[winnerId].name + " won this match with " + room.players[winnerId].hand.handType)
     }
   }
 
