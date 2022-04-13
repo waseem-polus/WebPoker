@@ -125,7 +125,6 @@ public class WebPoker extends WebSocketServer {
         processMessage(conn, evt);
 
         if (evt.event == UserEventType.CREATE_ROOM) {
-            conn.setAttachment(evt.playerID);
             conn.send(gson.toJson(this.rooms.get(evt.playerID)));
         } else if (evt.event == UserEventType.JOIN_ROOM) {
             broadcast(encodeAsJson(Integer.parseInt((String) evt.msg[0])));
@@ -150,8 +149,6 @@ public class WebPoker extends WebSocketServer {
     }
 
     public void processMessage(WebSocket conn, UserEvent evt) {
-        int[] newAttachment = new int[2];
-
         switch (evt.event) {
             case START_MATCH:
             case EXCHANGE_CARDS:
@@ -173,10 +170,6 @@ public class WebPoker extends WebSocketServer {
                             new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]), startingBalance));
                 }
 
-                newAttachment[0] = evt.playerID;
-                newAttachment[1] = evt.playerID;
-                conn.setAttachment(newAttachment);
-
                 System.out.println("Created room " + evt.playerID);
                 break;
             case RESTART_MATCH:
@@ -192,10 +185,6 @@ public class WebPoker extends WebSocketServer {
                     p.setBalance(room.startingBalance);
 
                     room.addPlayer(players.get(evt.playerID));
-
-                    newAttachment[0] = evt.playerID;
-                    newAttachment[0] = evt.roomID;
-                    conn.setAttachment(newAttachment);
 
                     System.out.println("Added player " + evt.playerID + " to room " + (String) evt.msg[0]);
                 }
