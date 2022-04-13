@@ -11,7 +11,8 @@ import uta.cse3310.cards.CardDeck.OutOfCardsException;
 
 public class Hand implements Comparable<Hand> {
     private Card[] cards;
-    //private HandType handType;
+    private HandType handType;
+
     public enum HandType {
         HIGH_CARD, PAIR, TWO_PAIR, THREE_OF_A_KIND, STRAIGHT, FLUSH, FULL_HOUSE, FOUR_OF_A_KIND, STRAIGHT_FLUSH,
         ROYAL_FLUSH;
@@ -19,15 +20,16 @@ public class Hand implements Comparable<Hand> {
 
     public Hand() {
         this.cards = new Card[5];
+        this.handType = check_type();
     }
 
     public Hand(Card[] cards) {
         this.cards = cards;
-        //this.handType = check_type();
+        this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus
-     * Last Updated: 04/4/2022
+     * Last Updated: 04/12/2022
      * 
      * exchangeCards(index, newCards): exchange the specified cards with new ones dealt from the card deck
      * 
@@ -36,19 +38,19 @@ public class Hand implements Comparable<Hand> {
      *      CardDeck carddeck: the deck object to allow drawing new cards
      */
     public void exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
-            for(int i = 0; i < index.length; i++) {
-                if (index[i] < 0 || index[i] > 4) {
-                    throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
-                }
-    
-                try {
-                    this.cards[index[i]] = cardDeck.drawCard();
-                } catch (OutOfCardsException e) {
-                    System.out.println(e.getMessage());
-                }
+        for(int i = 0; i < index.length; i++) {
+            if (index[i] < 0 || index[i] > 4) {
+                throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
             }
-            
-            //this.handType = check_type();
+
+            try {
+                this.cards[index[i]] = cardDeck.drawCard();
+            } catch (OutOfCardsException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        
+        this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus
