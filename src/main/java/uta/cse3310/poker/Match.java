@@ -9,11 +9,12 @@ import uta.cse3310.pokerServer.UserEvent;
 public class Match {
     private transient CardDeck deck;
     private transient ArrayList<Player> activePlayers;
-    private transient int turnNumber;
+    private transient int turnsInRound;
+    private transient int totalTurns;
     private double bettingPool;
     private MatchRound round;
     private int currentPlayerID;
-    private int winnerID;
+    private int[] winnerID;
     private String action;
     private double minimumBet;
 
@@ -22,11 +23,14 @@ public class Match {
         this.bettingPool = 0;
         this.round = MatchRound.WAITING;
         this.activePlayers = new ArrayList<>();
-        this.turnNumber = 0;
+        this.turnsInRound = 0;
+        this.totalTurns = 0;
         this.currentPlayerID = 0;
-        this.winnerID = -1;
         this.action = new String();
         this.minimumBet = 0;
+
+        this.winnerID = new int[1];
+        this.winnerID[0] = -1;
     }
 
     /*
@@ -37,8 +41,10 @@ public class Match {
      * arraylist. Moves to next round if needed.
      */
     public void nextTurn() {
-        turnNumber++;
-        currentPlayerID = activePlayers.get(turnNumber % activePlayers.size()).id;
+        turnsInRound++;
+        totalTurns++;
+
+        currentPlayerID = activePlayers.get(totalTurns % activePlayers.size()).id;
 
         if (this.round == MatchRound.FIRST_BETTING || this.round == MatchRound.SECOND_BETTING) {
             double currentBet = this.activePlayers.get(0).getCurrentBet();
@@ -48,16 +54,17 @@ public class Match {
                 }
             }
 
-            if (turnNumber >= activePlayers.size() && (currentBet != -1)) {
+            if (turnsInRound >= activePlayers.size() && (currentBet != -1)) {
                 this.round = this.round.next();
-                turnNumber = 0;
+                turnsInRound = 0;
             }
-        } else if (this.round == MatchRound.DRAWING && turnNumber >= activePlayers.size()) {
+        } else if (this.round == MatchRound.DRAWING && turnsInRound >= activePlayers.size()) {
             this.round = this.round.next();
-            turnNumber = 0;
+            turnsInRound = 0;
         }
 
-        if ((this.round == MatchRound.SHOWDOWN || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
+        if ((this.round == MatchRound.SHOWDOWN
+                || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
             appointWinner();
         }
     }
@@ -78,8 +85,8 @@ public class Match {
     }
 
     /*
-     * Author: Victor Arowsafe
-     * Last Updated: 4/2/2022
+     * Author: Victor Arowsafe, refactored by Waseem Alkasbutrus
+     * Last Updated: 4/12/2022, By Waseem Alkasbutrus
      * 
      * removePlayer(playerID): remove the specified player from the active player
      * arraylist
@@ -88,19 +95,20 @@ public class Match {
      * int playerID: the id of the player to be removed from the list
      */
     public void removePlayer(int playerID) {
-        for (int i = 0; i < activePlayers.size(); i++) {
-            int checkId = activePlayers.get(i).id;
-            if (checkId == playerID) {
-                activePlayers.remove(i);
-            }
+        Player p = getPlayer(playerID);
+        this.activePlayers.remove(p);
+        if (this.activePlayers.size() > 0) {
+            nextTurn();
+    
+            this.action = p.name + " left the match";
         }
     }
 
     /*
-     * Author: Victor Arowsafe
+     * Author: Victor Arowsafe,
      * Last Updated: 4/4/2022, by Waseem Alkasbutrus
      * 
-     * onEvent(event): process the specidfied event
+     * onEvent(event): process the specified event
      * 
      * Parameters:
      * UserEvent event: the event to be processed
@@ -139,8 +147,6 @@ public class Match {
                 break;
             default:
         }
-
-
     }
 
     /*
@@ -179,7 +185,6 @@ public class Match {
         removePlayer(playerID);
 
         this.action = p.name + "folded";
-        nextTurn();
     }
 
     /*
@@ -210,7 +215,8 @@ public class Match {
      * Alkasbutrus
      * Last Updated: 4/7/2022
      * 
-     * onCall(playerID): increase the current bet of the specified player to match the current highest bet
+     * onCall(playerID): increase the current bet of the specified player to match
+     * the current highest bet
      * highest bet
      * 
      * Parameters:
@@ -221,7 +227,7 @@ public class Match {
             double highestBet = getHighestBet();
             Player p = getPlayer(playerID);
             if (p.getCurrentBet() < highestBet) {
-                p.placeBet(highestBet - p.getCurrentBet());
+                this.bettingPool += p.placeBet(highestBet - p.getCurrentBet());
                 
                 this.action = p.name + " called";
                 nextTurn();
@@ -242,7 +248,8 @@ public class Match {
      */
     public void onRaise(int playerID, double amount) {
         Player p = getPlayer(playerID);
-        if ((round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING) && (amount + p.getCurrentBet() > this.getHighestBet())) {
+        if ((round == MatchRound.FIRST_BETTING || round == MatchRound.SECOND_BETTING)
+                && (amount + p.getCurrentBet() > this.getHighestBet())) {
             this.bettingPool += p.placeBet(amount);
             this.minimumBet = p.getCurrentBet();
             this.action = p.name + " raised the minimum bet to " + p.getCurrentBet();
@@ -265,7 +272,7 @@ public class Match {
 
         if (player != null) {
             getPlayer(playerID).exchangeCards(cardIndex, deck);
-            
+
             this.action = player.name + " exchanged " + cardIndex.length + " cards";
             nextTurn();
         } else {
@@ -274,7 +281,8 @@ public class Match {
 
     }
 
-    /* Author: Waseem Alkasbutrus
+    /*
+     * Author: Waseem Alkasbutrus
      * Last Updated 4/4/2022
      * 
      * getWinner(): sets the winner ID as the player with the best hand
@@ -283,8 +291,31 @@ public class Match {
         Collections.sort(this.activePlayers, Collections.reverseOrder());
         System.out.println(this.activePlayers);
 
-        this.winnerID = this.activePlayers.get(0).id;
-        this.activePlayers.get(0).addToBalance(this.bettingPool);
+        int winnerCount = 1;
+
+        for (int i = 1; (i < this.activePlayers.size()) && (this.activePlayers.size() > 1); i++) {
+            Player prev = this.activePlayers.get(i - 1);
+            Player current = this.activePlayers.get(i);
+
+            if (prev.hand.equals(current.hand)) {
+                winnerCount++;
+            }
+        }
+
+        this.winnerID = new int[winnerCount + 1];
+        this.winnerID[0] = winnerCount;
+
+        this.action = "";
+        for (int i = 0; i < winnerCount; i++) {
+            this.winnerID[i + 1] = activePlayers.get(i).id;
+            activePlayers.get(i).addToBalance(this.bettingPool / winnerCount);
+            
+            this.action += activePlayers.get(i).name;
+            if (winnerCount - i != 0) {
+                this.action += " and ";
+            }
+        }
+        this.action += "won $" + this.bettingPool / winnerCount;
     }
 
     /*

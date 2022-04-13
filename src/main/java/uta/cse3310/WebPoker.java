@@ -99,18 +99,18 @@ public class WebPoker extends WebSocketServer {
         synchronized (playersMutex) {
             if (p.getRoom() != -1) {
                 Room room = this.rooms.get(p.getRoom());
-                room.removePlayer(p.id);
+                room.removePlayer(attachment);
                 if (room.playerCount() == 0) {
                     this.rooms.remove(p.getRoom());
                     System.out.println("Removed room " + p.getRoom());
+                } else {
+                    broadcast(encodeAsJson(room.pin));
+                    System.out.println(room.playerCount() + " left in room " + room.pin);
+                    System.out.println("On close sent:\n" + encodeAsJson(p.getRoom()));
                 }
             } 
             this.players.remove(attachment);
         }
-
-        // The state is now changed, so every client needs to be informed
-        broadcast(encodeAsJson(p.getRoom()));
-        System.out.println("On close sent:\n" + encodeAsJson(p.getRoom()));
     }
 
     @Override

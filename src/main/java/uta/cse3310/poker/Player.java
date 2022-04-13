@@ -5,7 +5,7 @@ import uta.cse3310.cards.CardDeck;
 public class Player implements Comparable<Player> {
     public String name;
     private double balance;
-    private Hand hand;
+    public Hand hand;
     private double currentBet;
     public final int id;
     private int roomPin;

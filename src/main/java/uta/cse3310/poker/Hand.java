@@ -20,7 +20,6 @@ public class Hand implements Comparable<Hand> {
 
     public Hand() {
         this.cards = new Card[5];
-        this.handType = check_type();
     }
 
     public Hand(Card[] cards) {
@@ -54,7 +53,7 @@ public class Hand implements Comparable<Hand> {
     }
 
     /* Author: Waseem Alkasbutrus
-     * Last Update: 04/1/2022
+     * Last Update: 04/12/2022
      * 
      * dealHand(deck): deals 5 cards to the current hand from deck
      * 
@@ -67,6 +66,8 @@ public class Hand implements Comparable<Hand> {
         } catch (OutOfCardsException e) {
             System.out.println(e.getMessage());
         }
+
+        this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus

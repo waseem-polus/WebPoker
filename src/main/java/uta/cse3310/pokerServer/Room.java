@@ -33,8 +33,8 @@ public class Room {
      * Last Updated: 04/9/2022
      * 
      * 
-     * INTIALIZING player who start the game to be the game leader
-     * put() : add new player and thier id until they reach 5
+     * INITIALIZING player who start the game to be the game leader
+     * put() : add new player and their id until they reach 5
      * determine that if we get player size more that five return "room is full"
      * addPLayer(): add player who is waiting in the room
      */
@@ -53,7 +53,7 @@ public class Room {
 
     /*
      * Author: Meaza Abera
-     * Last Updated: 04/2/2022
+     * Last Updated: 04/12/2022
      * 
      * remove() it removes player from room
      * in order to remove we use the player id
@@ -61,7 +61,6 @@ public class Room {
     public void removePlayer(int id) {
 
         players.remove(id);
-        this.playerCount = this.players.size();
         this.match.removePlayer(id);
         this.playerCount = this.players.size();
     }
@@ -117,16 +116,18 @@ public class Room {
     }
     /*
      * Author: Meaza Abera
-     * Last Updated: 04/2/2022
+     * Last Updated: 04/12/2022, by Waseem Alkasbutrus
      * 
      * restart match will restart the game again
-     * by craeting new match
+     * by creating new match
      * add() add new players.
      */
     public void restartMatch() {
         this.match = new Match();
         for (Player p : players.values()) {
+            p.clearBet();
             this.match.addPlayer(p);
         }
+        this.match.onStartMatch();
     }
 }

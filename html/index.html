@@ -22,8 +22,8 @@
 
     <div id="join_game_opts" hidden>
       <h4>Join Game</h4>
-      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
       <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
+      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
       <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
     </div>
     <!--join_room_opts-->
@@ -42,32 +42,35 @@
       <h4 id="my_name"></h4>
       <h4 id="current_balance"></h4>
       <h4 id="my_bet"></h4>
+      <h4 id="bet_pool"></h4>
       <h4 id="my_hand"></h4>
       <h4 id="current_turn"></h4>
+      <h4 id="all_balances"></h4>
     </div>
 
     <div id="cards" hidden>
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick(1)" />
-        <label for="card1"><img src="1B.svg" id="card1_img" width="150"/></label>
+        <label for="card1"><img src="1B.svg" id="card1_img" width="150" /></label>
 
         <input type="checkbox" id="card2" onchange="onCardClick(2)" />
-        <label for="card2"><img src="1B.svg" id="card2_img" width="150"/></label>
+        <label for="card2"><img src="1B.svg" id="card2_img" width="150" /></label>
 
         <input type="checkbox" id="card3" onchange="onCardClick(3)" />
-        <label for="card3"><img src="1B.svg" id="card3_img" width="150"/></label>
+        <label for="card3"><img src="1B.svg" id="card3_img" width="150" /></label>
 
         <input type="checkbox" id="card4" onchange="onCardClick(4)" />
-        <label for="card4"><img src="1B.svg" id="card4_img" width="150"/></label>
+        <label for="card4"><img src="1B.svg" id="card4_img" width="150" /></label>
 
         <input type="checkbox" id="card5" onchange="onCardClick(5)" />
-        <label for="card5"><img src="1B.svg" id="card5_img" width="150"/></label>
+        <label for="card5"><img src="1B.svg" id="card5_img" width="150" /></label>
       </p>
     </div> <!-- cards -->
 
     <div id="pre_match" hidden>
       <p>
-        <button class="disabled" id="start_game" onclick="onStartMatch()" disabled>Start Match</button>
+        <button class="button.disabled" id="start_game" onclick="onStartMatch()">Start Match</button>
+        <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
       </p>
     </div> <!-- pre_match -->
 
@@ -82,7 +85,7 @@
           <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
         </p>
       </div> <!-- betting_round_buttons -->
-        
+
       <br>
 
       <div id="draw_round_button" hidden>
@@ -92,7 +95,7 @@
       </div> <!-- draw_round_button -->
     </div> <!-- game_buttons -->
 
-    <h3>Match Log</h3>
+    <h3 id="match_log">Match Log</h3>
     <div id="info_area" style="overflow-y: auto;">
     </div> <!-- info_area -->
   </div> <!-- game_page -->
@@ -141,7 +144,7 @@
     } else if (obj.pin == roomId) {
       room = obj
       me = obj.players[playerId]
-      
+
       console.log("Me:")
       console.log(me)
 
@@ -153,23 +156,42 @@
   function updateStats() {
     var name = document.getElementById("my_name")
     var balance = document.getElementById("current_balance")
-    
+    var match_log = document.getElementById("match_log")
+    var all_balances = document.getElementById("all_balances")
+
     name.innerHTML = "NAME: " + me.name + "  (id: " + playerId + ")"
     balance.innerHTML = "BALANCE: $" + me.balance
-    
+    match_log.innerHTML = "Match Log (" + room.playerCount + "/5 players)"
+
+    //all_balances.innerHTML = ""
+    //iterate over players in room
+    //all_balances.innerHTML += p.name + "'s Bal: " + p.balance + '<br/>'
+
     if (me.hand.cards[0] != null) {
       var cards = me.hand.cards
       for (var i = 0; i < 5; i++) {
         var card = document.getElementById("card" + (i + 1) + "_img").src = cards[i].svg
       }
     }
-    
+
+    if (room.playerCount > 1 && room.leaderId == me.id && room.match.round == "WAITING") {
+      var pre_match = document.getElementById("pre_match")
+
+      pre_match.style.display = "block"
+    }
+
+    if (room.match.action != "") {
+      var info_area = document.getElementById("info_area")
+
+      info_area.innerHTML = room.match.action + '<br/>' + info_area.innerHTML
+    }
+
     if (room.match.round != "WAITING") {
       var my_bet = document.getElementById("my_bet")
       var my_hand = document.getElementById("my_hand")
       var current_turn = document.getElementById("current_turn")
+      var bet_pool = document.getElementById("bet_pool")
 
-      var pre_match = document.getElementById("pre_match")
       var cards = document.getElementById("cards")
       var game_buttons = document.getElementById("game_buttons")
 
@@ -179,12 +201,13 @@
       my_bet.innerHTML = "MY BET: $" + me.currentBet
       my_hand.innerHTML = "MY HAND: " + me.hand.handType
       current_turn.innerHTML = "TURN: " + room.players[room.match.currentPlayerID].name
+      bet_pool.innerHTML = "BET POOL: $" + room.match.bettingPool
 
-      pre_match.style.display = "none"
       cards.style.display = "block"
 
       game_buttons.style.display = "block"
-      if (room.match.winnerID >= 0) {
+
+      if (room.match.winnerID[0] != -1) {
         appointWinner(room.match.winnerID)
       } else if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
         betting_round_buttons.style.display = "block"
@@ -196,23 +219,30 @@
 
       console.log("Round: " + room.match.round)
     }
-
-    if (room.playerCount > 1 && room.leaderId == me.id) {
-      document.getElementById("start_game").disabled = false
-    }
-
-    if (room.match.action != "") {
-      var info_area = document.getElementById("info_area")
-      
-      info_area.innerHTML = room.match.action + '<br/>' + info_area.innerHTML
-    }
   }
 
   function appointWinner(winnerId) {
-    if (winnerId == playerId) {
-      alert("Congratulations!\nYou are the winner!")
-    } else {
-      alert("Game ended!\n" + room.players[winnerId].name + " won this match with " + room.players[winnerId].hand.handType)
+    var msg = ""
+    for (var i = 1; i <= winnerId[0]; i++) {
+      msg += room.players[winnerId[i]].name
+      if ((winnerId[0] - i) != 0) {
+        msg += " and "
+      }
+    }
+    msg += " won the match with a " + room.players[winnerId[1]].hand.handType
+
+    alert(msg)
+
+    var cards = document.getElementById("cards")
+    var game_buttons = document.getElementById("game_buttons")
+    
+    cards.style.display = "none"
+    game_buttons.style.display = "none"
+    
+    if (room.leaderId == playerId) {
+      document.getElementById("restart_match").style.display = "block"
+      document.getElementById("start_game").style.display = "none"
+      document.getElementById("pre_match").style.display = "block"
     }
   }
 
@@ -303,8 +333,35 @@
     var pre_match = document.getElementById("pre_match")
 
     landing_page.style.display = "none"
+    pre_match.style.display = "none"
     game_page.style.display = "block"
-    pre_match.style.display = "block"
+  }
+
+  function onRestartMatch() {
+    if (room.playerCount > 1) {
+      if (roomId == playerId) {
+        var startMatchEvt = {
+          event: "RESTART_MATCH",
+          roomID: roomId,
+          playerID: playerId,
+        }
+
+        connection.send(JSON.stringify(startMatchEvt))
+        console.log(JSON.stringify(startMatchEvt))
+
+        var pre_match = document.getElementById("pre_match")
+        var cards = document.getElementById("cards")
+        var game_buttons = document.getElementById("game_buttons")
+
+        pre_match.style.display = "none"
+        cards.style.display = "block"
+        game_buttons.style.display = "block"
+      } else {
+        alert("Only room leader can start the match")
+      }
+    } else {
+      alert("More players needed to start match");
+    }
   }
 
   function onStartMatch() {
@@ -424,13 +481,13 @@
     }
   }
 
-  
+
   var cardsClicked = 0
-  
+
   function onCardClick(id) {
     card = document.getElementById('card' + id)
-    
-    
+
+
     if (cardsClicked == 3 && card.checked == true) {
       card.checked = false;
     } else if (cardsClicked < 3 && card.checked == true) {
@@ -447,7 +504,7 @@
     var checkedCards = ['' + checkedCardsCount]
 
     console.log(selectedCards)
-    
+
     for (var i = 0; i < 5; i++) {
       if (selectedCards[i] == 1) {
         checkedCards[(cardsClicked + 1) - checkedCardsCount] = '' + i
