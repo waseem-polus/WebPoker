@@ -163,9 +163,10 @@
     balance.innerHTML = "BALANCE: $" + me.balance
     match_log.innerHTML = "Match Log (" + room.playerCount + "/5 players)"
 
-    //all_balances.innerHTML = ""
-    //iterate over players in room
-    //all_balances.innerHTML += p.name + "'s Bal: " + p.balance + '<br/>'
+    all_balances.innerHTML = ""
+    for (var id in room.players) {
+      all_balances.innerHTML += room.players[id].name + ": $" + room.players[id].balance + "<br/>"
+    }
 
     if (me.hand.cards[0] != null) {
       var cards = me.hand.cards
@@ -235,10 +236,10 @@
 
     var cards = document.getElementById("cards")
     var game_buttons = document.getElementById("game_buttons")
-    
+
     cards.style.display = "none"
     game_buttons.style.display = "none"
-    
+
     if (room.leaderId == playerId) {
       document.getElementById("restart_match").style.display = "block"
       document.getElementById("start_game").style.display = "none"
