@@ -93,14 +93,12 @@ public class WebPoker extends WebSocketServer {
 
         int attachment = conn.getAttachment();
 
-        System.out.println("removed player " + attachment);
-
         Player p = this.players.get(attachment);
         synchronized (playersMutex) {
             if (p.getRoom() != -1) {
                 Room room = this.rooms.get(p.getRoom());
                 room.removePlayer(attachment);
-                if (room.playerCount() == 0) {
+                if (room.playerCount() <= 0) {
                     this.rooms.remove(p.getRoom());
                     System.out.println("Removed room " + p.getRoom());
                 } else {
@@ -110,6 +108,7 @@ public class WebPoker extends WebSocketServer {
                 }
             } 
             this.players.remove(attachment);
+            System.out.println("removed player " + attachment);
         }
     }
 

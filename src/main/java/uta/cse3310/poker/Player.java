@@ -54,6 +54,10 @@ public class Player implements Comparable<Player> {
         this.balance = amount;
     }
 
+    public double getBalance() {
+        return this.balance;
+    }
+
     public double getCurrentBet() {
         return currentBet;
     }

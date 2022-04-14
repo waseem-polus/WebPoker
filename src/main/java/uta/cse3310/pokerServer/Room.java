@@ -21,7 +21,7 @@ public class Room {
         this.pin = leader.id;
         this.visibility = visibility;
         this.startingBalance = startingBalance;
-        
+
         this.leaderId = leader.id;
         this.players = new HashMap<Integer, Player>();
         this.players.put(leaderId, leader);
@@ -39,10 +39,12 @@ public class Room {
      * addPLayer(): add player who is waiting in the room
      */
     public void addPlayer(Player player) {
-        if ((players.size() < 5)) {
+        if (players.size() < 5) {
             players.put(player.id, player);
             player.setRoom(this.pin);
+            
             this.playerCount = this.players.size();
+            
             if (this.match.isWaiting()) {
                 this.match.addPlayer(player);
             }
@@ -59,9 +61,9 @@ public class Room {
      * in order to remove we use the player id
      */
     public void removePlayer(int id) {
-
         players.remove(id);
         this.match.removePlayer(id);
+
         this.playerCount = this.players.size();
     }
 
@@ -82,7 +84,7 @@ public class Room {
      * playerCount(): returns the number of players in this room
      * 
      * Returns:
-     *      int number of players in room
+     * int number of players in room
      */
     public int playerCount() {
         return this.players.size();
@@ -98,9 +100,7 @@ public class Room {
 
     @Override
     public int hashCode() {
-
         return pin;
-
     }
 
     @Override
@@ -114,6 +114,7 @@ public class Room {
 
         return equals;
     }
+
     /*
      * Author: Meaza Abera
      * Last Updated: 04/12/2022, by Waseem Alkasbutrus

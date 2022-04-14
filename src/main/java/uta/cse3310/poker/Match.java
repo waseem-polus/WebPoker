@@ -47,14 +47,7 @@ public class Match {
         currentPlayerID = activePlayers.get(totalTurns % activePlayers.size()).id;
 
         if (this.round == MatchRound.FIRST_BETTING || this.round == MatchRound.SECOND_BETTING) {
-            double currentBet = this.activePlayers.get(0).getCurrentBet();
-            for (Player p : this.activePlayers) {
-                if (p.getCurrentBet() != currentBet) {
-                    currentBet = -1;
-                }
-            }
-
-            if (turnsInRound >= activePlayers.size() && (currentBet != -1)) {
+            if (turnsInRound >= activePlayers.size() && checkBets()) {
                 this.round = this.round.next();
                 turnsInRound = 0;
             }
@@ -67,6 +60,25 @@ public class Match {
                 || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
             appointWinner();
         }
+    }
+
+    /* Author: Waseem Alkasbutrus
+     * Last Updated: 4/13/2022
+     * 
+     * Returns: 
+     *      true if all bets are equal to the minimum bet (unless a player is all out)
+     *      false if not all bets are equal 
+     */
+    private boolean checkBets() {
+        boolean allGood = true;
+
+        for (Player p : this.activePlayers) {
+            if (p.getCurrentBet() != minimumBet && p.getBalance() > 0) {
+                allGood = false;
+            }
+        }
+
+        return allGood;
     }
 
     /*
@@ -99,7 +111,7 @@ public class Match {
         this.activePlayers.remove(p);
         if (this.activePlayers.size() > 0) {
             nextTurn();
-    
+
             this.action = p.name + " left the match";
         }
     }
@@ -228,7 +240,7 @@ public class Match {
             Player p = getPlayer(playerID);
             if (p.getCurrentBet() < highestBet) {
                 this.bettingPool += p.placeBet(highestBet - p.getCurrentBet());
-                
+
                 this.action = p.name + " called";
                 nextTurn();
             }
@@ -309,7 +321,7 @@ public class Match {
         for (int i = 0; i < winnerCount; i++) {
             this.winnerID[i + 1] = activePlayers.get(i).id;
             activePlayers.get(i).addToBalance(this.bettingPool / winnerCount);
-            
+
             this.action += activePlayers.get(i).name;
             if (winnerCount - i != 0) {
                 this.action += " and ";
