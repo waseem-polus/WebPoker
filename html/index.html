@@ -15,25 +15,24 @@
     <div id="landing_opts">
       <p>
         <button name="new_game" onclick="onLandingNewGame()">New Game</button>
-        <br>
+      </p>
+      <p>
         <button name="join_game" onclick="onLandingJoinGame()">Join Game</button>
       </p>
     </div> <!-- landing_opts -->
 
     <div id="join_game_opts" hidden>
-      <h4>Join Game</h4>
-      <p>Name: <input id="player_name" placeholder="Enter your name" type="text"></p>
-      <p>Room PIN: <input id="join_room" placeholder="Enter room pin" type="number"></p>
-      <p><input type="button" name="join_room" value="Join Room" onclick="joinRoom()"></p>
+      <p><input id="player_name" placeholder="Enter your name" type="text"></p>
+      <p><input id="join_room" placeholder="Enter room pin" type="number"></p>
+      <p><button name="join_room" onclick="joinRoom()">Join Room</button></p>
     </div>
     <!--join_room_opts-->
 
     <div id="new_game_opts" hidden>
-      <h4>New Game</h4>
-      <p>Name: <input id="leader_name" placeholder="Enter your name" type="text"></p>
-      <p>Starting Balance: <input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
-      <p>Private: <input type="checkbox" id="visibility"></p>
-      <p><input type="button" name="create_room" value="Create Room" onclick="createRoom()"></p>
+      <p><input id="leader_name" placeholder="Enter your name" type="text"></p>
+      <p><input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
+      <!-- <p>Private: <input type="checkbox" id="visibility"></p> -->
+      <p><button name="create_room" onclick="createRoom()">Create Room</button></p>
     </div>
   </div> <!-- landing page -->
 
@@ -101,7 +100,40 @@
   </div> <!-- game_page -->
 
   <hr>
-  <p><input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()"></p>
+  <p>
+    <input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()">
+    <input type="button" id="rules" value="Show Rules" onclick="onRules()">
+  </p>
+  <div id="rules_area" style="display: none;">
+    <p>
+    <h4>Rounds</h4>
+    <ul>
+      <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet
+      based on their type of hand at the start.<br/>
+      <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which is
+      then replaced by a random card in the deck.<br/>
+      <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet based
+      on their hand after the Draw Round.<br/>
+      <b>Showdown Round (4th Round) : </b> In this round, each players remaining hand is then compared to one another,
+      with the victor being the player with the best hand.<br/>
+    </ul>
+    <h4>
+      Hand Rankings (Strongest to Weakest):
+    </h4>
+    <ul>
+      <b>Royal Flush : </b> A, K, Q, J, and 10 with all the same suit. <br />
+      <b>Straight Flush : </b> All cards values are in sequential order and all the same suit.<br />
+      <b>Four of a Kind : </b> Four cards have the same value.<br />
+      <b>Full House : </b> Three of a Kind and a Pair.<br />
+      <b>Flush : </b> All cards have the same suit but not in sequential order.<br />
+      <b>Straight : </b> All cards values are in sequential order but not the same suit.<br />
+      <b>Three of a Kind : </b> Three cards have the same value.<br />
+      <b>Two Pair : </b> Two different values of pairs.<br />
+      <b>Pair : </b> Two cards have the same value.<br />
+      <b>High Card : </b> When a hand has none of the above ranks, the highest card plays.<br />
+    </ul>
+    </p>
+  </div>
 </body>
 
 </html>
@@ -308,16 +340,31 @@
     game_page.style.display = "block"
   }
 
+  function onRules() {
+    var rules = document.getElementById("rules_area")
+    var show_rules = document.getElementById("rules")
+
+    if (rules.style.display == "block") {
+      rules.style.display = "none"
+      show_rules.value = "Show Rules"
+    } else if (rules.style.display == "none") {
+      rules.style.display = "block"
+      show_rules.value = "Hide Rules"
+    }
+  }
+
   function createRoom() {
     var leaderName = document.getElementById("leader_name").value
     var startingBalance = document.getElementById("starting_balance").value
-    var visibility = document.getElementById("visibility").checked
+    //var visibility = document.getElementById("visibility").checked
 
-    if (visibility) {
-      visibility = "PRIVATE"
-    } else {
-      visibility = "PUBLIC"
-    }
+    visibility = "PRIVATE"
+
+    // if (visibility) {
+    //   visibility = "PRIVATE"
+    // } else {
+    //   visibility = "PUBLIC"
+    // }
 
     var evt = {
       event: "CREATE_ROOM",
