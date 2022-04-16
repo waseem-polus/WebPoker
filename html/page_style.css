@@ -3,57 +3,75 @@ body {
 }
 
 h1 {
-  color: darkgreen;
+  color: white;
   font-size: 50;
+  font: sans-serif;
+  font-weight: bold;
   justify-content: center;
   display: flex;
 }
 
 p {
-  margin-left: 10px;
   justify-content: center;
   display: flex;
 }
 
 button {
-  border: 2px solid green;
-  color: green;
-  background-color: lightgreen;
+  border: 2px solid rgb(245, 128, 38);
+  color: white;
+  background-color: rgb(245, 128, 38);
   padding: 10px 15px;
   text-align: center;
   display: block;
   font-size: 16px;
-  margin: 5px;
-}
-
-button:disabled {
-  border: 2px solid gray;
-  color: gray;
-  background-color: lightgrey;
+  font-weight: bold;
+  font: sans-serif;
+  margin-inline: 5px;
 }
 
 button:hover {
-  border: 2px solid lightgreen;
-  color: green;
-  background-color: greenyellow;
+  border: 2px solid rgb(245, 128, 38);
+  color: rgb(245, 128, 38);
+  background-color: white;
+}
+
+button[disabled="true"] {
+  border: 2px solid rgb(170, 169, 169);
+  color: rgb(170, 169, 169);
+  background-color: lightgrey;
+}
+
+input {
+  margin-left: 5px;
 }
 
 input[type=text] {
-  border: 2px solid green;
-  color: green;
-  background-color: rgb(206, 246, 206);
+  border: 2px solid rgb(245, 128, 38);
+  color: rgb(245, 128, 38);
+  background-color: white;
   padding: 10px 15px;
-  display: block;
   font-size: 16px;
   margin: 5px;
+  width: 6cm;
+  padding: 10px 15px;
 }
 
 input[type=number] {
-  border: 2px solid green;
-  color: green;
-  background-color: rgb(206, 246, 206);
+  border: 2px solid rgb(245, 128, 38);
+  color: rgb(245, 128, 38);
+  background-color: white;
   padding: 10px 15px;
-  display: block;
   font-size: 16px;
   margin: 5px;
+  width: 6cm;
+}
+
+img[checked="true"] {
+  border: 3px solid rgb(245, 128, 38);
+  border-radius: 10px;
+}
+
+img[checked="false"] {
+  border: 3px solid rgba(245, 128, 38, 0);
+  border-radius: 10px;
 }

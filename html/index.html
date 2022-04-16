@@ -3,21 +3,25 @@
 <meta charset="utf-8">
 
 <head>
-  <title>WEBPOKER</title>
+  <title>MAV POKER</title>
   <link rel="stylesheet" href="page_style.css">
 </head>
 
 <body>
-  <h1>MAV POKER</h1>
+  <h1>
+    MAV POKER
+  </h1>
   <hr>
   <div id="landing_page" style="display: block;">
 
     <div id="landing_opts">
       <p>
-        <button name="new_game" onclick="onLandingNewGame()">New Game</button>
+        <button name="new_game" onclick="onLandingNewGame()" style="padding: 15px 30px; font-size: 20px;">New
+          Game</button>
       </p>
       <p>
-        <button name="join_game" onclick="onLandingJoinGame()">Join Game</button>
+        <button name="join_game" onclick="onLandingJoinGame()" style="padding: 15px 30px; font-size: 20px;">Join
+          Game</button>
       </p>
     </div> <!-- landing_opts -->
 
@@ -47,22 +51,24 @@
       <h4 id="all_balances"></h4>
     </div>
 
+    <hr>
+
     <div id="cards" hidden>
       <p>
-        <input type="checkbox" id="card1" onchange="onCardClick(1)" />
-        <label for="card1"><img src="1B.svg" id="card1_img" width="150" /></label>
+        <input type="checkbox" id="card1" onchange="onCardClick(1)" style="opacity: 0;"/>
+        <label for="card1"><img src="1B.svg" id="card1_img" width="150" checked="false"/></label>
 
-        <input type="checkbox" id="card2" onchange="onCardClick(2)" />
-        <label for="card2"><img src="1B.svg" id="card2_img" width="150" /></label>
+        <input type="checkbox" id="card2" onchange="onCardClick(2)" style="opacity: 0;"/>
+        <label for="card2"><img src="1B.svg" id="card2_img" width="150" checked="false"/></label>
 
-        <input type="checkbox" id="card3" onchange="onCardClick(3)" />
-        <label for="card3"><img src="1B.svg" id="card3_img" width="150" /></label>
+        <input type="checkbox" id="card3" onchange="onCardClick(3)" style="opacity: 0;"/>
+        <label for="card3"><img src="1B.svg" id="card3_img" width="150" checked="false"/></label>
 
-        <input type="checkbox" id="card4" onchange="onCardClick(4)" />
-        <label for="card4"><img src="1B.svg" id="card4_img" width="150" /></label>
+        <input type="checkbox" id="card4" onchange="onCardClick(4)" style="opacity: 0;"/>
+        <label for="card4"><img src="1B.svg" id="card4_img" width="150" checked="false"/></label>
 
-        <input type="checkbox" id="card5" onchange="onCardClick(5)" />
-        <label for="card5"><img src="1B.svg" id="card5_img" width="150" /></label>
+        <input type="checkbox" id="card5" onchange="onCardClick(5)" style="opacity: 0;"/>
+        <label for="card5"><img src="1B.svg" id="card5_img" width="150" checked="false"/></label>
       </p>
     </div> <!-- cards -->
 
@@ -109,13 +115,13 @@
     <h4>Rounds</h4>
     <ul>
       <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet
-      based on their type of hand at the start.<br/>
+      based on their type of hand at the start.<br />
       <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which is
-      then replaced by a random card in the deck.<br/>
+      then replaced by a random card in the deck.<br />
       <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet based
-      on their hand after the Draw Round.<br/>
+      on their hand after the Draw Round.<br />
       <b>Showdown Round (4th Round) : </b> In this round, each players remaining hand is then compared to one another,
-      with the victor being the player with the best hand.<br/>
+      with the victor being the player with the best hand.<br />
     </ul>
     <h4>
       Hand Rankings (Strongest to Weakest):
@@ -133,7 +139,7 @@
       <b>High Card : </b> When a hand has none of the above ranks, the highest card plays.<br />
     </ul>
     </p>
-  </div>
+  </div> <!-- rules_area -->
 </body>
 
 </html>
@@ -534,17 +540,24 @@
 
   function onCardClick(id) {
     card = document.getElementById('card' + id)
+    cardImage = document.getElementById('card' + id + '_img')
 
+    console.log(cardImage.checked)
 
     if (cardsClicked == 3 && card.checked == true) {
-      card.checked = false;
+      card.checked = false
+      cardImage.checked="false"
     } else if (cardsClicked < 3 && card.checked == true) {
       cardsClicked++
       selectedCards[id - 1] = 1
+      cardImage.checked="true"
     } else if (card.checked == false) {
       cardsClicked--
       selectedCards[id - 1] = 0
+      cardImage.checked="false"
     }
+
+    console.log(cardImage.checked)
   }
 
   function getSelectedCards() {

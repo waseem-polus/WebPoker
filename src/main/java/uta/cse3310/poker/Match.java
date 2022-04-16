@@ -196,7 +196,7 @@ public class Match {
 
         removePlayer(playerID);
 
-        this.action = p.name + "folded";
+        this.action = p.name + " folded";
     }
 
     /*
