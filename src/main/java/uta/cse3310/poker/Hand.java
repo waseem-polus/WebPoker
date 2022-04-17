@@ -36,13 +36,19 @@ public class Hand implements Comparable<Hand> {
      *      int[] index: contains the indexes of all cards that need to be exchanged
      *      CardDeck carddeck: the deck object to allow drawing new cards
      */
-    public void exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
+    public String exchangeCards(Integer[] index, CardDeck cardDeck) throws IndexOutOfBoundsException {
+        String discardedCards = "[", separator = ", ";
         for(int i = 0; i < index.length; i++) {
             if (index[i] < 0 || index[i] > 4) {
                 throw new IndexOutOfBoundsException("[Error] Card index must be between 0-4");
             }
 
+            if (i == index.length - 1) {
+                separator = "";
+            }
+
             try {
+                discardedCards += this.cards[index[i]].value.key + this.cards[index[i]].suite.emoji + separator;
                 this.cards[index[i]] = cardDeck.drawCard();
             } catch (OutOfCardsException e) {
                 System.out.println(e.getMessage());
@@ -50,6 +56,7 @@ public class Hand implements Comparable<Hand> {
         }
         
         this.handType = check_type();
+        return discardedCards + "]";
     }
 
     /* Author: Waseem Alkasbutrus

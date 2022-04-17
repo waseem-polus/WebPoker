@@ -284,9 +284,9 @@ public class Match {
         Player player = getPlayer(playerID);
 
         if (player != null) {
-            getPlayer(playerID).exchangeCards(cardIndex, deck);
+            String discardedCards = getPlayer(playerID).exchangeCards(cardIndex, deck);
 
-            this.action = player.name + " exchanged " + cardIndex.length + " cards";
+            this.action = player.name + " exchanged " + discardedCards;
             nextTurn();
         } else {
             System.out.println("[Error] player does not exist");

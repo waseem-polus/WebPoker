@@ -19,8 +19,8 @@ public class Player implements Comparable<Player> {
         this.roomPin = -1;
     }
 
-    public void exchangeCards(Integer[] cardIndex, CardDeck deck) {
-        hand.exchangeCards(cardIndex, deck);
+    public String exchangeCards(Integer[] cardIndex, CardDeck deck) {
+        return hand.exchangeCards(cardIndex, deck);
     }
 
     public void dealHand(CardDeck deck) {
