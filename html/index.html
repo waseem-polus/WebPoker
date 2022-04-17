@@ -56,25 +56,25 @@
     <div id="cards" hidden>
       <p>
         <input type="checkbox" id="card1" onchange="onCardClick(1)" style="opacity: 0;"/>
-        <label for="card1"><img src="1B.svg" id="card1_img" width="150" checked="false"/></label>
+        <label for="card1"><img src="1B.svg" id="card1_img" width="150" data-card_selected="false"/></label>
 
         <input type="checkbox" id="card2" onchange="onCardClick(2)" style="opacity: 0;"/>
-        <label for="card2"><img src="1B.svg" id="card2_img" width="150" checked="false"/></label>
+        <label for="card2"><img src="1B.svg" id="card2_img" width="150" data-card_selected="false"/></label>
 
         <input type="checkbox" id="card3" onchange="onCardClick(3)" style="opacity: 0;"/>
-        <label for="card3"><img src="1B.svg" id="card3_img" width="150" checked="false"/></label>
+        <label for="card3"><img src="1B.svg" id="card3_img" width="150" data-card_selected="false"/></label>
 
         <input type="checkbox" id="card4" onchange="onCardClick(4)" style="opacity: 0;"/>
-        <label for="card4"><img src="1B.svg" id="card4_img" width="150" checked="false"/></label>
+        <label for="card4"><img src="1B.svg" id="card4_img" width="150" data-card_selected="false"/></label>
 
         <input type="checkbox" id="card5" onchange="onCardClick(5)" style="opacity: 0;"/>
-        <label for="card5"><img src="1B.svg" id="card5_img" width="150" checked="false"/></label>
+        <label for="card5"><img src="1B.svg" id="card5_img" width="150" data-card_selected="false"/></label>
       </p>
     </div> <!-- cards -->
 
     <div id="pre_match" hidden>
       <p>
-        <button class="button.disabled" id="start_game" onclick="onStartMatch()">Start Match</button>
+        <button id="start_game" onclick="onStartMatch()">Start Match</button>
         <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
       </p>
     </div> <!-- pre_match -->
@@ -82,12 +82,12 @@
     <div id="game_buttons" hidden>
       <div id="betting_round_buttons" hidden>
         <p>
-          <button name="call" onclick="onCall()">Call</button>
-          <button name="check" onclick="onCheck()">Check</button>
-          <button name="fold" onclick="onFold()">Fold</button>
+          <button id="call_button" onclick="onCall()" data-active="true">Call</button>
+          <button id="check_button" onclick="onCheck()" data-active="true">Check</button>
+          <button id="fold_button" onclick="onFold()" data-active="true">Fold</button>
 
-          <button name="raise" onclick="onRaise()">Raise</button>
-          <input id="raise_amount" placeholder="Raise amount" type="number" min="0.01">
+          <button id="raise_button" onclick="onRaise()">Raise</button>
+          <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" data-active="true">
         </p>
       </div> <!-- betting_round_buttons -->
 
@@ -192,6 +192,7 @@
   }
 
   function updateStats() {
+    //UPDATE GAME HUD
     var name = document.getElementById("my_name")
     var balance = document.getElementById("current_balance")
     var match_log = document.getElementById("match_log")
@@ -203,7 +204,17 @@
 
     all_balances.innerHTML = ""
     for (var id in room.players) {
-      all_balances.innerHTML += room.players[id].name + ": $" + room.players[id].balance + "<br/>"
+      var bal = "$" + room.players[id].balance
+      
+      if (room.players[id].balance == 0) {
+        bal = "ALL OUT"
+      }
+
+      if (room.match.currentPlayerID != id) {
+        all_balances.innerHTML += room.players[id].name + ": " + bal + "<br/>"
+      } else {
+        all_balances.innerHTML += " ➡️ " + room.players[id].name + ": " + bal + " ⬅️ <br/>"
+      }
     }
 
     if (me.hand.cards[0] != null) {
@@ -243,8 +254,18 @@
       bet_pool.innerHTML = "BET POOL: $" + room.match.bettingPool
 
       cards.style.display = "block"
-
       game_buttons.style.display = "block"
+
+      //UPDATE GAME BUTTONS
+      document.getElementById("call_button").disabled = !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id)
+      document.getElementById("check_button").disabled = !(room.match.minimumBet <= me.currentBet || me.balance == 0) || !(room.match.currentPlayerID == me.id)
+      document.getElementById("fold_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
+      document.getElementById("raise_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
+
+      var raise_numberfield = document.getElementById("raise_numberfield")
+      raise_numberfield.min = (room.match.minimumBet - me.currentBet) + 0.01
+      raise_numberfield.max = me.balance
+      raise_numberfield.disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
 
       if (room.match.winnerID[0] != -1) {
         appointWinner(room.match.winnerID)
@@ -337,7 +358,6 @@
     }
 
     connection.send(JSON.stringify(joinEvt));
-    console.log(JSON.stringify(joinEvt));
 
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
@@ -380,7 +400,6 @@
     }
 
     connection.send(JSON.stringify(evt))
-    console.log(JSON.stringify(evt))
 
     var landing_page = document.getElementById("landing_page")
     var game_page = document.getElementById("game_page")
@@ -401,7 +420,6 @@
         }
 
         connection.send(JSON.stringify(startMatchEvt))
-        console.log(JSON.stringify(startMatchEvt))
 
         var pre_match = document.getElementById("pre_match")
         var cards = document.getElementById("cards")
@@ -428,7 +446,6 @@
         }
 
         connection.send(JSON.stringify(startMatchEvt))
-        console.log(JSON.stringify(startMatchEvt))
 
         var pre_match = document.getElementById("pre_match")
         var cards = document.getElementById("cards")
@@ -447,7 +464,7 @@
 
   function onRaise() {
     if (room.match.currentPlayerID == playerId) {
-      var textbox = document.getElementById("raise_amount")
+      var textbox = document.getElementById("raise_numberfield")
 
       var amount = textbox.value
       if ((amount + me.currentBet) > room.match.minimumBet) {
@@ -459,7 +476,6 @@
         }
 
         connection.send(JSON.stringify(raiseEvt))
-        console.log(JSON.stringify(raiseEvt))
         textbox.value = ""
       } else {
         alert("Please specify a value to raise")
@@ -479,7 +495,6 @@
       }
 
       connection.send(JSON.stringify(callEvt))
-      console.log(JSON.stringify(callEvt))
     } else {
       alert("Not your turn")
     }
@@ -495,7 +510,6 @@
       }
 
       connection.send(JSON.stringify(foldEvt))
-      console.log(JSON.stringify(foldEvt))
     } else {
       alert("Not your turn")
     }
@@ -511,7 +525,6 @@
       }
 
       connection.send(JSON.stringify(checkEvt))
-      console.log(JSON.stringify(checkEvt))
     } else {
       alert("Not your turn")
     }
@@ -527,14 +540,14 @@
         playerID: playerId,
         msg: cardsToSwap
       }
-
+      
       connection.send(JSON.stringify(swapEvt))
-      console.log(JSON.stringify(swapEvt))
+      
+      clearSelectedCards()
     } else {
       alert("Not your turn")
     }
   }
-
 
   var cardsClicked = 0
 
@@ -542,29 +555,32 @@
     card = document.getElementById('card' + id)
     cardImage = document.getElementById('card' + id + '_img')
 
-    console.log(cardImage.checked)
-
     if (cardsClicked == 3 && card.checked == true) {
       card.checked = false
-      cardImage.checked="false"
+      cardImage.dataset.card_selected=false
     } else if (cardsClicked < 3 && card.checked == true) {
       cardsClicked++
       selectedCards[id - 1] = 1
-      cardImage.checked="true"
+      cardImage.dataset.card_selected="true"
     } else if (card.checked == false) {
       cardsClicked--
       selectedCards[id - 1] = 0
-      cardImage.checked="false"
+      cardImage.dataset.card_selected="false"
     }
+  }
 
-    console.log(cardImage.checked)
+  function clearSelectedCards() {
+    cardsClicked = 0;
+
+    for (var i = 1; i <= 5; i++) {
+      document.getElementById('card' + i).checked = false
+      document.getElementById('card' + i + '_img').dataset.card_selected="false"
+    }
   }
 
   function getSelectedCards() {
     var checkedCardsCount = cardsClicked
     var checkedCards = ['' + checkedCardsCount]
-
-    console.log(selectedCards)
 
     for (var i = 0; i < 5; i++) {
       if (selectedCards[i] == 1) {
@@ -573,10 +589,6 @@
       }
     }
 
-    console.log(checkedCards)
-
     return checkedCards
   }
 </script>
-
-<!-- let game update before sending winner alert -->
