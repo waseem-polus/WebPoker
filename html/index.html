@@ -88,6 +88,8 @@
 
           <button id="raise_button" onclick="onRaise()">Raise</button>
           <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" data-active="true">
+          <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" data-active="true" oninput="onRaiseAmountChange()">
+          <span id="raise_amount_label" style="padding: 15px;"></span>
         </p>
       </div> <!-- betting_round_buttons -->
 
@@ -95,7 +97,7 @@
 
       <div id="draw_round_button" hidden>
         <p>
-          <button name="swap" onclick="onSwap()">Swap Selected</button>
+          <button id="swap_button" onclick="onSwap()" data-active="true">Swap Selected</button>
         </p>
       </div> <!-- draw_round_button -->
     </div> <!-- game_buttons -->
@@ -186,7 +188,6 @@
       console.log("Me:")
       console.log(me)
 
-      console.log(obj.players[playerId].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
       updateStats()
     }
   }
@@ -237,6 +238,8 @@
     }
 
     if (room.match.round != "WAITING") {
+      console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
+
       var my_bet = document.getElementById("my_bet")
       var my_hand = document.getElementById("my_hand")
       var current_turn = document.getElementById("current_turn")
@@ -257,7 +260,7 @@
       game_buttons.style.display = "block"
 
       //UPDATE GAME BUTTONS
-      document.getElementById("call_button").disabled = !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id)
+      document.getElementById("call_button").disabled = !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id) || !(me.balance != 0)
       document.getElementById("check_button").disabled = !(room.match.minimumBet <= me.currentBet || me.balance == 0) || !(room.match.currentPlayerID == me.id)
       document.getElementById("fold_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
       document.getElementById("raise_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
@@ -265,7 +268,9 @@
       var raise_numberfield = document.getElementById("raise_numberfield")
       raise_numberfield.min = (room.match.minimumBet - me.currentBet) + 0.01
       raise_numberfield.max = me.balance
-      raise_numberfield.disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
+      raise_numberfield.disabled = document.getElementById("raise_button").disabled
+
+      document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
 
       if (room.match.winnerID[0] != -1) {
         appointWinner(room.match.winnerID)
@@ -462,6 +467,13 @@
     }
   }
 
+  function onRaiseAmountChange() {
+    var raise_range = document.getElementById("raise_range")
+    var range_label = document.getElementById("raise_amount_label")
+
+    range_label.innerHTML = "$" + raise_range.value
+  }
+
   function onRaise() {
     if (room.match.currentPlayerID == playerId) {
       var textbox = document.getElementById("raise_numberfield")
@@ -550,11 +562,11 @@
   }
 
   var cardsClicked = 0
-
+  
   function onCardClick(id) {
     card = document.getElementById('card' + id)
     cardImage = document.getElementById('card' + id + '_img')
-
+    
     if (cardsClicked == 3 && card.checked == true) {
       card.checked = false
       cardImage.dataset.card_selected=false
@@ -567,14 +579,16 @@
       selectedCards[id - 1] = 0
       cardImage.dataset.card_selected="false"
     }
+    console.log(selectedCards)
   }
 
   function clearSelectedCards() {
     cardsClicked = 0;
 
-    for (var i = 1; i <= 5; i++) {
-      document.getElementById('card' + i).checked = false
-      document.getElementById('card' + i + '_img').dataset.card_selected="false"
+    for (var i = 0; i < 5; i++) {
+      if (selectedCards[i] == 1) {
+        document.getElementById('card' + (i + 1)).click()
+      }
     }
   }
 
