@@ -173,6 +173,7 @@ public class Match {
                 this.bettingPool += p.placeBet(20);
                 p.dealHand(deck);
             }
+            this.minimumBet = 20;
 
             round = MatchRound.FIRST_BETTING;
             currentPlayerID = activePlayers.get(0).id;
@@ -202,7 +203,7 @@ public class Match {
     /*
      * Author: Originally Victor Arowsafe, method reworked from scratch by Waseem
      * Alkasbutrus
-     * Last Updated: 4/4/2022
+     * Last Updated: 4/16/2022
      * 
      * onCheck(playerID): if the specified player's bet is equivalent to the highest
      * current bet, then the turn is passed to the next player
@@ -215,7 +216,7 @@ public class Match {
             double highestBet = getHighestBet();
             Player p = getPlayer(playerID);
 
-            if (p.getCurrentBet() >= highestBet) {
+            if (p.getCurrentBet() >= highestBet || p.getBalance() == 0) {
                 this.action = p.name + " checked";
                 nextTurn();
             }
