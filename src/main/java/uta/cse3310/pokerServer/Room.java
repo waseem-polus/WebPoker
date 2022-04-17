@@ -130,7 +130,9 @@ public class Room {
         this.match = new Match();
         for (Player p : players.values()) {
             p.clearBet();
-            this.match.addPlayer(p);
+            if (p.getBalance() > 0) {
+                this.match.addPlayer(p);
+            }
         }
         this.match.onStartMatch();
     }
