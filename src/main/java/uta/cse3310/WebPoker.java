@@ -98,6 +98,7 @@ public class WebPoker extends WebSocketServer {
             if (p.getRoom() != -1) {
                 Room room = this.rooms.get(p.getRoom());
                 room.removePlayer(attachment);
+
                 if (room.playerCount() <= 0) {
                     this.rooms.remove(p.getRoom());
                     System.out.println("Removed room " + p.getRoom());
@@ -106,9 +107,11 @@ public class WebPoker extends WebSocketServer {
                     System.out.println(room.playerCount() + " left in room " + room.pin);
                     System.out.println("On close sent:\n" + encodeAsJson(p.getRoom()));
                 }
-            } 
+            } else {
+                System.out.println("Player " + attachment + " wasn't part of a room");
+            }
             this.players.remove(attachment);
-            System.out.println("removed player " + attachment);
+            System.out.println("removed player " + attachment + " from server");
         }
     }
 

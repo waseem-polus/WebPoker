@@ -21,11 +21,13 @@ public class Room {
         this.pin = leader.id;
         this.visibility = visibility;
         this.startingBalance = startingBalance;
-
         this.leaderId = leader.id;
+
         this.players = new HashMap<Integer, Player>();
         this.players.put(leaderId, leader);
         this.playerCount = this.players.size();
+
+        leader.setRoom(this.pin);
     }
 
     /*
@@ -61,10 +63,11 @@ public class Room {
      * in order to remove we use the player id
      */
     public void removePlayer(int id) {
-        players.remove(id);
+        this.players.remove(id);
         this.match.removePlayer(id);
 
         this.playerCount = this.players.size();
+        System.out.println("Removed player " + id + " from room " + this.pin + ". " + this.playerCount + " players left");
     }
 
     /*
