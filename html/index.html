@@ -46,13 +46,8 @@
 
     <div id="game_page" hidden>
       <div id="game_hud">
-        <h4 id="my_name"></h4>
-        <h4 id="current_balance"></h4>
-        <h4 id="my_bet"></h4>
-        <h4 id="bet_pool"></h4>
-        <h4 id="my_hand"></h4>
-        <h4 id="current_turn"></h4>
-        <h4 id="all_balances"></h4>
+        <h4 id="my_info" style="font-weight: normal;"></h4>
+        <h4 id="game_info" style="font-weight: normal;"></h4>
       </div>
 
       <hr>
@@ -79,8 +74,9 @@
 
         <div id="pre_match" hidden>
           <p>
-            <button id="start_game" onclick="onStartMatch()">Start Match</button>
+            <button id="start_match" onclick="onStartMatch()">Start Match</button>
             <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
+            <p id="waiting_for_leader">Waiting for the game leader to begin the match...</p>
           </p>
         </div> <!-- pre_match -->
 
@@ -107,15 +103,14 @@
         </div> <!-- game_buttons -->
     </div> <!-- game interface div -->
 
-
+      <p id="room_pin" style="justify-content: left;"></p>
       <h3 id="match_log">Match Log</h3>
       <div id="info_area" style="overflow-y: auto;">
       </div> <!-- info_area -->
     </div> <!-- game_page -->
   </div> <!-- content div -->
 
-  <div style="background-color: rgb(11,50,80); margin: 0px -10px 10px; padding: 5px;"> <!-- footer div -->
-
+  <footer style="background-color: rgb(11,50,80); margin: 0px -10px 10px; padding: 5px; color: white">
     <p>
       <input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()">
       <input type="button" id="rules" value="Show Rules" onclick="onRules()">
@@ -150,7 +145,7 @@
         </ul>
       </p>
     </div> <!-- rules_area -->
-  </div> <!-- footer div -->
+  </footer>
 </body>
 
 </html>
@@ -203,27 +198,25 @@
 
   function updateStats() {
     //UPDATE GAME HUD
-    var name = document.getElementById("my_name")
-    var balance = document.getElementById("current_balance")
+    var my_info = document.getElementById("my_info")
     var match_log = document.getElementById("match_log")
-    var all_balances = document.getElementById("all_balances")
+    var game_info = document.getElementById("game_info")
 
-    name.innerHTML = "NAME: " + me.name + "  (id: " + playerId + ")"
-    balance.innerHTML = "BALANCE: $" + me.balance
+    my_info.innerHTML = "<b>NAME: </b>" + me.name + "  <b>(id: </b>" + playerId + "<b>) <br/> BALANCE: $ </b>" + me.balance + "<br/>"
     match_log.innerHTML = "Match Log (" + room.playerCount + "/5 players)"
 
-    all_balances.innerHTML = ""
+    game_info.innerHTML = "<b>BET POOL: </b>" + room.match.bettingPool + "<br/><br/>"
     for (var id in room.players) {
       var bal = "$" + room.players[id].balance
       
-      if (room.players[id].balance == 0) {
+      if (room.players[id].balance == 0 && room.match.round != "WAITING") {
         bal = "ALL OUT"
       }
 
-      if (room.match.currentPlayerID != id) {
-        all_balances.innerHTML += room.players[id].name + ": " + bal + "<br/>"
+      if (room.match.currentPlayerID != id || room.match.round == "WAITING") {
+        game_info.innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + "<br/>"
       } else {
-        all_balances.innerHTML += " ➡️ " + room.players[id].name + ": " + bal + " ⬅️ <br/>"
+        game_info.innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + " ⬅️⬅️ <br/>"
       }
     }
 
@@ -234,10 +227,17 @@
       }
     }
 
-    if (room.playerCount > 1 && room.leaderId == me.id && room.match.round == "WAITING") {
-      var pre_match = document.getElementById("pre_match")
-
+    var pre_match = document.getElementById("pre_match")
+    if (room.playerCount > 1 && room.match.round == "WAITING") {
+      if (room.leaderId != me.id) {
+        document.getElementById("restart_match").style.display="none"
+        document.getElementById("start_match").style.display="none"
+        document.getElementById("waiting_for_leader").style.display="block"
+      }
+      
       pre_match.style.display = "block"
+    } else {
+      pre_match.style.display="none"
     }
 
     if (room.match.action != "") {
@@ -249,21 +249,14 @@
     if (room.match.round != "WAITING") {
       console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
 
-      var my_bet = document.getElementById("my_bet")
-      var my_hand = document.getElementById("my_hand")
-      var current_turn = document.getElementById("current_turn")
-      var bet_pool = document.getElementById("bet_pool")
-
       var cards = document.getElementById("cards")
       var game_buttons = document.getElementById("game_buttons")
 
       var betting_round_buttons = document.getElementById("betting_round_buttons")
       var draw_round_button = document.getElementById("draw_round_button")
 
-      my_bet.innerHTML = "MY BET: $" + me.currentBet
-      my_hand.innerHTML = "MY HAND: " + me.hand.handType
-      current_turn.innerHTML = "TURN: " + room.players[room.match.currentPlayerID].name
-      bet_pool.innerHTML = "BET POOL: $" + room.match.bettingPool
+      my_info.innerHTML += "<b>MY BET: $</b>" + me.currentBet + "<br/>"
+      my_info.innerHTML += "<b>MY HAND: </b>" + me.hand.handType + "<br/>"
 
       cards.style.display = "block"
       game_buttons.style.display = "block"
@@ -285,6 +278,8 @@
       raise_range.disabled = document.getElementById("raise_button").disabled
 
       document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
+
+      disableCardSelectors(!(room.match.round == "DRAWING") || !(room.match.currentPlayerID == me.id))
 
       if (room.match.winnerID[0] != -1) {
         appointWinner(room.match.winnerID)
@@ -330,10 +325,10 @@
       for (var i = 0; i < 4; i++) {
         msg += room.players[id].hand.cards[i].emoji + ", "
       }
-      msg += room.players[id].hand.cards[4].emoji + "]"
+      msg += room.players[id].hand.cards[4].emoji + "] " + room.players[id].hand.handType
 
       if (isWinner(winnerId, id)) {
-        msg = "👑" + msg
+        msg = "🏆 " + msg
       }
       
       info_area.innerHTML = msg + '<br/>' + info_area.innerHTML
@@ -347,7 +342,7 @@
 
     if (room.leaderId == playerId) {
       document.getElementById("restart_match").style.display = "block"
-      document.getElementById("start_game").style.display = "none"
+      document.getElementById("start_match").style.display = "none"
       document.getElementById("pre_match").style.display = "block"
     }
   }
@@ -454,6 +449,8 @@
     landing_page.style.display = "none"
     pre_match.style.display = "none"
     game_page.style.display = "block"
+
+    document.getElementById("room_pin").innerHTML = "Room Pin: <b>" + playerId + "</b> <br/> Share this with friends you want to join"
   }
 
   function onRestartMatch() {
@@ -627,9 +624,14 @@
     console.log(selectedCards)
   }
 
-  function clearSelectedCards() {
-    cardsClicked = 0;
+  function disableCardSelectors(bool) {
+    for (var i = 1; i <= 5; i++) {
+      document.getElementById('card' + i).disabled=bool
+      console.log("card" + i + "checkbox.disabled=" + bool)
+    }
+  }
 
+  function clearSelectedCards() {
     for (var i = 0; i < 5; i++) {
       if (selectedCards[i] == 1) {
         document.getElementById('card' + (i + 1)).click()
