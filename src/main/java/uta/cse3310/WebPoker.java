@@ -135,6 +135,8 @@ public class WebPoker extends WebSocketServer {
             broadcast(encodeAsJson(evt.roomID));
             System.out.println("Sent:\n" + encodeAsJson(evt.roomID));
         }
+
+        System.out.println("Active Rooms: " + this.rooms.size());
     }
 
     @Override
