@@ -8,150 +8,159 @@
 </head>
 
 <body>
-  <h1>
-    MAV POKER
-  </h1>
-  <hr>
-  <div id="landing_page" style="display: block;">
+  <div style="background-color: rgb(0, 100, 177); padding: 2px; margin: -10px -10px 0px;"> <!-- header div -->
+    <h1 >
+      MAV POKER
+    </h1>
+  </div> <!-- header div -->
 
-    <div id="landing_opts">
-      <p>
-        <button name="new_game" onclick="onLandingNewGame()" style="padding: 15px 30px; font-size: 20px;">New
-          Game</button>
-      </p>
-      <p>
-        <button name="join_game" onclick="onLandingJoinGame()" style="padding: 15px 30px; font-size: 20px;">Join
-          Game</button>
-      </p>
-    </div> <!-- landing_opts -->
+  <!-- content div -->
+  <div style="background-color: rgb(249,246,239); margin: 10px 50px 10px; padding: 20px;"> 
+    <div id="landing_page" style="display: block;">
 
-    <div id="join_game_opts" hidden>
-      <p><input id="player_name" placeholder="Enter your name" type="text"></p>
-      <p><input id="join_room" placeholder="Enter room pin" type="number"></p>
-      <p><button name="join_room" onclick="joinRoom()">Join Room</button></p>
-    </div>
-    <!--join_room_opts-->
-
-    <div id="new_game_opts" hidden>
-      <p><input id="leader_name" placeholder="Enter your name" type="text"></p>
-      <p><input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
-      <!-- <p>Private: <input type="checkbox" id="visibility"></p> -->
-      <p><button name="create_room" onclick="createRoom()">Create Room</button></p>
-    </div>
-  </div> <!-- landing page -->
-
-  <div id="game_page" hidden>
-    <div id="game_hud">
-      <h4 id="my_name"></h4>
-      <h4 id="current_balance"></h4>
-      <h4 id="my_bet"></h4>
-      <h4 id="bet_pool"></h4>
-      <h4 id="my_hand"></h4>
-      <h4 id="current_turn"></h4>
-      <h4 id="all_balances"></h4>
-    </div>
-
-    <hr>
-
-    <div id="cards" hidden>
-      <p>
-        <input type="checkbox" id="card1" onchange="onCardClick(1)" style="opacity: 0;"/>
-        <label for="card1"><img src="1B.svg" id="card1_img" width="150" data-card_selected="false"/></label>
-
-        <input type="checkbox" id="card2" onchange="onCardClick(2)" style="opacity: 0;"/>
-        <label for="card2"><img src="1B.svg" id="card2_img" width="150" data-card_selected="false"/></label>
-
-        <input type="checkbox" id="card3" onchange="onCardClick(3)" style="opacity: 0;"/>
-        <label for="card3"><img src="1B.svg" id="card3_img" width="150" data-card_selected="false"/></label>
-
-        <input type="checkbox" id="card4" onchange="onCardClick(4)" style="opacity: 0;"/>
-        <label for="card4"><img src="1B.svg" id="card4_img" width="150" data-card_selected="false"/></label>
-
-        <input type="checkbox" id="card5" onchange="onCardClick(5)" style="opacity: 0;"/>
-        <label for="card5"><img src="1B.svg" id="card5_img" width="150" data-card_selected="false"/></label>
-      </p>
-    </div> <!-- cards -->
-
-    <div id="pre_match" hidden>
-      <p>
-        <button id="start_game" onclick="onStartMatch()">Start Match</button>
-        <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
-      </p>
-    </div> <!-- pre_match -->
-
-    <div id="game_buttons" hidden>
-      <div id="betting_round_buttons" hidden>
+      <div id="landing_opts">
         <p>
-          <button id="call_button" onclick="onCall()" data-active="true">Call</button>
-          <button id="check_button" onclick="onCheck()" data-active="true">Check</button>
-          <button id="fold_button" onclick="onFold()" data-active="true">Fold</button>
-
-          <button id="raise_button" onclick="onRaise()">Raise</button>
-          <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" data-active="true">
-          <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" data-active="true" oninput="onRaiseAmountChange()">
-          <span id="raise_amount_label" style="padding: 15px;"></span>
+          <button name="new_game" onclick="onLandingNewGame()" style="padding: 15px 30px; font-size: 20px;">New
+            Game</button>
         </p>
-      </div> <!-- betting_round_buttons -->
-
-      <br>
-
-      <div id="draw_round_button" hidden>
         <p>
-          <button id="swap_button" onclick="onSwap()" data-active="true">Swap Selected</button>
+          <button name="join_game" onclick="onLandingJoinGame()" style="padding: 15px 30px; font-size: 20px;">Join
+            Game</button>
         </p>
-      </div> <!-- draw_round_button -->
-    </div> <!-- game_buttons -->
+      </div> <!-- landing_opts -->
 
-    <h3 id="match_log">Match Log</h3>
-    <div id="info_area" style="overflow-y: auto;">
-    </div> <!-- info_area -->
-  </div> <!-- game_page -->
+      <div id="join_game_opts" hidden>
+        <p><input id="player_name" placeholder="Enter your name" type="text"></p>
+        <p><input id="join_room" placeholder="Enter room pin" type="number"></p>
+        <p><button name="join_room" onclick="joinRoom()">Join Room</button></p>
+      </div>
+      <!--join_room_opts-->
 
-  <hr>
-  <p>
-    <input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()">
-    <input type="button" id="rules" value="Show Rules" onclick="onRules()">
-  </p>
-  <div id="rules_area" style="display: none;">
+      <div id="new_game_opts" hidden>
+        <p><input id="leader_name" placeholder="Enter your name" type="text"></p>
+        <p><input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
+        <!-- <p>Private: <input type="checkbox" id="visibility"></p> -->
+        <p><button name="create_room" onclick="createRoom()">Create Room</button></p>
+      </div>
+    </div> <!-- landing page -->
+
+    <div id="game_page" hidden>
+      <div id="game_hud">
+        <h4 id="my_name"></h4>
+        <h4 id="current_balance"></h4>
+        <h4 id="my_bet"></h4>
+        <h4 id="bet_pool"></h4>
+        <h4 id="my_hand"></h4>
+        <h4 id="current_turn"></h4>
+        <h4 id="all_balances"></h4>
+      </div>
+
+      <hr>
+
+      <div> <!-- game interface div -->
+        <div id="cards" hidden>
+          <p>
+            <input type="checkbox" id="card1" onchange="onCardClick(1)" style="opacity: 0;"/>
+            <label for="card1"><img src="1B.svg" id="card1_img" width="150" data-card_selected="false"/></label>
+
+            <input type="checkbox" id="card2" onchange="onCardClick(2)" style="opacity: 0;"/>
+            <label for="card2"><img src="1B.svg" id="card2_img" width="150" data-card_selected="false"/></label>
+
+            <input type="checkbox" id="card3" onchange="onCardClick(3)" style="opacity: 0;"/>
+            <label for="card3"><img src="1B.svg" id="card3_img" width="150" data-card_selected="false"/></label>
+
+            <input type="checkbox" id="card4" onchange="onCardClick(4)" style="opacity: 0;"/>
+            <label for="card4"><img src="1B.svg" id="card4_img" width="150" data-card_selected="false"/></label>
+
+            <input type="checkbox" id="card5" onchange="onCardClick(5)" style="opacity: 0;"/>
+            <label for="card5"><img src="1B.svg" id="card5_img" width="150" data-card_selected="false"/></label>
+          </p>
+        </div> <!-- cards -->
+
+        <div id="pre_match" hidden>
+          <p>
+            <button id="start_game" onclick="onStartMatch()">Start Match</button>
+            <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
+          </p>
+        </div> <!-- pre_match -->
+
+        <div id="game_buttons" hidden>
+          <div id="betting_round_buttons" hidden>
+            <p>
+              <button id="call_button" onclick="onCall()" data-active="true">Call</button>
+              <button id="check_button" onclick="onCheck()" data-active="true">Check</button>
+              <button id="fold_button" onclick="onFold()" data-active="true">Fold</button>
+
+              <button id="raise_button" onclick="onRaise()">Raise</button>
+              <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01" data-active="true" oninput="onRaiseAmountChange('numberfield')">
+              <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" data-active="true" style="width: 6cm;" oninput="onRaiseAmountChange('range')">
+            </p>
+          </div> <!-- betting_round_buttons -->
+
+          <br>
+
+          <div id="draw_round_button" hidden>
+            <p>
+              <button id="swap_button" onclick="onSwap()" data-active="true">Swap Selected</button>
+            </p>
+          </div> <!-- draw_round_button -->
+        </div> <!-- game_buttons -->
+    </div> <!-- game interface div -->
+
+
+      <h3 id="match_log">Match Log</h3>
+      <div id="info_area" style="overflow-y: auto;">
+      </div> <!-- info_area -->
+    </div> <!-- game_page -->
+  </div> <!-- content div -->
+
+  <div style="background-color: rgb(11,50,80); margin: 0px -10px 10px; padding: 5px;"> <!-- footer div -->
+
     <p>
-    <h4>Rounds</h4>
-    <ul>
-      <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet
-      based on their type of hand at the start.<br />
-      <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which is
-      then replaced by a random card in the deck.<br />
-      <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet based
-      on their hand after the Draw Round.<br />
-      <b>Showdown Round (4th Round) : </b> In this round, each players remaining hand is then compared to one another,
-      with the victor being the player with the best hand.<br />
-    </ul>
-    <h4>
-      Hand Rankings (Strongest to Weakest):
-    </h4>
-    <ul>
-      <b>Royal Flush : </b> A, K, Q, J, and 10 with all the same suit. <br />
-      <b>Straight Flush : </b> All cards values are in sequential order and all the same suit.<br />
-      <b>Four of a Kind : </b> Four cards have the same value.<br />
-      <b>Full House : </b> Three of a Kind and a Pair.<br />
-      <b>Flush : </b> All cards have the same suit but not in sequential order.<br />
-      <b>Straight : </b> All cards values are in sequential order but not the same suit.<br />
-      <b>Three of a Kind : </b> Three cards have the same value.<br />
-      <b>Two Pair : </b> Two different values of pairs.<br />
-      <b>Pair : </b> Two cards have the same value.<br />
-      <b>High Card : </b> When a hand has none of the above ranks, the highest card plays.<br />
-    </ul>
+      <input type="button" name="back_to_main" value="Main Menu" onclick="onBackToMain()">
+      <input type="button" id="rules" value="Show Rules" onclick="onRules()">
     </p>
-  </div> <!-- rules_area -->
+    <div id="rules_area" style="display: none;">
+      <p>
+        <h4>Rounds</h4>
+        <ul>
+          <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet
+          based on their type of hand at the start.<br />
+          <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which is
+          then replaced by a random card in the deck.<br />
+          <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet based
+          on their hand after the Draw Round.<br />
+          <b>Showdown Round (4th Round) : </b> In this round, each players remaining hand is then compared to one another,
+          with the victor being the player with the best hand.<br />
+        </ul>
+        <h4>
+          Hand Rankings (Strongest to Weakest):
+        </h4>
+        <ul>
+          <b>Royal Flush : </b> A, K, Q, J, and 10 with all the same suit. <br />
+          <b>Straight Flush : </b> All cards values are in sequential order and all the same suit.<br />
+          <b>Four of a Kind : </b> Four cards have the same value.<br />
+          <b>Full House : </b> Three of a Kind and a Pair.<br />
+          <b>Flush : </b> All cards have the same suit but not in sequential order.<br />
+          <b>Straight : </b> All cards values are in sequential order but not the same suit.<br />
+          <b>Three of a Kind : </b> Three cards have the same value.<br />
+          <b>Two Pair : </b> Two different values of pairs.<br />
+          <b>Pair : </b> Two cards have the same value.<br />
+          <b>High Card : </b> When a hand has none of the above ranks, the highest card plays.<br />
+        </ul>
+      </p>
+    </div> <!-- rules_area -->
+  </div> <!-- footer div -->
 </body>
 
 </html>
 <script>
-
+  
   var connection = null;
-
+  
   var serverUrl;
   serverUrl = "ws://" + window.location.hostname + ":8881";
-
+  
   connection = new WebSocket(serverUrl);
   connection.onopen = function (evt) {
     console.log("open");
@@ -270,6 +279,11 @@
       raise_numberfield.max = me.balance
       raise_numberfield.disabled = document.getElementById("raise_button").disabled
 
+      var raise_range = document.getElementById("raise_range")
+      raise_range.min = (room.match.minimumBet - me.currentBet) + 0.01
+      raise_range.max = me.balance
+      raise_range.disabled = document.getElementById("raise_button").disabled
+
       document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
 
       if (room.match.winnerID[0] != -1) {
@@ -286,6 +300,18 @@
     }
   }
 
+  function isWinner(winnerIds, playerID) {
+    var isWinner = false
+    for (var i = 1; i <= winnerIds[0]; i++) {
+      if (playerID == winnerIds[i]) {
+        isWinner = true
+        break
+      }
+    }
+
+    return isWinner
+  }
+
   function appointWinner(winnerId) {
     var msg = ""
     for (var i = 1; i <= winnerId[0]; i++) {
@@ -297,6 +323,21 @@
     msg += " won the match with a " + room.players[winnerId[1]].hand.handType
 
     alert(msg)
+
+    var info_area = document.getElementById("info_area")
+    for (var id in room.players) {
+      var msg = room.players[id].name + " had: ["
+      for (var i = 0; i < 4; i++) {
+        msg += room.players[id].hand.cards[i].emoji + ", "
+      }
+      msg += room.players[id].hand.cards[4].emoji + "]"
+
+      if (isWinner(winnerId, id)) {
+        msg = "👑" + msg
+      }
+      
+      info_area.innerHTML = msg + '<br/>' + info_area.innerHTML
+    }
 
     var cards = document.getElementById("cards")
     var game_buttons = document.getElementById("game_buttons")
@@ -467,11 +508,15 @@
     }
   }
 
-  function onRaiseAmountChange() {
+  function onRaiseAmountChange(changer) {
     var raise_range = document.getElementById("raise_range")
-    var range_label = document.getElementById("raise_amount_label")
+    var raise_numberfield = document.getElementById("raise_numberfield")
 
-    range_label.innerHTML = "$" + raise_range.value
+    if (changer == "range") {
+      raise_numberfield.value = raise_range.value
+    } else if (changer == "numberfield") {
+      raise_range.value = raise_numberfield.value
+    }
   }
 
   function onRaise() {
@@ -543,8 +588,8 @@
   }
 
   function onSwap() {
-
     if (room.match.currentPlayerID == playerId) {
+      console.log(cardsClicked)
       var cardsToSwap = getSelectedCards()
       var swapEvt = {
         event: "EXCHANGE_CARDS",
