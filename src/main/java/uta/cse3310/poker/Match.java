@@ -357,14 +357,14 @@ public class Match {
 
     /*
      * Author: Waseem Alkasbutrus
-     * Last Updated: 4/2/2022
+     * Last Updated: 4/18/2022
      * 
      * getPlayer(playerID): returns a player object that matches the specified id
      * 
      * Returns:
      * Player object that matches the specified id
      */
-    private Player getPlayer(int playerID) {
+    public Player getPlayer(int playerID) {
         Player player = null;
 
         for (Player p : this.activePlayers) {
@@ -389,6 +389,12 @@ public class Match {
         return this.round == MatchRound.WAITING;
     }
 
+    /*
+     * Author: Waseem Alkasbutrus
+     * Last Updated: 4/17/2022
+     * 
+     * setAction(action): sets the action string to match the provided action
+     */
     public void setAction(String action) {
         this.action = action;
     }
