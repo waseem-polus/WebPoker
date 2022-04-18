@@ -4,6 +4,7 @@ public class Card implements Comparable<Card> {
    public final Suite suite;
    public final Value value;
    public final String svg;
+   public final String emoji;
 
    /*
     * Protected constructor to prohibit creating new cards manually.
@@ -17,6 +18,7 @@ public class Card implements Comparable<Card> {
       this.value = value;
       this.suite = suite;
       this.svg = value.key + suite.key + ".svg";
+      this.emoji = value.key + suite.emoji;
    }
 
    /*

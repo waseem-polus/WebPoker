@@ -135,5 +135,6 @@ public class Room {
             }
         }
         this.match.onStartMatch();
+        this.match.setAction("Restart match");
     }
 }

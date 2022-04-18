@@ -48,7 +48,7 @@ public class Hand implements Comparable<Hand> {
             }
 
             try {
-                discardedCards += this.cards[index[i]].value.key + this.cards[index[i]].suite.emoji + separator;
+                discardedCards += this.cards[index[i]].emoji + separator;
                 this.cards[index[i]] = cardDeck.drawCard();
             } catch (OutOfCardsException e) {
                 System.out.println(e.getMessage());

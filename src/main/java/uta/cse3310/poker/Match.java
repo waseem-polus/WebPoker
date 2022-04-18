@@ -385,4 +385,8 @@ public class Match {
     public Boolean isWaiting() {
         return this.round == MatchRound.WAITING;
     }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
 }
