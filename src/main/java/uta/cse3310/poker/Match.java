@@ -50,6 +50,10 @@ public class Match {
             if (turnsInRound >= activePlayers.size() && checkBets()) {
                 this.round = this.round.next();
                 turnsInRound = 0;
+                this.minimumBet = 0;
+                for (Player p : this.activePlayers) {
+                    p.clearBet();
+                }
             }
         } else if (this.round == MatchRound.DRAWING && turnsInRound >= activePlayers.size()) {
             this.round = this.round.next();
@@ -171,10 +175,9 @@ public class Match {
         if (this.activePlayers.size() > 1) {
             for (Player p : this.activePlayers) {
                 this.bettingPool += p.placeBet(20);
+                p.clearBet();
                 p.dealHand(deck);
             }
-            this.minimumBet = 20;
-
             round = MatchRound.FIRST_BETTING;
             currentPlayerID = activePlayers.get(0).id;
 
@@ -265,7 +268,7 @@ public class Match {
                 && (amount + p.getCurrentBet() > this.getHighestBet())) {
             this.bettingPool += p.placeBet(amount);
             this.minimumBet = p.getCurrentBet();
-            this.action = p.name + " raised the minimum bet to " + p.getCurrentBet();
+            this.action = p.name + " raised to $" + this.minimumBet;
             nextTurn();
         }
     }
