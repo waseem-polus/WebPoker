@@ -83,13 +83,13 @@
         <div id="game_buttons" hidden>
           <div id="betting_round_buttons" hidden>
             <p>
-              <button id="call_button" onclick="onCall()" data-active="true">Call</button>
-              <button id="check_button" onclick="onCheck()" data-active="true">Check</button>
-              <button id="fold_button" onclick="onFold()" data-active="true">Fold</button>
+              <button id="call_button" onclick="onCall()" title="Match the minimum bet">Call</button>
+              <button id="check_button" onclick="onCheck()" title="Do not place a bet">Check</button>
+              <button id="fold_button" onclick="onFold()" title="Withdraw from this match">Fold</button>
 
-              <button id="raise_button" onclick="onRaise()">Raise</button>
-              <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01" data-active="true" oninput="onRaiseAmountChange('numberfield')">
-              <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" data-active="true" style="width: 6cm;" oninput="onRaiseAmountChange('range')">
+              <button id="raise_button" onclick="onRaise()" title="Raise the minimum bet">Raise</button>
+              <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01"oninput="onRaiseAmountChange('numberfield')">
+              <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" style="width: 6cm;" oninput="onRaiseAmountChange('range')">
             </p>
           </div> <!-- betting_round_buttons -->
 
@@ -97,7 +97,8 @@
 
           <div id="draw_round_button" hidden>
             <p>
-              <button id="swap_button" onclick="onSwap()" data-active="true">Swap Selected</button>
+              <button id="swap_button" onclick="onSwap()" title="Swap the selected cards for new ones">Swap Selected</button>
+              <p id="swap_tip">Click on up to 3 cards to select them...</p>
             </p>
           </div> <!-- draw_round_button -->
         </div> <!-- game_buttons -->
@@ -229,10 +230,12 @@
 
     var pre_match = document.getElementById("pre_match")
     if (room.playerCount > 1 && room.match.round == "WAITING") {
+      document.getElementById("waiting_for_leader").style.display="none"
+      
       if (room.leaderId != me.id) {
         document.getElementById("restart_match").style.display="none"
         document.getElementById("start_match").style.display="none"
-        document.getElementById("waiting_for_leader").style.display="block"
+        document.getElementById("waiting_for_leader").style.display="flex"
       }
       
       pre_match.style.display = "block"
@@ -278,6 +281,11 @@
       raise_range.disabled = document.getElementById("raise_button").disabled
 
       document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
+      if (document.getElementById("swap_button").disabled) {
+        document.getElementById("swap_tip").style.display = "none"
+      } else {
+        document.getElementById("swap_tip").style.display = "flex"
+      }
 
       disableCardSelectors(!(room.match.round == "DRAWING") || !(room.match.currentPlayerID == me.id))
 
@@ -308,6 +316,22 @@
   }
 
   function appointWinner(winnerId) {
+    
+    var info_area = document.getElementById("info_area")
+    for (var id in room.players) {
+      var action = room.players[id].name + " had " + room.players[id].hand.handType + ": ["
+      for (var i = 0; i < 4; i++) {
+        action += room.players[id].hand.cards[i].emoji + ", "
+      }
+      action += room.players[id].hand.cards[4].emoji + "] "
+      
+      if (isWinner(winnerId, id)) {
+        action = "🏆 " + action
+      }
+      
+      info_area.innerHTML = action + '<br/>' + info_area.innerHTML
+    }
+
     var msg = ""
     for (var i = 1; i <= winnerId[0]; i++) {
       msg += room.players[winnerId[i]].name
@@ -315,24 +339,10 @@
         msg += " and "
       }
     }
+    
     msg += " won the match with a " + room.players[winnerId[1]].hand.handType
 
     alert(msg)
-
-    var info_area = document.getElementById("info_area")
-    for (var id in room.players) {
-      var msg = room.players[id].name + " had: ["
-      for (var i = 0; i < 4; i++) {
-        msg += room.players[id].hand.cards[i].emoji + ", "
-      }
-      msg += room.players[id].hand.cards[4].emoji + "] " + room.players[id].hand.handType
-
-      if (isWinner(winnerId, id)) {
-        msg = "🏆 " + msg
-      }
-      
-      info_area.innerHTML = msg + '<br/>' + info_area.innerHTML
-    }
 
     var cards = document.getElementById("cards")
     var game_buttons = document.getElementById("game_buttons")
@@ -450,7 +460,8 @@
     pre_match.style.display = "none"
     game_page.style.display = "block"
 
-    document.getElementById("room_pin").innerHTML = "Room Pin: <b>" + playerId + "</b> <br/> Share this with friends you want to join"
+    document.getElementById("room_pin").innerHTML = "Room Pin: <b>\ " + playerId + "</b>"
+    document.getElementById("room_pin").innerHTML += "<br/>" + "Share this with friends you want to join"
   }
 
   function onRestartMatch() {
@@ -627,7 +638,6 @@
   function disableCardSelectors(bool) {
     for (var i = 1; i <= 5; i++) {
       document.getElementById('card' + i).disabled=bool
-      console.log("card" + i + "checkbox.disabled=" + bool)
     }
   }
 

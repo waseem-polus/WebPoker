@@ -41,7 +41,7 @@ input {
 
 input[type=text], input[type=number] {
   border: 2px solid rgb(245, 128, 38);
-  color: rgb(245, 128, 38);
+  color: black;
   background-color: white;
   padding: 10px 15px;
   font-size: 16px;
