@@ -29,7 +29,7 @@ button {
   margin-inline: 5px;
 }
 
-button:hover {
+button:hover, button[data-pressed=true]{
   border: 2px solid rgb(245, 128, 38);
   color: rgb(245, 128, 38);
   background-color: white;

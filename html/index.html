@@ -83,17 +83,25 @@
         <div id="game_buttons" hidden>
           <div id="betting_round_buttons" hidden>
             <p>
+              <p id="my_bet"></p>
+              <p id="min_bet"></p>
+            </p>
+            <p>
               <button id="call_button" onclick="onCall()" title="Match the minimum bet">Call</button>
               <button id="check_button" onclick="onCheck()" title="Do not place a bet">Check</button>
               <button id="fold_button" onclick="onFold()" title="Withdraw from this match">Fold</button>
-
-              <button id="raise_button" onclick="onRaise()" title="Raise the minimum bet">Raise</button>
-              <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01"oninput="onRaiseAmountChange('numberfield')">
-              <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" style="width: 6cm;" oninput="onRaiseAmountChange('range')">
+              <button id="raise_toggle" onclick="onRaiseToggle()" title="Raise the minimum bet">Raise 🔽</button>
+              
+              <div id="raise_interface" style="display: none; justify-content: center;">
+                <button id="confirm_raise_button" onclick="onRaise(-1)" title="Confirm raise amount" style="margin-right: 30px;">Confirm</button>
+                <button id="$10_raise" onclick="onRaise(10)" title="Raise min bet by $10">$10</button>
+                <button id="$20_raise" onclick="onRaise(20)" title="Raise min bet by $20">$20</button>
+                <button id="$50_raise" onclick="onRaise(50)" title="Raise min bet by $50">$50</button>
+                <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01" style="width: 3cm;" oninput="onRaiseAmountChange('numberfield')">
+                <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" style="width: 7cm;" oninput="onRaiseAmountChange('range')">
+              </div> <!-- raise_interface -->
             </p>
           </div> <!-- betting_round_buttons -->
-
-          <br>
 
           <div id="draw_round_button" hidden>
             <p>
@@ -120,30 +128,48 @@
       <p>
         <h4>Rounds</h4>
         <ul>
-          <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet
-          based on their type of hand at the start.<br />
-          <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which is
-          then replaced by a random card in the deck.<br />
-          <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet based
-          on their hand after the Draw Round.<br />
-          <b>Showdown Round (4th Round) : </b> In this round, each players remaining hand is then compared to one another,
-          with the victor being the player with the best hand.<br />
+          <b>1st Betting Round (1st Round) : </b> In this round, each player is given the opportunity to give an initial bet.<br />
+          <b>Draw Round (2nd Round) : </b> In this round, each player is allowed to swap out a maximum of 3 cards which are
+          then replaced by random cards from the deck.<br />
+          <b>Betting Round (3rd Round) : </b> In this round, each player is given the opportunity to give a second bet.<br />
+          <b>Showdown Round (4th Round) : </b> In this round, all (unfolded) hands are then compared to one another,with the victor being the player with the best hand.<br />
         </ul>
+
         <h4>
           Hand Rankings (Strongest to Weakest):
         </h4>
         <ul>
-          <b>Royal Flush : </b> A, K, Q, J, and 10 with all the same suit. <br />
-          <b>Straight Flush : </b> All cards values are in sequential order and all the same suit.<br />
-          <b>Four of a Kind : </b> Four cards have the same value.<br />
+          <b>Royal Flush : </b> A, K, Q, J, and T(10) with all the same suit. <br />
+          <b>Straight Flush : </b> All cards values are in sequential order and share the same suit.<br />
+          <b>Four of a Kind : </b> Four cards that have the same value.<br />
           <b>Full House : </b> Three of a Kind and a Pair.<br />
-          <b>Flush : </b> All cards have the same suit but not in sequential order.<br />
-          <b>Straight : </b> All cards values are in sequential order but not the same suit.<br />
-          <b>Three of a Kind : </b> Three cards have the same value.<br />
-          <b>Two Pair : </b> Two different values of pairs.<br />
-          <b>Pair : </b> Two cards have the same value.<br />
+          <b>Flush : </b> All cards share the same suit but not in sequential order.<br />
+          <b>Straight : </b> All cards values are in sequential order but do not share the same suit.<br />
+          <b>Three of a Kind : </b> Three cards that have the same value.<br />
+          <b>Two Pair : </b> Two different pairs.<br />
+          <b>Pair : </b> Two cards that have the same value.<br />
           <b>High Card : </b> When a hand has none of the above ranks, the highest card plays.<br />
         </ul>
+        
+        <h4>Tie Breaker Rules:</h4>
+        <ul>
+          Two hands are only tied if their ranking is the same <b>and</b> they share all the same card values <br />
+          <b>Repeating Hands :</b> These include Four of a Kind, Full House, Three of a Kind, Two Pair, and Pair. To break a tie between those hands, 
+              Their repeating cards are compared. For instance, two Full Houses will compare their Three of a Kind to break the tie. 
+              If they are the same, their Pairs will be compared <br />
+          <b>Non Repeating hands :</b> These include Royal Flush, Straight Flush, Flush, Straight, High Card. To break a tie between those hands,
+              Their highest unique cards will be compared. For instance, two High Cards will compare their highest unique card to break the tie.
+              If that is the same, their next highest card will be compared and so forth.
+        </ul>
+
+        <h4>UI Symbols</h4>
+        <ul>
+          👑 : Is shown next to the room leader's name. The game leader is the player who started the room. <br />
+          ⬅️⬅️ : Is shown next to the name of whomever's turn it currently is. <br />
+          🏆 : Is shown in the game log, next to the name of the player(s) who won the match,
+        </ul>
+
+        If you are having an issue with the game, try refreshing the page and rejoin/ recreate your room. <b>Your current match progress will be lost.</b>
       </p>
     </div> <!-- rules_area -->
   </footer>
@@ -173,6 +199,8 @@
   var me
   var selectedCards = [0, 0, 0, 0, 0]
 
+  var isRaisePressed = false;
+
   connection.onmessage = function (evt) {
     // Take the msg and turn it into a javascript object
     var msg = evt.data
@@ -194,6 +222,14 @@
       console.log(me)
 
       updateStats()
+    } else {
+      if (playerId == roomId) {
+        onLandingNewGame()
+        consol.log("Failed to create room. Please reload the page and try again.")
+      } else {
+        onLandingJoinGame()
+        consol.log("Failed to join room. Check the pin, or reload the page and try again.")
+      }
     }
   }
 
@@ -206,7 +242,7 @@
     my_info.innerHTML = "<b>NAME: </b>" + me.name + "  <b>(id: </b>" + playerId + "<b>) <br/> BALANCE: $ </b>" + me.balance + "<br/>"
     match_log.innerHTML = "Match Log (" + room.playerCount + "/5 players)"
 
-    game_info.innerHTML = "<b>BET POOL: </b>" + room.match.bettingPool + "<br/><br/>"
+    game_info.innerHTML = "<b>BET POOL: $</b>" + room.match.bettingPool + "<br/><br/>"
     for (var id in room.players) {
       var bal = "$" + room.players[id].balance
       
@@ -258,27 +294,41 @@
       var betting_round_buttons = document.getElementById("betting_round_buttons")
       var draw_round_button = document.getElementById("draw_round_button")
 
-      my_info.innerHTML += "<b>MY BET: $</b>" + me.currentBet + "<br/>"
       my_info.innerHTML += "<b>MY HAND: </b>" + me.hand.handType + "<br/>"
 
       cards.style.display = "block"
       game_buttons.style.display = "block"
 
       //UPDATE GAME BUTTONS
+
+      document.getElementById("my_bet").innerHTML = "<b>My Bet: $</b>" + me.currentBet
+      document.getElementById("min_bet").innerHTML = "<b>Min Bet: $</b>" + room.match.minimumBet
+
       document.getElementById("call_button").disabled = !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id) || !(me.balance != 0)
       document.getElementById("check_button").disabled = !(room.match.minimumBet <= me.currentBet || me.balance == 0) || !(room.match.currentPlayerID == me.id)
       document.getElementById("fold_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
-      document.getElementById("raise_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
+      var raise_toggle = document.getElementById("raise_toggle")
+      
+      raise_toggle.disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
+      if (raise_toggle.disabled && isRaisePressed) {
+        onRaiseToggle()
+      }
+      
+      document.getElementById("$10_raise").disabled = !((me.currentBet + 10) > room.match.minimumBet)
+      document.getElementById("$20_raise").disabled = !((me.currentBet + 20) > room.match.minimumBet)
+      document.getElementById("$50_raise").disabled = !((me.currentBet + 50) > room.match.minimumBet)
 
       var raise_numberfield = document.getElementById("raise_numberfield")
       raise_numberfield.min = (room.match.minimumBet - me.currentBet) + 0.01
       raise_numberfield.max = me.balance
-      raise_numberfield.disabled = document.getElementById("raise_button").disabled
+      raise_numberfield.value = raise_numberfield.min
+      raise_numberfield.disabled = document.getElementById("raise_toggle").disabled
 
       var raise_range = document.getElementById("raise_range")
       raise_range.min = (room.match.minimumBet - me.currentBet) + 0.01
       raise_range.max = me.balance
-      raise_range.disabled = document.getElementById("raise_button").disabled
+      raise_range.value = raise_range.min
+      raise_range.disabled = document.getElementById("raise_toggle").disabled
 
       document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
       if (document.getElementById("swap_button").disabled) {
@@ -460,8 +510,7 @@
     pre_match.style.display = "none"
     game_page.style.display = "block"
 
-    document.getElementById("room_pin").innerHTML = "Room Pin: <b>\ " + playerId + "</b>"
-    document.getElementById("room_pin").innerHTML += "<br/>" + "Share this with friends you want to join"
+    document.getElementById("room_pin").innerHTML = "Room Pin: [<b>" + playerId + "</b>]. Share this with friends you want to join"
   }
 
   function onRestartMatch() {
@@ -527,23 +576,44 @@
     }
   }
 
-  function onRaise() {
+  function onRaiseToggle() {
+    var raise_toggle = document.getElementById("raise_toggle")
+    var raise_interface = document.getElementById("raise_interface")
+
+    if (isRaisePressed) {
+      isRaisePressed = false
+      raise_toggle.innerHTML = "Raise 🔽"
+      raise_interface.style.display = "none"
+    } else {
+      isRaisePressed = true
+      raise_toggle.innerHTML = "Raise 🔼"
+      raise_interface.style.display = "flex"
+    }
+
+    raise_toggle.dataset.pressed = isRaisePressed
+  }
+
+  function onRaise(raiseBy) {
     if (room.match.currentPlayerID == playerId) {
       var textbox = document.getElementById("raise_numberfield")
-
       var amount = textbox.value
+      
+      if (raiseBy != -1) {
+        amount = raiseBy
+      }
+
       if ((amount + me.currentBet) > room.match.minimumBet) {
         var raiseEvt = {
           event: "RAISE",
           roomID: roomId,
           playerID: playerId,
-          msg: [amount]
+          msg: [amount.toString()]
         }
 
         connection.send(JSON.stringify(raiseEvt))
         textbox.value = ""
       } else {
-        alert("Please specify a value to raise")
+        alert("Your bet after raising must be greater than the minimum bet: $" + room.match.minimumBet)
       }
     } else {
       alert("Not your turn")
