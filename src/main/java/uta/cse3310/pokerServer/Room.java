@@ -58,14 +58,17 @@ public class Room {
 
     /*
      * Author: Meaza Abera
-     * Last Updated: 04/12/2022
+     * Last Updated: 04/18/2022, by Waseem Alkasbutrus
      * 
      * remove() it removes player from room
      * in order to remove we use the player id
      */
     public void removePlayer(int id) {
         this.players.remove(id);
-        this.match.removePlayer(id);
+        
+        if (this.match.getPlayer(id) != null) {
+            this.match.removePlayer(id);
+        }
 
         this.playerCount = this.players.size();
         System.out.println("Removed player " + id + " from room " + this.pin + ". " + this.playerCount + " players left");
