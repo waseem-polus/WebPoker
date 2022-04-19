@@ -394,8 +394,24 @@ public class Match {
      * Last Updated: 4/17/2022
      * 
      * setAction(action): sets the action string to match the provided action
+     * 
+     * Parameters:
+     *      String action: what the action should be set to
      */
     public void setAction(String action) {
         this.action = action;
+    }
+
+    /*
+     * Author: Waseem Alkasbutrus
+     * Last Updated: 4/18/2022
+     * 
+     * countActivePlayers(): returns the number of players in the activePlayers arraylist
+     * 
+     * Returns:
+     *      int count of players in activePlayers
+     */
+    public int countActivePlayers() {
+        return this.activePlayers.size();
     }
 }
