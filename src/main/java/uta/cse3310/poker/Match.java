@@ -414,4 +414,17 @@ public class Match {
     public int countActivePlayers() {
         return this.activePlayers.size();
     }
+
+    /*
+     * Author: Waseem Alkasbutrus
+     * Last Updated: 4/18/2022
+     * 
+     * getCurrentPlayer(): returns the id of the current player
+     * 
+     * Returns:
+     *      int id of current player
+     */
+    public int getCurrentPlayer() {
+        return this.currentPlayerID;
+    }
 }
