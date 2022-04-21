@@ -74,8 +74,8 @@
 
         <div id="pre_match" hidden>
           <p>
-            <button id="start_match" onclick="onStartMatch()">Start Match</button>
-            <button id="restart_match" onclick="onRestartMatch()" style="display: none;">Play Again</button>
+            <button id="start_match" onclick="onStartMatch('START_MATCH')">Start Match</button>
+            <button id="restart_match" onclick="onStartMatch('RESTART_MATCH')" style="display: none;">Play Again</button>
             <p id="waiting_for_leader">Waiting for the game leader to begin the match...</p>
           </p>
         </div> <!-- pre_match -->
@@ -503,61 +503,27 @@
 
     connection.send(JSON.stringify(evt))
 
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
-    var pre_match = document.getElementById("pre_match")
+    setDisplay("landing_page", "none")
+    setDisplay("pre_match", "none")
+    setDisplay("game_page", "block")
 
-    landing_page.style.display = "none"
-    pre_match.style.display = "none"
-    game_page.style.display = "block"
-
-    document.getElementById("room_pin").innerHTML = "Room Pin: [<b>" + playerId + "</b>]. Share this with friends you want to join"
+    getElement("room_pin").innerHTML = "Room Pin: [<b>" + playerId + "</b>]. Share this with friends you want to join"
   }
 
-  function onRestartMatch() {
+  function onStartMatch(evt) {
     if (room.playerCount > 1) {
       if (roomId == playerId) {
         var startMatchEvt = {
-          event: "RESTART_MATCH",
+          event: evt,
           roomID: roomId,
           playerID: playerId,
         }
 
         connection.send(JSON.stringify(startMatchEvt))
 
-        var pre_match = document.getElementById("pre_match")
-        var cards = document.getElementById("cards")
-        var game_buttons = document.getElementById("game_buttons")
-
-        pre_match.style.display = "none"
-        cards.style.display = "block"
-        game_buttons.style.display = "block"
-      } else {
-        alert("Only room leader can start the match")
-      }
-    } else {
-      alert("More players needed to start match");
-    }
-  }
-
-  function onStartMatch() {
-    if (room.playerCount > 1) {
-      if (roomId == playerId) {
-        var startMatchEvt = {
-          event: "START_MATCH",
-          roomID: roomId,
-          playerID: playerId,
-        }
-
-        connection.send(JSON.stringify(startMatchEvt))
-
-        var pre_match = document.getElementById("pre_match")
-        var cards = document.getElementById("cards")
-        var game_buttons = document.getElementById("game_buttons")
-
-        pre_match.style.display = "none"
-        cards.style.display = "block"
-        game_buttons.style.display = "block"
+        setDisplay("pre_match", "none")
+        setDisplay("cards", "block")
+        setDisplay("game_buttons", "block")
       } else {
         alert("Only room leader can start the match")
       }
@@ -567,8 +533,8 @@
   }
 
   function onRaiseAmountChange(changer) {
-    var raise_range = document.getElementById("raise_range")
-    var raise_numberfield = document.getElementById("raise_numberfield")
+    var raise_range = getElement("raise_range")
+    var raise_numberfield = getElement("raise_numberfield")
 
     if (changer == "range") {
       raise_numberfield.value = raise_range.value
@@ -578,17 +544,14 @@
   }
 
   function onRaiseToggle() {
-    var raise_toggle = document.getElementById("raise_toggle")
-    var raise_interface = document.getElementById("raise_interface")
-
     if (isRaisePressed) {
       isRaisePressed = false
-      raise_toggle.innerHTML = "Raise 🔽"
-      raise_interface.style.display = "none"
+      getElement("raise_toggle").innerHTML = "Raise 🔽"
+      setDisplay("raise_interface", "none")
     } else {
       isRaisePressed = true
-      raise_toggle.innerHTML = "Raise 🔼"
-      raise_interface.style.display = "flex"
+      getElement("raise_toggle").innerHTML = "Raise 🔼"
+      setDisplay("raise_interface", "flex")
     }
 
     raise_toggle.dataset.pressed = isRaisePressed
@@ -596,7 +559,7 @@
 
   function onRaise(raiseBy) {
     if (room.match.currentPlayerID == playerId) {
-      var textbox = document.getElementById("raise_numberfield")
+      var textbox = getElement("raise_numberfield")
       var amount = textbox.value
       
       if (raiseBy != -1) {
@@ -688,8 +651,8 @@
   var cardsClicked = 0
   
   function onCardClick(id) {
-    card = document.getElementById('card' + id)
-    cardImage = document.getElementById('card' + id + '_img')
+    card = getElement('card' + id)
+    cardImage = getElement('card' + id + '_img')
     
     if (cardsClicked == 3 && card.checked == true) {
       card.checked = false
@@ -708,14 +671,14 @@
 
   function disableCardSelectors(bool) {
     for (var i = 1; i <= 5; i++) {
-      document.getElementById('card' + i).disabled=bool
+      getElement('card' + i).disabled=bool
     }
   }
 
   function clearSelectedCards() {
     for (var i = 0; i < 5; i++) {
       if (selectedCards[i] == 1) {
-        document.getElementById('card' + (i + 1)).click()
+        getElement('card' + (i + 1)).click()
       }
     }
   }
@@ -732,5 +695,13 @@
     }
 
     return checkedCards
+  }
+
+  function getElement(id) {
+    return document.getElementById(id)
+  }
+
+  function setDisplay(id, display) {
+    getElement(id).style.display = display
   }
 </script>
