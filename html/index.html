@@ -114,7 +114,7 @@
 
       <p id="room_pin" style="justify-content: left;"></p>
       <h3 id="match_log">Match Log</h3>
-      <div id="info_area" style="height: 4cm; overflow-y: auto; background: rgba(1,1,1,0.0.5);">
+      <div id="info_area" style="height: 4cm; overflow-y: auto; background: rgba(1, 1, 1, 0.09);">
       </div> <!-- info_area -->
     </div> <!-- game_page -->
   </div> <!-- content div -->
@@ -222,7 +222,7 @@
       console.log("Me:")
       console.log(me)
 
-      updateStats()
+      updateUI()
     } else {
       if (playerId == roomId) {
         onLandingNewGame()
@@ -234,16 +234,76 @@
     }
   }
 
-  function updateStats() {
-    //UPDATE GAME HUD
-    var my_info = document.getElementById("my_info")
-    var match_log = document.getElementById("match_log")
-    var game_info = document.getElementById("game_info")
+  function updateUI() {
+    //Update hud and other labels
+    updateLabels()
+    
+    //Update Card Images
+    if (me.hand.cards[0] != null) {
+      var cards = me.hand.cards
+      for (var i = 0; i < 5; i++) {
+        var card = getElement("card" + (i + 1) + "_img").src = cards[i].svg
+      }
+    }
+    
+    //Prematch UI visibility
+    if (room.playerCount > 1 && room.match.round == "WAITING") {
+      if (room.leaderId != me.id) {
+        setDisplay("restart_match", "none")
+        setDisplay("start_match", "none")
+        setDisplay("waiting_for_leader", "flex")
+      } else {
+        setDisplay("waiting_for_leader", "none")
+      }
+      
+      setDisplay("pre_match", "block")
+    } else {
+      setDisplay("pre_match", "none")
+    }
 
-    my_info.innerHTML = "<b>NAME: </b>" + me.name + "  <b>(id: </b>" + playerId + "<b>) <br/> BALANCE: $ </b>" + me.balance + "<br/>"
-    match_log.innerHTML = "Match Log (" + room.playerCount + "/5 players)"
+    //Match UI
+    if (room.match.round != "WAITING") {
+      //Debugging info
+      console.log("Round: " + room.match.round)
+      console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
+       
+      setDisplay("cards", "block")
+      setDisplay("game_buttons", "block")
 
-    game_info.innerHTML = "<b>BET POOL: $</b>" + room.match.bettingPool + "<br/><br/>"
+      updateButtonAvailability();
+
+      updateRaiseAmountUI("raise_numberfield")
+      updateRaiseAmountUI("raise_range")
+
+      disableCardSelectors(!(room.match.round == "DRAWING") || !(room.match.currentPlayerID == me.id))
+
+      // display correct button set
+      if (room.match.winnerID[0] != -1) {
+        appointWinner(room.match.winnerID)
+      } else if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
+        setDisplay("betting_round_buttons", "block")
+        setDisplay("draw_round_button", "none")
+      } else if (room.match.round == "DRAWING") {
+        setDisplay("betting_round_buttons", "none")
+        setDisplay("draw_round_button", "block")
+      }
+    }
+  }
+
+  function updateLabels() {
+    // Match log
+    getElement("match_log").innerHTML = "Match Log (" + room.playerCount + "/5 players)"
+    if (room.match.action != "") {
+      getElement("info_area").innerHTML = room.match.action + '<br/>' + info_area.innerHTML
+    }
+
+    // HUD labels
+    getElement("my_info").innerHTML = "<b>NAME: </b>" + me.name + "  <b>(id: </b>" + playerId + "<b>) <br/> BALANCE: $ </b>" + me.balance + "<br/>"
+    if (room.match.round != "WAITING") {
+      getElement("my_info").innerHTML += "<b>MY HAND: </b>" + me.hand.handType + "<br/>"
+    }
+
+    getElement("game_info").innerHTML = "<b>BET POOL: $</b>" + room.match.bettingPool + "<br/><br/>"
     for (var id in room.players) {
       var bal = "$" + room.players[id].balance
       
@@ -251,107 +311,56 @@
         bal = "ALL OUT"
       }
 
-      if (room.match.currentPlayerID != id || room.match.round == "WAITING") {
-        game_info.innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + "<br/>"
-      } else {
-        game_info.innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + " ⬅️⬅️ <br/>"
+      var turnMarker = ""
+      if (room.match.currentPlayerID == id && room.match.round != "WAITING") {
+        turnMarker = " ⬅️⬅️"
       }
+
+      getElement("game_info").innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + turnMarker + "<br/>"
     }
 
-    if (me.hand.cards[0] != null) {
-      var cards = me.hand.cards
-      for (var i = 0; i < 5; i++) {
-        var card = document.getElementById("card" + (i + 1) + "_img").src = cards[i].svg
-      }
+    //Betting info
+    getElement("my_bet").innerHTML = "<b>My Bet: $</b>" + me.currentBet
+    getElement("min_bet").innerHTML = "<b>Min Bet: $</b>" + room.match.minimumBet
+  }
+
+  function updateButtonAvailability() {
+    //Betting round buttons
+    setDisabled("call_button", !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id) || !(me.balance != 0))
+    setDisabled("check_button", !(room.match.minimumBet <= me.currentBet || me.balance == 0) || !(room.match.currentPlayerID == me.id))
+    setDisabled("fold_button", !(me.balance != 0) || !(room.match.currentPlayerID == me.id))
+    setDisabled("raise_toggle", !(me.balance != 0) || !(room.match.currentPlayerID == me.id))
+
+    //raise interface visibility
+    if (getElement("raise_toggle").disabled && isRaisePressed) {
+      onRaiseToggle()
     }
 
-    var pre_match = document.getElementById("pre_match")
-    if (room.playerCount > 1 && room.match.round == "WAITING") {
-      document.getElementById("waiting_for_leader").style.display="none"
-      
-      if (room.leaderId != me.id) {
-        document.getElementById("restart_match").style.display="none"
-        document.getElementById("start_match").style.display="none"
-        document.getElementById("waiting_for_leader").style.display="flex"
-      }
-      
-      pre_match.style.display = "block"
+    //raise interface buttons
+    setDisabled("confirm_raise_button", getElement("raise_toggle").disabled)
+
+    setDisabled("$10_raise", !((me.currentBet + 10) > room.match.minimumBet))
+    setDisabled("$20_raise", !((me.currentBet + 20) > room.match.minimumBet))
+    setDisabled("$50_raise", !((me.currentBet + 50) > room.match.minimumBet))
+
+    setDisabled("raise_numberfield", getElement("raise_toggle").disabled)
+    setDisabled("raise_range", getElement("raise_toggle").disabled)
+
+    //Swap round button
+    setDisabled("swap_button", !(room.match.currentPlayerID == me.id))
+
+    //Set swap tip visibility
+    if (getElement("swap_button").disabled) {
+      setDisplay("swap_tip", "none")
     } else {
-      pre_match.style.display="none"
+      setDisplay("swap_tip", "flex")
     }
+  }
 
-    if (room.match.action != "") {
-      var info_area = document.getElementById("info_area")
-
-      info_area.innerHTML = room.match.action + '<br/>' + info_area.innerHTML
-    }
-
-    if (room.match.round != "WAITING") {
-      console.log(room.players[room.match.currentPlayerID].name + "'s Turn (ID: " + room.match.currentPlayerID + ")")
-
-      var cards = document.getElementById("cards")
-      var game_buttons = document.getElementById("game_buttons")
-
-      var betting_round_buttons = document.getElementById("betting_round_buttons")
-      var draw_round_button = document.getElementById("draw_round_button")
-
-      my_info.innerHTML += "<b>MY HAND: </b>" + me.hand.handType + "<br/>"
-
-      cards.style.display = "block"
-      game_buttons.style.display = "block"
-
-      //UPDATE GAME BUTTONS
-
-      document.getElementById("my_bet").innerHTML = "<b>My Bet: $</b>" + me.currentBet
-      document.getElementById("min_bet").innerHTML = "<b>Min Bet: $</b>" + room.match.minimumBet
-
-      document.getElementById("call_button").disabled = !(room.match.minimumBet > me.currentBet) || !(room.match.currentPlayerID == me.id) || !(me.balance != 0)
-      document.getElementById("check_button").disabled = !(room.match.minimumBet <= me.currentBet || me.balance == 0) || !(room.match.currentPlayerID == me.id)
-      document.getElementById("fold_button").disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
-      var raise_toggle = document.getElementById("raise_toggle")
-      
-      raise_toggle.disabled = !(me.balance != 0) || !(room.match.currentPlayerID == me.id)
-      if (raise_toggle.disabled && isRaisePressed) {
-        onRaiseToggle()
-      }
-      
-      document.getElementById("$10_raise").disabled = !((me.currentBet + 10) > room.match.minimumBet)
-      document.getElementById("$20_raise").disabled = !((me.currentBet + 20) > room.match.minimumBet)
-      document.getElementById("$50_raise").disabled = !((me.currentBet + 50) > room.match.minimumBet)
-
-      var raise_numberfield = document.getElementById("raise_numberfield")
-      raise_numberfield.min = (room.match.minimumBet - me.currentBet) + 0.01
-      raise_numberfield.max = me.balance
-      raise_numberfield.value = raise_numberfield.min
-      raise_numberfield.disabled = document.getElementById("raise_toggle").disabled
-
-      var raise_range = document.getElementById("raise_range")
-      raise_range.min = (room.match.minimumBet - me.currentBet) + 0.01
-      raise_range.max = me.balance
-      raise_range.value = raise_range.min
-      raise_range.disabled = document.getElementById("raise_toggle").disabled
-
-      document.getElementById("swap_button").disabled = !(room.match.currentPlayerID == me.id)
-      if (document.getElementById("swap_button").disabled) {
-        document.getElementById("swap_tip").style.display = "none"
-      } else {
-        document.getElementById("swap_tip").style.display = "flex"
-      }
-
-      disableCardSelectors(!(room.match.round == "DRAWING") || !(room.match.currentPlayerID == me.id))
-
-      if (room.match.winnerID[0] != -1) {
-        appointWinner(room.match.winnerID)
-      } else if (room.match.round == "FIRST_BETTING" || room.match.round == "SECOND_BETTING") {
-        betting_round_buttons.style.display = "block"
-        draw_round_button.style.display = "none"
-      } else if (room.match.round == "DRAWING") {
-        betting_round_buttons.style.display = "none"
-        draw_round_button.style.display = "block"
-      }
-
-      console.log("Round: " + room.match.round)
-    }
+  function updateRaiseAmountUI(id) {
+    getElement(id).min = (room.match.minimumBet - me.currentBet) + 0.01
+    getElement(id).max = me.balance
+    getElement(id).value = getElement(id).min
   }
 
   function isWinner(winnerIds, playerID) {
@@ -534,7 +543,7 @@
       setDisplay("raise_interface", "flex")
     }
 
-    raise_toggle.dataset.pressed = isRaisePressed
+    getElement("raise_toggle").dataset.pressed = isRaisePressed
   }
 
   function onRaise(raiseBy) {
@@ -651,7 +660,7 @@
 
   function disableCardSelectors(bool) {
     for (var i = 1; i <= 5; i++) {
-      getElement('card' + i).disabled=bool
+      setDisabled('card' + i, bool)
     }
   }
 
@@ -683,5 +692,9 @@
 
   function setDisplay(id, display) {
     getElement(id).style.display = display
+  }
+
+  function setDisabled(id, disabled) {
+    getElement(id).disabled = disabled
   }
 </script>
