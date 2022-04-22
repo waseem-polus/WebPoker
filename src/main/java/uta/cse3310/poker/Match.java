@@ -198,6 +198,7 @@ public class Match {
     public void onFold(int playerID) {
         Player p = getPlayer(playerID);
 
+        p.fold();
         removePlayer(playerID);
 
         this.action = p.name + " folded";

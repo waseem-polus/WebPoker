@@ -9,6 +9,7 @@ public class Player implements Comparable<Player> {
     private double currentBet;
     public final int id;
     private int roomPin;
+    private boolean folded;
 
     public Player(int id) {
         this.name = "";
@@ -17,6 +18,7 @@ public class Player implements Comparable<Player> {
         this.currentBet = 0;
         this.id = id;
         this.roomPin = -1;
+        this.folded = false;
     }
 
     public String exchangeCards(Integer[] cardIndex, CardDeck deck) {
@@ -25,6 +27,7 @@ public class Player implements Comparable<Player> {
 
     public void dealHand(CardDeck deck) {
         hand.dealHand(deck);
+        folded = false;
     }
 
     public void setRoom(int pin) {
@@ -77,6 +80,10 @@ public class Player implements Comparable<Player> {
 
     public void addToBalance(double amount) {
         this.balance += amount;
+    }
+
+    public void fold() {
+        this.folded = true;
     }
 
     @Override
