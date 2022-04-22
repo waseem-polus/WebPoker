@@ -39,6 +39,7 @@ public class Room {
         if (players.size() < 5) {
             players.put(player.id, player);
             player.setRoom(this.pin);
+            player.setBalance(this.startingBalance);
             
             this.playerCount = this.players.size();
             

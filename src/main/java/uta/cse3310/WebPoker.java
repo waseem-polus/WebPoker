@@ -195,7 +195,6 @@ public class WebPoker extends WebSocketServer {
                 } else {
                     Player p = this.players.get(evt.playerID);
                     p.setName((String) evt.msg[1]);
-                    p.setBalance(room.startingBalance);
 
                     room.addPlayer(players.get(evt.playerID));
                 }
