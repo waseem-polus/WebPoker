@@ -7,7 +7,7 @@ public class UserEvent {
     public Object[] msg; //Can be cast down based on event
     
     public enum UserEventType {
-        RAISE, CALL, CHECK, FOLD, CREATE_ROOM, JOIN_ROOM, START_MATCH, EXCHANGE_CARDS, RESTART_MATCH
+        RAISE, CALL, CHECK, FOLD, CREATE_ROOM, JOIN_ROOM, START_MATCH, EXCHANGE_CARDS, RESTART_MATCH, LEAVE_ROOM
     }
 
     public UserEvent () {

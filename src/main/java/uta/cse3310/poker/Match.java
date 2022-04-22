@@ -162,6 +162,7 @@ public class Match {
                 onStartMatch();
                 break;
             default:
+                System.out.println("\n[WARNING] Match.onEvent was passed an irrelevant event");
         }
     }
 

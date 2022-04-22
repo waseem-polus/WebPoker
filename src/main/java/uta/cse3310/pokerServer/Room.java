@@ -45,8 +45,10 @@ public class Room {
             if (this.match.isWaiting()) {
                 this.match.addPlayer(player);
             }
+
+            System.out.println("\n[INFO] Added player " + player.id + " to room " + this.pin);
         } else {
-            System.out.printf("room is full");
+            System.out.printf("\n[WARNING] Attempted adding player to full room");
         }
     }
 
@@ -58,6 +60,7 @@ public class Room {
      * in order to remove we use the player id
      */
     public void removePlayer(int id) {
+        this.players.get(id).setRoom(-1);
         this.players.remove(id);
         
         if (this.match.getPlayer(id) != null) {
@@ -65,14 +68,14 @@ public class Room {
         }
         
         this.playerCount = this.players.size();
-        System.out.println("Removed player " + id + " from room " + this.pin + ". " + this.playerCount + " players left");
+        System.out.println("\n[INFO] Removed player " + id + " from room " + this.pin + ". " + this.playerCount + " players left");
         
-        if (id == this.leaderId) {
+        if (id == this.leaderId && this.playerCount > 0) {
             for (int key : this.players.keySet()) {
                 this.leaderId = key;
                 break;
             }
-            System.out.println("Changed leader to player " + leaderId);
+            System.out.println("\n[INFO] Changed leader to player " + leaderId);
         }
     }
 

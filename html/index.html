@@ -76,7 +76,7 @@
           <p>
             <button id="start_match" onclick="onStartMatch('START_MATCH')">Start Match</button>
             <button id="restart_match" onclick="onStartMatch('RESTART_MATCH')" style="display: none;">Play Again</button>
-            <p id="waiting_for_leader">Waiting for the game leader to begin the match...</p>
+            <p id="waiting_for_leader">Waiting for more players to join...</p>
           </p>
         </div> <!-- pre_match -->
 
@@ -194,6 +194,7 @@
   }
 
   var playerId
+  var roomPin = -1
 
   var room
   var me
@@ -213,13 +214,15 @@
       if (room == null) {
         alert("Something went wrong... Please try again.")
       }
-    } else if (obj.id != null) {
+    } else if (obj.hasOwnProperty('id')) {
       playerId = obj.id
 
       console.log("player ID = " + playerId)
-    } else if (obj.pin != null) {
+    } else if (obj.hasOwnProperty('pin') && (obj.pin == roomPin || typeof room == "undefined")) {
       room = obj
       me = obj.players[playerId]
+
+      roomPin = room.id
 
       console.log("Me:")
       console.log(me)
@@ -244,13 +247,18 @@
     }
     
     //Prematch UI visibility
-    if (room.playerCount > 1 && room.match.round == "WAITING") {
-      if (room.leaderId != me.id) {
-        setDisplay("restart_match", "none")
-        setDisplay("start_match", "none")
-        setDisplay("waiting_for_leader", "flex")
+    if (room.match.round == "WAITING") {
+      if (room.playerCount > 1) {
+        getElement("waiting_for_leader").innerHTML = "Waiting for the game leader to begin the match..."
+        if (room.leaderId != me.id) {
+          setDisplay("restart_match", "none")
+          setDisplay("start_match", "none")
+          setDisplay("waiting_for_leader", "flex")
+        } else {
+          setDisplay("waiting_for_leader", "none")
+        }
       } else {
-        setDisplay("waiting_for_leader", "none")
+        getElement("waiting_for_leader").innerHTML = "Waiting for more players to join..."
       }
       
       setDisplay("pre_match", "block")
@@ -428,13 +436,40 @@
     }
   }
 
-  function onBackToMain() {
-    setDisplay("landing_page", "block")
-    setDisplay("game_page", "none")
+  function onRaiseAmountChange(changer) {
+    var raise_range = getElement("raise_range")
+    var raise_numberfield = getElement("raise_numberfield")
 
-    setDisplay("landing_opts", "block")
-    setDisplay("new_game_opts", "none")
-    setDisplay("join_game_opts", "none")
+    if (changer == "range") {
+      raise_numberfield.value = raise_range.value
+    } else if (changer == "numberfield") {
+      raise_range.value = raise_numberfield.value
+    }
+  }
+
+  function onRaiseToggle() {
+    if (isRaisePressed) {
+      isRaisePressed = false
+      getElement("raise_toggle").innerHTML = "Raise 🔽"
+      setDisplay("raise_interface", "none")
+    } else {
+      isRaisePressed = true
+      getElement("raise_toggle").innerHTML = "Raise 🔼"
+      setDisplay("raise_interface", "flex")
+    }
+
+    getElement("raise_toggle").dataset.pressed = isRaisePressed
+  }
+
+  function onBackToMain() {
+    var leaveEvt = {
+      event: "LEAVE_ROOM",
+      roomID: room.pin,
+      playerID: me.id,
+      msg: [""]
+    }
+
+    connection.send(JSON.stringify(leaveEvt));
   }
 
   function onLandingNewGame() {
@@ -525,44 +560,21 @@
           event: evt,
           roomID: room.pin,
           playerID: playerId,
+          msg: []
         }
 
         connection.send(JSON.stringify(startMatchEvt))
 
-        setDisplay("pre_match", "none")
-        setDisplay("cards", "block")
-        setDisplay("game_buttons", "block")
+        //TODO: change displays in uodateUI
+        // setDisplay("pre_match", "none")
+        // setDisplay("cards", "block")
+        // setDisplay("game_buttons", "block")
       } else {
         alert("Only room leader can start the match")
       }
     } else {
       alert("More players needed to start match");
     }
-  }
-
-  function onRaiseAmountChange(changer) {
-    var raise_range = getElement("raise_range")
-    var raise_numberfield = getElement("raise_numberfield")
-
-    if (changer == "range") {
-      raise_numberfield.value = raise_range.value
-    } else if (changer == "numberfield") {
-      raise_range.value = raise_numberfield.value
-    }
-  }
-
-  function onRaiseToggle() {
-    if (isRaisePressed) {
-      isRaisePressed = false
-      getElement("raise_toggle").innerHTML = "Raise 🔽"
-      setDisplay("raise_interface", "none")
-    } else {
-      isRaisePressed = true
-      getElement("raise_toggle").innerHTML = "Raise 🔼"
-      setDisplay("raise_interface", "flex")
-    }
-
-    getElement("raise_toggle").dataset.pressed = isRaisePressed
   }
 
   function onRaise(raiseBy) {
@@ -613,7 +625,7 @@
         event: "FOLD",
         roomID: room.pin,
         playerID: playerId,
-        msg: ["NONE"]
+        msg: [""]
       }
 
       connection.send(JSON.stringify(foldEvt))
@@ -628,7 +640,7 @@
         event: "CHECK",
         roomID: room.pin,
         playerID: playerId,
-        msg: ["NONE"]
+        msg: [""]
       }
 
       connection.send(JSON.stringify(checkEvt))
