@@ -306,7 +306,12 @@
     getElement("game_info").innerHTML = "<b>BET POOL: $</b>" + room.match.bettingPool + "<br/><br/>"
     for (var id in room.players) {
       var bal = "$" + room.players[id].balance
-      
+      var name = room.players[id].name;
+
+      if (id == room.leaderId) {
+        name = "👑 " + name
+      }
+
       if (room.players[id].balance == 0 && room.match.round != "WAITING") {
         bal = "ALL OUT"
       }
@@ -316,7 +321,7 @@
         turnMarker = " ⬅️⬅️"
       }
 
-      getElement("game_info").innerHTML += "<b>" + room.players[id].name + ": </b>" + bal + turnMarker + "<br/>"
+      getElement("game_info").innerHTML += "<b>" + name + ": </b>" + bal + turnMarker + "<br/>"
     }
 
     //Betting info

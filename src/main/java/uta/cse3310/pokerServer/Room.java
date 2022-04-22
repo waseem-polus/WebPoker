@@ -28,7 +28,7 @@ public class Room {
         this.playerCount = this.players.size();
 
         leader.setRoom(this.pin);
-        leader.setName("👑 " + leader.name);
+        leader.setName(leader.name);
     }
 
     /*
