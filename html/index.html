@@ -367,8 +367,8 @@
   }
 
   function appointWinner(winnerId) {
-    
-    var info_area = document.getElementById("info_area")
+    var info_area = getElement("info_area")
+
     for (var id in room.players) {
       var action = room.players[id].name + " had " + room.players[id].hand.handType + ": ["
       for (var i = 0; i < 4; i++) {
@@ -395,50 +395,33 @@
 
     alert(msg)
 
-    var cards = document.getElementById("cards")
-    var game_buttons = document.getElementById("game_buttons")
-
-    cards.style.display = "none"
-    game_buttons.style.display = "none"
+    setDisplay("cards", "none")
+    setDisplay("game_buttons", "none")
 
     if (room.leaderId == playerId) {
-      document.getElementById("restart_match").style.display = "block"
-      document.getElementById("start_match").style.display = "none"
-      document.getElementById("pre_match").style.display = "block"
+      setDisplay("restart_match", "block")
+      setDisplay("start_match", "none")
+      setDisplay("pre_match", "block")
     }
   }
 
   function onBackToMain() {
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
+    setDisplay("landing_page", "block")
+    setDisplay("game_page", "none")
 
-    var landing_opts = document.getElementById("landing_opts")
-    var new_game_opts = document.getElementById("new_game_opts")
-    var join_game_opts = document.getElementById("join_game_opts")
-
-
-    landing_page.style.display = "block"
-    game_page.style.display = "none"
-
-    landing_opts.style.display = "block"
-    new_game_opts.style.display = "none"
-    join_game_opts.style.display = "none"
+    setDisplay("landing_opts", "block")
+    setDisplay("new_game_opts", "none")
+    setDisplay("join_game_opts", "none")
   }
 
   function onLandingNewGame() {
-    var landing_opts = document.getElementById("landing_opts")
-    var new_game_opts = document.getElementById("new_game_opts")
-
-    landing_opts.style.display = "none"
-    new_game_opts.style.display = "block"
+    setDisplay("landing_opts", "none")
+    setDisplay("new_game_opts", "block")
   }
 
   function onLandingJoinGame() {
-    var landing_opts = document.getElementById("landing_opts")
-    var join_game_opts = document.getElementById("join_game_opts")
-
-    landing_opts.style.display = "none"
-    join_game_opts.style.display = "block"
+    setDisplay("landing_opts", "none")
+    setDisplay("join_game_opts", "block")
   }
 
   /* Author: Waseem Alkasbutrus
@@ -447,8 +430,8 @@
   * joinRoom(): called whenever a user clicks on the join room button
   */
   function joinRoom() {
-    var joinRoomId = document.getElementById("join_room").value
-    var name = document.getElementById("player_name").value
+    var joinRoomId = getElement("join_room").value
+    var name = getElement("player_name").value
 
     roomId = joinRoomId
 
@@ -461,16 +444,13 @@
 
     connection.send(JSON.stringify(joinEvt));
 
-    var landing_page = document.getElementById("landing_page")
-    var game_page = document.getElementById("game_page")
-
-    landing_page.style.display = "none"
-    game_page.style.display = "block"
+    setDisplay("landing_page", "none")
+    setDisplay("game_page", "block")
   }
 
   function onRules() {
-    var rules = document.getElementById("rules_area")
-    var show_rules = document.getElementById("rules")
+    var rules = getElement("rules_area")
+    var show_rules = getElement("rules")
 
     if (rules.style.display == "block") {
       rules.style.display = "none"
@@ -482,11 +462,11 @@
   }
 
   function createRoom() {
-    var leaderName = document.getElementById("leader_name").value
-    var startingBalance = document.getElementById("starting_balance").value
-    //var visibility = document.getElementById("visibility").checked
+    var leaderName = getElement("leader_name").value
+    var startingBalance = getElement("starting_balance").value
+    //var visibility = getElement("visibility").checked
 
-    visibility = "PRIVATE"
+    var visibility = "PRIVATE"
 
     // if (visibility) {
     //   visibility = "PRIVATE"
