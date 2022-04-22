@@ -36,15 +36,19 @@ public class WebPoker extends WebSocketServer {
     private HashMap<Integer, Room> rooms;
     private HashMap<Integer, Player> players;
     private int nextID;
+    private int nextPIN;
 
     public static Object playersMutex;
     public static Object roomsMutex;
 
     public WebPoker(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
+        
         this.rooms = new HashMap<>();
         this.players = new HashMap<>();
         this.nextID = 0;
+        this.nextPIN = 0;
+
         playersMutex = new Object();
         roomsMutex = new Object();
     }
@@ -127,7 +131,8 @@ public class WebPoker extends WebSocketServer {
         processMessage(conn, evt);
 
         if (evt.event == UserEventType.CREATE_ROOM) {
-            conn.send(gson.toJson(this.rooms.get(evt.playerID)));
+            conn.send(gson.toJson(this.rooms.get(this.nextPIN - 1)));
+            System.out.println("Sent:\n" + gson.toJson(this.rooms.get(this.nextPIN - 1)));
         } else if (evt.event == UserEventType.JOIN_ROOM) {
             broadcast(encodeAsJson(Integer.parseInt((String) evt.msg[0])));
             System.out.println("Sent:\n" + encodeAsJson(Integer.parseInt((String) evt.msg[0])));
@@ -170,11 +175,12 @@ public class WebPoker extends WebSocketServer {
                 leader.setBalance(startingBalance);
 
                 synchronized (roomsMutex) {
-                    this.rooms.put(evt.playerID,
-                            new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]), startingBalance));
+                    this.rooms.put(this.nextPIN,
+                            new Room(leader, RoomVisibility.valueOf((String) evt.msg[2]), startingBalance, this.nextPIN));
+                    this.nextPIN++;
                 }
 
-                System.out.println("Created room " + evt.playerID);
+                System.out.println("Created room " + (this.nextPIN - 1));
                 break;
             case RESTART_MATCH:
                 this.rooms.get(evt.roomID).restartMatch();

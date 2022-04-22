@@ -14,21 +14,15 @@ public class Room {
     private int leaderId;
     public final double startingBalance;
 
-    public Room(Player leader, RoomVisibility visibility, double startingBalance) {
+    public Room(Player leader, RoomVisibility visibility, double startingBalance, int pin) {
         this.match = new Match();
-        this.match.addPlayer(leader);
-
-        this.pin = leader.id;
+        this.pin = pin;
         this.visibility = visibility;
         this.startingBalance = startingBalance;
         this.leaderId = leader.id;
 
         this.players = new HashMap<Integer, Player>();
-        this.players.put(leaderId, leader);
-        this.playerCount = this.players.size();
-
-        leader.setRoom(this.pin);
-        leader.setName(leader.name);
+        addPlayer(leader);
     }
 
     /*
@@ -69,9 +63,17 @@ public class Room {
         if (this.match.getPlayer(id) != null) {
             this.match.removePlayer(id);
         }
-
+        
         this.playerCount = this.players.size();
         System.out.println("Removed player " + id + " from room " + this.pin + ". " + this.playerCount + " players left");
+        
+        if (id == this.leaderId) {
+            for (int key : this.players.keySet()) {
+                this.leaderId = key;
+                break;
+            }
+            System.out.println("Changed leader to player " + leaderId);
+        }
     }
 
     /*

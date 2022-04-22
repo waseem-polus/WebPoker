@@ -31,14 +31,14 @@
 
       <div id="join_game_opts" hidden>
         <p><input id="player_name" placeholder="Enter your name" type="text"></p>
-        <p><input id="join_room" placeholder="Enter room pin" type="number"></p>
+        <p><input id="join_room" placeholder="Enter room pin" type="number" min="0"></p>
         <p><button name="join_room" onclick="joinRoom()">Join Room</button></p>
       </div>
       <!--join_room_opts-->
 
       <div id="new_game_opts" hidden>
         <p><input id="leader_name" placeholder="Enter your name" type="text"></p>
-        <p><input id="starting_balance" placeholder="Enter starting balance" type="number" min="50"></p>
+        <p><input id="starting_balance" placeholder="Enter starting balance" type="number" value="2000" min="50"></p>
         <!-- <p>Private: <input type="checkbox" id="visibility"></p> -->
         <p><button name="create_room" onclick="createRoom()">Create Room</button></p>
       </div>
@@ -194,7 +194,6 @@
   }
 
   var playerId
-  var roomId
 
   var room
   var me
@@ -210,12 +209,15 @@
     console.log("Received:")
     console.log(obj)
 
-    if (playerId == null) {
+    if (obj == null) {
+      if (room == null) {
+        alert("Something went wrong... Please try again.")
+      }
+    } else if (obj.id != null) {
       playerId = obj.id
-      roomId = obj.id
 
       console.log("player ID = " + playerId)
-    } else if (obj.pin == roomId) {
+    } else if (obj.pin != null) {
       room = obj
       me = obj.players[playerId]
 
@@ -223,18 +225,13 @@
       console.log(me)
 
       updateUI()
-    } else {
-      if (playerId == roomId) {
-        onLandingNewGame()
-        consol.log("Failed to create room. Please reload the page and try again.")
-      } else {
-        onLandingJoinGame()
-        consol.log("Failed to join room. Check the pin, or reload the page and try again.")
-      }
     }
   }
 
   function updateUI() {
+    setDisplay("landing_page", "none")
+    setDisplay("game_page", "block")
+
     //Update hud and other labels
     updateLabels()
     
@@ -291,6 +288,12 @@
   }
 
   function updateLabels() {
+    // Room Pin
+    if (me.id == room.leaderId) {
+      getElement("room_pin").innerHTML = "Room Pin: [<b>" + room.pin + "</b>]. Share this with friends you want to join"
+      setDisplay("start_match", "block")
+    }
+
     // Match log
     getElement("match_log").innerHTML = "Match Log (" + room.playerCount + "/5 players)"
     if (room.match.action != "") {
@@ -321,7 +324,13 @@
         turnMarker = " ⬅️⬅️"
       }
 
-      getElement("game_info").innerHTML += "<b>" + name + ": </b>" + bal + turnMarker + "<br/>"
+      var label = "<b>" + name + ": </b>" + bal + turnMarker + "<br/>"
+
+      if (room.players[id].folded) {
+        label = "❌ " + label
+      }
+
+      getElement("game_info").innerHTML += label
     }
 
     //Betting info
@@ -447,19 +456,22 @@
     var joinRoomId = getElement("join_room").value
     var name = getElement("player_name").value
 
-    roomId = joinRoomId
-
-    var joinEvt = {
-      event: "JOIN_ROOM",
-      roomID: -1,
-      playerID: playerId,
-      msg: [joinRoomId, name]
+    if (joinRoomId != "" && name != "") {
+      if (joinRoomId >= 0) {
+        var joinEvt = {
+          event: "JOIN_ROOM",
+          roomID: -1,
+          playerID: playerId,
+          msg: [joinRoomId, name]
+        }
+    
+        connection.send(JSON.stringify(joinEvt));
+      } else {
+        alert("Room PIN cannot be negative")
+      }
+    } else {
+      alert("Please fill all fields.")
     }
-
-    connection.send(JSON.stringify(joinEvt));
-
-    setDisplay("landing_page", "none")
-    setDisplay("game_page", "block")
   }
 
   function onRules() {
@@ -488,28 +500,30 @@
     //   visibility = "PUBLIC"
     // }
 
-    var evt = {
-      event: "CREATE_ROOM",
-      roomID: roomId,
-      playerID: playerId,
-      msg: [leaderName, startingBalance, visibility]
+    if (leaderName != "" && startingBalance != "") {
+      if (startingBalance >= 50) {
+        var evt = {
+          event: "CREATE_ROOM",
+          roomID: -1,
+          playerID: playerId,
+          msg: [leaderName, startingBalance, visibility]
+        }
+    
+        connection.send(JSON.stringify(evt))
+      } else {
+        alert("Starting balance cannot be less than $50")
+      }
+    } else {
+      alert("Please fill all fields.")
     }
-
-    connection.send(JSON.stringify(evt))
-
-    setDisplay("landing_page", "none")
-    setDisplay("pre_match", "none")
-    setDisplay("game_page", "block")
-
-    getElement("room_pin").innerHTML = "Room Pin: [<b>" + playerId + "</b>]. Share this with friends you want to join"
   }
 
   function onStartMatch(evt) {
     if (room.playerCount > 1) {
-      if (roomId == playerId) {
+      if (room.leaderId == playerId) {
         var startMatchEvt = {
           event: evt,
-          roomID: roomId,
+          roomID: room.pin,
           playerID: playerId,
         }
 
@@ -563,7 +577,7 @@
       if ((amount + me.currentBet) > room.match.minimumBet) {
         var raiseEvt = {
           event: "RAISE",
-          roomID: roomId,
+          roomID: room.pin,
           playerID: playerId,
           msg: [amount.toString()]
         }
@@ -582,7 +596,7 @@
     if (room.match.currentPlayerID == playerId) {
       var callEvt = {
         event: "CALL",
-        roomID: roomId,
+        roomID: room.pin,
         playerID: playerId,
         msg: ["NONE"]
       }
@@ -597,7 +611,7 @@
     if (room.match.currentPlayerID == playerId) {
       var foldEvt = {
         event: "FOLD",
-        roomID: roomId,
+        roomID: room.pin,
         playerID: playerId,
         msg: ["NONE"]
       }
@@ -612,7 +626,7 @@
     if (room.match.currentPlayerID == playerId) {
       var checkEvt = {
         event: "CHECK",
-        roomID: roomId,
+        roomID: room.pin,
         playerID: playerId,
         msg: ["NONE"]
       }
@@ -629,7 +643,7 @@
       var cardsToSwap = getSelectedCards()
       var swapEvt = {
         event: "EXCHANGE_CARDS",
-        roomID: roomId,
+        roomID: room.pin,
         playerID: playerId,
         msg: cardsToSwap
       }
