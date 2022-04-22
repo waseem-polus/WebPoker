@@ -95,9 +95,12 @@ public class Match {
      * Player player: the player to be added from the list
      */
     public void addPlayer(Player player) {
-        activePlayers.add(player);
-
-        this.action = player.name + " joined the match";
+        if (this.round == MatchRound.WAITING) {
+            activePlayers.add(player);
+            this.action = player.name + " joined the match";
+        } else {
+            System.out.println("[WARNING] Attempted to add players to match while not waiting.");
+        }
     }
 
     /*
@@ -183,6 +186,10 @@ public class Match {
             currentPlayerID = activePlayers.get(0).id;
 
             this.action = "Match started";
+
+            System.out.println("\n[INFO] Match started");
+        } else {
+            System.out.println("\n[WARNING] Can't start match. Only " + this.activePlayers.size() + " in match");
         }
     }
 

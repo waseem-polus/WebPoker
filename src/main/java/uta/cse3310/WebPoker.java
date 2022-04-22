@@ -260,7 +260,7 @@ public class WebPoker extends WebSocketServer {
     public void onStart() {
         System.out.println("Server started!");
         setConnectionLostTimeout(0);
-        setConnectionLostTimeout(100);
+        setConnectionLostTimeout(1000);
         // once a second call update
         // may want to start this in the main() function??
         new java.util.Timer().scheduleAtFixedRate(new upDate(), 0, 1000);
