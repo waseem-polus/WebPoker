@@ -194,7 +194,6 @@
   }
 
   var playerId
-  var roomPin = -1
 
   var room
   var me
@@ -218,17 +217,29 @@
       playerId = obj.id
 
       console.log("player ID = " + playerId)
-    } else if (obj.hasOwnProperty('pin') && (obj.pin == roomPin || typeof room == "undefined")) {
+    } else if (obj.hasOwnProperty('pin') && (isMyRoom(obj.players) || playerId == obj.leaderId)) {
       room = obj
       me = obj.players[playerId]
-
-      roomPin = room.pin
 
       console.log("Me:")
       console.log(me)
 
       updateUI()
     }
+  }
+
+  function isMyRoom(playerList) {
+    var myIdFound = false
+
+    for (var id in playerList) {
+      if (playerId == id) {
+        myIdFound = true
+        break
+      }
+    }
+
+    console.log("This is my room")
+    return myIdFound
   }
 
   function updateUI() {
@@ -253,12 +264,11 @@
     if (room.match.round == "WAITING") {
       if (room.leaderId != me.id) {
         setDisplay("start_match", "none")
-        setDisplay("waiting_for_leader", "flex")
       } else {
         setDisplay("start_match", "block")
-        setDisplay("waiting_for_leader", "none")
       }
       
+      setDisplay("waiting_for_leader", "flex")
       setDisplay("pre_match", "block")
     } else {
       setDisplay("pre_match", "none")

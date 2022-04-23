@@ -110,7 +110,7 @@ public class WebPoker extends WebSocketServer {
                     }
                 } else {
                     broadcast(encodeAsJson(room.pin));
-                    System.out.println("\nOn close sent:\n" + encodeAsJson(p.getRoom()));
+                    System.out.println("\nOn close sent:\n" + encodeAsJson(room.pin));
                 }
             } else {
                 System.out.println("\n[INFO] Player " + attachment + " wasn't part of a room");
