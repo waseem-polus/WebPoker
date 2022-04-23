@@ -105,8 +105,8 @@ public class WebPoker extends WebSocketServer {
 
                 if (room.playerCount() <= 0) {
                     synchronized (roomsMutex) {
-                        this.rooms.remove(p.getRoom());
-                        System.out.println("\n[INFO] Removed room " + p.getRoom());
+                        this.rooms.remove(room.pin);
+                        System.out.println("\n[INFO] Removed room " + room.pin);
                     }
                 } else {
                     broadcast(encodeAsJson(room.pin));

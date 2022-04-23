@@ -145,7 +145,6 @@ public class Room {
             }
             this.match.addPlayer(p);
         }
-        this.match.onStartMatch();
-        this.match.setAction("Restart match");
+        this.match.setAction("Prepared next match");
     }
 }
