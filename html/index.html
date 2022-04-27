@@ -53,7 +53,7 @@
       <hr>
 
       <div> <!-- game interface div -->
-        <div id="pre_match" hidden></div>
+        <div id="pre_match">
           <p>
             <button id="start_match" onclick="onStartMatch('START_MATCH')">Start Match</button>
             <p id="waiting_for_leader">Waiting for more players to join...</p>
@@ -61,7 +61,7 @@
         </div> <!-- pre_match -->
       
         <div id="match">
-          <div id="cards" hidden>
+          <div id="cards">
             <p>
               <input type="checkbox" id="card1" onchange="onCardClick(1)" style="opacity: 0;"/>
               <label for="card1"><img src="1B.svg" id="card1_img" width="150" data-card_selected="false"/></label>
@@ -80,8 +80,8 @@
             </p>
           </div> <!-- cards -->
   
-          <div id="game_buttons" hidden>
-            <div id="betting_round_buttons" hidden>
+          <div id="game_buttons">
+            <div id="betting_round_buttons">
               <p>
                 <p id="my_bet"></p>
                 <p id="min_bet"></p>
@@ -103,7 +103,7 @@
               </p>
             </div> <!-- betting_round_buttons -->
   
-            <div id="draw_round_button" hidden>
+            <div id="draw_round_button">
               <p>
                 <button id="swap_button" onclick="onSwap()" title="Swap the selected cards for new ones">Swap Selected</button>
                 <p id="swap_tip">Click on up to 3 cards to select them...</p>
