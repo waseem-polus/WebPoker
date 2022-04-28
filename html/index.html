@@ -430,6 +430,10 @@
       if (isWinner(winnerId, id)) {
         action = "🏆 " + action
       }
+
+      if(room.players[id].folded) {
+        action = "❌ " + action
+      }
       
       info_area.innerHTML = action + '<br/>' + info_area.innerHTML
     }
@@ -446,7 +450,9 @@
 
     alert(msg)
 
-    onStartMatch('RESTART_MATCH')
+    if (me.id == room.leaderId) {
+      onStartMatch('RESTART_MATCH')
+    }
   }
 
   function onRaiseAmountChange(changer) {
