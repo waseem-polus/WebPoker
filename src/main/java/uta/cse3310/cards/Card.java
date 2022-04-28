@@ -21,6 +21,12 @@ public class Card implements Comparable<Card> {
       this.emoji = value.key + suite.emoji;
    }
 
+   public Card(Value value, Suite suite, String srcCaller) {
+      this(value, suite);
+      
+      System.out.println("[WARNING] " + srcCaller + " created a card outside of a cardDeck. Ignore if used for testing.");
+   }
+
    /*
     * compareSuiteTo(Card): compares suites between two cards
     * 
