@@ -312,7 +312,7 @@ public class Match {
      * 
      * getWinner(): sets the winner ID as the player with the best hand
      */
-    public void appointWinner() {
+    public int[] appointWinner() {
         Collections.sort(this.activePlayers, Collections.reverseOrder());
         System.out.println(this.activePlayers);
 
@@ -341,6 +341,8 @@ public class Match {
             }
         }
         this.action += "won $" + this.bettingPool / winnerCount;
+
+        return this.winnerID;
     }
 
     /*
