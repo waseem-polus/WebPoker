@@ -69,12 +69,13 @@ public class Hand implements Comparable<Hand> {
      */
     public void dealHand(CardDeck deck) {
         try {
-            this.cards = deck.dealHand();
+            Card[] newHand = deck.dealHand();
+            
+            this.cards = newHand;
+            this.handType = check_type();
         } catch (OutOfCardsException e) {
             System.out.println(e.getMessage());
         }
-
-        this.handType = check_type();
     }
 
     /* Author: Waseem Alkasbutrus
