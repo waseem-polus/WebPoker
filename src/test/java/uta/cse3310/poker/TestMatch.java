@@ -35,9 +35,11 @@ public class TestMatch {
 		match.addPlayer(p4);
 		match.addPlayer(p5);
 
-		match.nextTurn();
+		match.nextTurn(match.getPlayerNextID(0));
 
-		assertTrue(match.getCurrentPlayer() == 1);
+		int currentTurn = match.getCurrentPlayer();
+
+		assertTrue("current turn is " + currentTurn + ".", currentTurn == 1);
 	}
 	
 	@Test

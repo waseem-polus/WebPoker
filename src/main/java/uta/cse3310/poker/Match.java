@@ -9,6 +9,7 @@ import uta.cse3310.pokerServer.UserEvent;
 public class Match {
     private transient CardDeck deck;
     private transient ArrayList<Player> activePlayers;
+    private transient int numOfStartingPlayers;
     private transient int turnsInRound;
     private transient int totalTurns;
     private double bettingPool;
@@ -23,6 +24,7 @@ public class Match {
         this.bettingPool = 0;
         this.round = MatchRound.WAITING;
         this.activePlayers = new ArrayList<>();
+        this.numOfStartingPlayers = 0;
         this.turnsInRound = 0;
         this.totalTurns = 0;
         this.currentPlayerID = 0;
@@ -40,38 +42,50 @@ public class Match {
      * nextTurn(): sets the current player's turn to the next player in the
      * arraylist. Moves to next round if needed.
      */
-    public void nextTurn() {
+    public void nextTurn(int nextID) {
         turnsInRound++;
         totalTurns++;
 
-        currentPlayerID = activePlayers.get(totalTurns % activePlayers.size()).id;
+        if (nextID != -1) {
+            currentPlayerID = nextID;
+        }
+
+        // Debugging info for testing
+        // System.out.println("[INFO] turns this round = " + turnsInRound + "\n[INFO] Current active players = " + this.activePlayers.size() + "\n[INFO] Num of starting players = " + this.numOfStartingPlayers + "\n[INFO] Next round");
 
         if (this.round == MatchRound.FIRST_BETTING || this.round == MatchRound.SECOND_BETTING) {
-            if (turnsInRound >= activePlayers.size() && checkBets()) {
+            if (turnsInRound >= this.numOfStartingPlayers && checkBets()) {
                 this.round = this.round.next();
+                
+                this.numOfStartingPlayers = this.activePlayers.size();
                 turnsInRound = 0;
                 this.minimumBet = 0;
+                
                 for (Player p : this.activePlayers) {
                     p.clearBet();
                 }
             }
-        } else if (this.round == MatchRound.DRAWING && turnsInRound >= activePlayers.size()) {
+        } else if (this.round == MatchRound.DRAWING && turnsInRound >= this.activePlayers.size()) {
             this.round = this.round.next();
+
             turnsInRound = 0;
+            this.numOfStartingPlayers = this.activePlayers.size();
         }
 
         if ((this.round == MatchRound.SHOWDOWN
                 || (this.activePlayers.size() == 1) && this.round != MatchRound.WAITING)) {
+            System.out.println("[INFO] Appointing winner... Active Players = " + this.activePlayers.size());
             appointWinner();
         }
     }
 
-    /* Author: Waseem Alkasbutrus
+    /*
+     * Author: Waseem Alkasbutrus
      * Last Updated: 4/13/2022
      * 
-     * Returns: 
-     *      true if all bets are equal to the minimum bet (unless a player is all out)
-     *      false if not all bets are equal 
+     * Returns:
+     * true if all bets are equal to the minimum bet (unless a player is all out)
+     * false if not all bets are equal
      */
     private boolean checkBets() {
         boolean allGood = true;
@@ -114,10 +128,12 @@ public class Match {
      * int playerID: the id of the player to be removed from the list
      */
     public void removePlayer(int playerID) {
+        int nextIndex = getPlayerNextID(playerID);
+
         Player p = getPlayer(playerID);
         this.activePlayers.remove(p);
         if (this.activePlayers.size() > 0) {
-            nextTurn();
+            nextTurn(nextIndex);
 
             this.action = p.name + " left the match";
         }
@@ -185,6 +201,7 @@ public class Match {
             round = MatchRound.FIRST_BETTING;
             currentPlayerID = activePlayers.get(0).id;
 
+            this.numOfStartingPlayers = this.activePlayers.size();
             this.action = "Match started";
 
             System.out.println("\n[INFO] Match started");
@@ -230,7 +247,7 @@ public class Match {
 
             if (p.getCurrentBet() >= highestBet || p.getBalance() == 0) {
                 this.action = p.name + " checked";
-                nextTurn();
+                nextTurn(getPlayerNextID(playerID));
             }
         }
     }
@@ -255,7 +272,7 @@ public class Match {
                 this.bettingPool += p.placeBet(highestBet - p.getCurrentBet());
 
                 this.action = p.name + " called";
-                nextTurn();
+                nextTurn(getPlayerNextID(playerID));
             }
         }
     }
@@ -278,7 +295,7 @@ public class Match {
             this.bettingPool += p.placeBet(amount);
             this.minimumBet = p.getCurrentBet();
             this.action = p.name + " raised to $" + this.minimumBet;
-            nextTurn();
+            nextTurn(getPlayerNextID(playerID));
         }
     }
 
@@ -299,7 +316,7 @@ public class Match {
             String discardedCards = getPlayer(playerID).exchangeCards(cardIndex, deck);
 
             this.action = player.name + " exchanged " + discardedCards;
-            nextTurn();
+            nextTurn(getPlayerNextID(playerID));
         } else {
             System.out.println("[Error] player does not exist");
         }
@@ -388,6 +405,30 @@ public class Match {
     }
 
     /*
+     * Author: Waseem Alkasbutrus
+     * Last Updated: 4/27/2022
+     * 
+     * getPlayer(playerID): returns the id the player following the specified player
+     * 
+     * Returns:
+     * int id of the following player in the active player arraylist
+     */
+    public int getPlayerNextID(int CurrentPlayerID) {
+        int currentIndex = -1;
+        int nextIndex;
+
+        currentIndex = this.activePlayers.indexOf(getPlayer(currentPlayerID));
+
+        if (currentIndex >= 0) {
+            nextIndex = (currentIndex + 1) % this.activePlayers.size();
+            return this.activePlayers.get(nextIndex).id;
+        } else {
+            System.out.println("[ERROR] attempted to get next player id based on nonexistent player.");
+            return -1;
+        }
+    }
+
+    /*
      * Author: Victor Arowsafe
      * Last Updated: 4/2/2022
      *
@@ -407,7 +448,7 @@ public class Match {
      * setAction(action): sets the action string to match the provided action
      * 
      * Parameters:
-     *      String action: what the action should be set to
+     * String action: what the action should be set to
      */
     public void setAction(String action) {
         this.action = action;
@@ -417,10 +458,11 @@ public class Match {
      * Author: Waseem Alkasbutrus
      * Last Updated: 4/18/2022
      * 
-     * countActivePlayers(): returns the number of players in the activePlayers arraylist
+     * countActivePlayers(): returns the number of players in the activePlayers
+     * arraylist
      * 
      * Returns:
-     *      int count of players in activePlayers
+     * int count of players in activePlayers
      */
     public int countActivePlayers() {
         return this.activePlayers.size();
@@ -433,7 +475,7 @@ public class Match {
      * getCurrentPlayer(): returns the id of the current player
      * 
      * Returns:
-     *      int id of current player
+     * int id of current player
      */
     public int getCurrentPlayer() {
         return this.currentPlayerID;
