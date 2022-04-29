@@ -94,9 +94,9 @@
                 
                 <div id="raise_interface" style="display: none; justify-content: center;">
                   <button id="confirm_raise_button" onclick="onRaise(-1)" title="Confirm raise amount" style="margin-right: 30px;">Confirm</button>
-                  <button id="$10_raise" onclick="onRaise(10)" title="Raise min bet by $10">$10</button>
-                  <button id="$20_raise" onclick="onRaise(20)" title="Raise min bet by $20">$20</button>
-                  <button id="$50_raise" onclick="onRaise(50)" title="Raise min bet by $50">$50</button>
+                  <button id="$10_raise" onclick="onRaise(10)" title="Raise my bet by $10">$10</button>
+                  <button id="$20_raise" onclick="onRaise(20)" title="Raise my bet by $20">$20</button>
+                  <button id="$50_raise" onclick="onRaise(50)" title="Raise my bet by $50">$50</button>
                   <input id="raise_numberfield" placeholder="Raise by ..." type="number" min="0.01" max="2000" step="0.01" style="width: 3cm;" oninput="onRaiseAmountChange('numberfield')">
                   <input id="raise_range" type="range" min="0.01" max="2000" step="0.01" value="10" style="width: 7cm;" oninput="onRaiseAmountChange('range')">
                 </div> <!-- raise_interface -->
@@ -163,11 +163,24 @@
               If that is the same, their next highest card will be compared and so forth.
         </ul>
 
-        <h4>UI Symbols</h4>
+        <h4>UI Symbols:</h4>
         <ul>
           👑 : Is shown next to the room leader's name. The game leader is the player who started the room. <br />
           ⬅️⬅️ : Is shown next to the name of whomever's turn it currently is. <br />
-          🏆 : Is shown in the game log, next to the name of the player(s) who won the match,
+          🏆 : Is shown in the game log, next to the name of the player(s) who won the match, <br />
+          ❌ : Is shown before the name of any player that is currently folded.
+        </ul>
+
+        <h4>Game Buttons:</h4>
+        <ul>
+          <b>Call : </b> Increase your current bet to match the minimum bet exactly. <br />
+          <b>Check : </b> Keep the minimum bet the same amount. <br />
+          <b>Fold : </b> Stop participating in the current match and do not place further bets until the next match is started. <br />
+          <b>Raise : </b> Raise your bet by a certain amount. Your bet + raised amount must be greater than the minimum bet. <br />
+          <ul>
+            <b>$10, $20, and $50 : </b> Raise your bet by that amount. Disabled if current bet + that amount is not greater than the minimum bet. <br />
+            <b>Textbox and slider : </b> Specify a different amount to raise your bet. Minimum is minimum bet + $0.01; Maximum is your current balance. <br />
+          </ul> 
         </ul>
 
         If you are having an issue with the game, try refreshing the page and rejoin/ recreate your room. <b>Your current match progress will be lost.</b>
