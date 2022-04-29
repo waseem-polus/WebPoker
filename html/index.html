@@ -593,7 +593,7 @@
   }
 
   function onStartMatch(evt) {
-    if (room.playerCount > 1) {
+    if (room.playerCount > 1 || evt == "RESTART_MATCH") {
       if (room.leaderId == playerId) {
         var startMatchEvt = {
           event: evt,
